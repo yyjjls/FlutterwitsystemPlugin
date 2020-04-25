@@ -1,0 +1,49 @@
+group 'com.witsystem.top.flutterwitsystem'
+version '1.0'
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+    }
+}
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+
+    }
+}
+apply plugin: 'com.android.library'
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 18
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+}
+
+/*repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}*/
+dependencies {
+    compileOnly files('libs/flutter.jar')
+    //api files('libs/witsbluelibrary-release.aar')
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.core:core:1.2.0'
+    /*   api project('witsystemandroidlibrary')*/
+    //implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+   /* compileOnly files('libs/witsbluelibrary-release.aar')*/
+   /* api(name: 'witsbluelibrary-release', ext: 'aar'){
+        transitive = true
+    }*/
+}
