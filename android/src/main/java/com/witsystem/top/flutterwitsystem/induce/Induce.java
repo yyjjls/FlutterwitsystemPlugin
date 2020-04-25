@@ -1,5 +1,6 @@
 package com.witsystem.top.flutterwitsystem.induce;
 
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -125,7 +126,7 @@ public final class Induce implements InduceUnlock {
     }
 
 
-    ///关闭扫描
+    ///关闭扫描 代表感应开锁还在后台运行
     @RequiresApi(api = Build.VERSION_CODES.O)
     public Intent stopScan() {
         //关闭后台扫描
@@ -139,6 +140,25 @@ public final class Induce implements InduceUnlock {
         blueAdapter.getBluetoothLeScanner().stopScan(callbackIntent);
         return intent;
     }
+
+
+
+    //感应开锁是否在运行
+    public boolean isRunningInduceUnlock(){
+        ActivityManager myManager = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(50);
+        for (int i = 0; i < runningService.size(); i++) {
+            if (runningService.get(i).service.getClassName().equals(SERVICE_PATH)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
 
 
 }

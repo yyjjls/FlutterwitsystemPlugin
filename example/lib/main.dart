@@ -24,15 +24,15 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-      platformVersion = await Flutterwitsystem.witsSdkInit;
+      platformVersion = await WitsBlue().witsSdkInit().toString();
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      platformVersion = '初始化失败.';
     }
 
     if (!mounted) return;
-
+    _platformVersion ='是否已经运行:'+ (await WitsBlue().isRunningInduceUnlock()).toString();
     setState(() {
-      _platformVersion ='初始化'+ platformVersion;
+
     });
   }
 

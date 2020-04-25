@@ -2,7 +2,7 @@ name: flutterwitsystem
 description: A new Flutter plugin.
 version: 0.0.1
 #author:
-homepage: https://dart.dev/tools/pub/cmd/pub-lish
+homepage: https://github.com/yyjjls/FlutterwitsystemPlugin.git
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

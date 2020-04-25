@@ -34,4 +34,15 @@ class WitsBlue {
       return false;
     }
   }
+
+
+  ///是否在运行感应开锁
+  Future<bool> isRunningInduceUnlock() async {
+    try {
+      return await platform.invokeMethod('isRunningInduceUnlock');
+    } on PlatformException catch (e) {
+      print('调用关闭失败');
+      return false;
+    }
+  }
 }
