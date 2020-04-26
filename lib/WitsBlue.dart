@@ -9,7 +9,7 @@ class WitsBlue {
     try {
       return await platform.invokeMethod('witsSdkInit');
     } on PlatformException catch (e) {
-      print('调用开启失败');
+      print('调用初始化失败');
       return false;
     }
   }

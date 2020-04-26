@@ -15,5 +15,5 @@ public interface Register {
      @param userToken
       * @return
      */
-    WitsSdk register(Context context, String appId, String userToken);
+    WitsSdk witsSdkInit(Context context, String appId, String userToken);
 }

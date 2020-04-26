@@ -61,11 +61,7 @@ public final class Induce implements InduceUnlock {
         return true;
     }
 
-    //是否已经开启
-    @Override
-    public boolean isOpenInduce() {
-        return false;
-    }
+
 
     //开启感应开锁
     @Override
@@ -106,9 +102,9 @@ public final class Induce implements InduceUnlock {
         context.startService(intent);
         ///启动定时器
         Rouse.instance(context).startRouse();
-        Intent intent1 = new Intent(context,InduceService.class);
+        Intent intent1 = new Intent(context, InduceService.class);
         context.startService(intent1);
-        Log.e("定时任务", "启动感应服务" );
+        Log.e("定时任务", "启动感应服务");
         return true;
     }
 
@@ -142,23 +138,20 @@ public final class Induce implements InduceUnlock {
     }
 
 
-
     //感应开锁是否在运行
-    public boolean isRunningInduceUnlock(){
+    public boolean isRunningInduceUnlock() {
         ActivityManager myManager = (ActivityManager) context
                 .getSystemService(Context.ACTIVITY_SERVICE);
-        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(50);
-        for (int i = 0; i < runningService.size(); i++) {
-            if (runningService.get(i).service.getClassName().equals(SERVICE_PATH)) {
+        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(30);
+
+        for (ActivityManager.RunningServiceInfo runningServiceInfo : runningService) {
+            if (runningServiceInfo.service.getClassName().equals(SERVICE_PATH)) {
                 return true;
             }
         }
+
         return false;
     }
-
-
-
-
 
 
 }
