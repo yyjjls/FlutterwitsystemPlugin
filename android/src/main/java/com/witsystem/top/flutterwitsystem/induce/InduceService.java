@@ -12,16 +12,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-
-import com.witsystem.top.flutterwitsystem.R;
-import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.unlock.DistanceUnlock;
-
 import java.util.List;
 
 

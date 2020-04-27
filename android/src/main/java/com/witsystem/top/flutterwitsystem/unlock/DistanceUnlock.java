@@ -68,7 +68,6 @@ public class DistanceUnlock {
         return distanceUnlock;
     }
 
-    long ll;
 
     ///连接设备进行距离判断
     public void connectDeviceRanging(ScanResult scanResult) {
@@ -83,20 +82,16 @@ public class DistanceUnlock {
             if (gatt != null) {
                 return;
             }
-
             DeviceInfo device = DeviceManager.getInstance(context, null, null).getDevice(scanResult.getDevice().getName());
-            Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + device);
             if (device == null) {
                 return;
             }
-            ll = System.currentTimeMillis();
             gatt = scanResult.getDevice().connectGatt(context, false, new BluetoothGattCallback() {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                     super.onConnectionStateChange(gatt, status, newState);
                     Log.e("启动服务", "连接状态：" + status + ":::" + newState);
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        Log.e("启动服务", "连接耗时：" + (System.currentTimeMillis() - ll));
                         gatt.discoverServices();
                     } else {
                         close();
@@ -106,7 +101,6 @@ public class DistanceUnlock {
                 @Override
                 public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                     super.onServicesDiscovered(gatt, status);
-                    Log.e("启动服务", "发现服务耗时：" + (System.currentTimeMillis() - ll));
                     // sendUnlockInfo(gatt);
                     readRssi(gatt);
                 }
@@ -224,9 +218,7 @@ public class DistanceUnlock {
      * 写入开锁值的方法
      */
     private void writeOpenValue(BluetoothGatt gatt, byte[] value) {
-        //String devicesKey = "491b86de5a7258a63df7277760881ded";
         String devicesKey = DeviceManager.getInstance(context, null, null).getDevice(gatt.getDevice().getName()).getBleDeviceKey();
-        ;
         byte[] encrypt = AesEncryption.encrypt(value, devicesKey);
         String encryptText = ByteToString.bytesToHexString(encrypt);
         Log.i("加密好的数据", encryptText);
@@ -236,7 +228,6 @@ public class DistanceUnlock {
         unlock.setValue(openLockData);
         gatt.writeCharacteristic(unlock);
         Log.e("启动服务", "开门成功》》》》》》》》》》》》》》》》》》》》》》》》》》》》");
-        Log.e("启动服务", "开门耗时耗时：" + (System.currentTimeMillis() - ll));
     }
 
 
@@ -257,8 +248,10 @@ public class DistanceUnlock {
     //进行资源回收
     public void close() {
         stopReadRssi();
-        if (gatt != null)
+        if (gatt != null) {
             gatt.disconnect();
+            gatt.close();
+        }
         gatt = null;
         rssiList.clear();
 
