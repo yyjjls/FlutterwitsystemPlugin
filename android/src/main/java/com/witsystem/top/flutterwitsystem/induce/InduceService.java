@@ -18,6 +18,8 @@ import androidx.core.app.NotificationCompat;
 
 
 import com.witsystem.top.flutterwitsystem.R;
+import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
+import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.unlock.DistanceUnlock;
 
 import java.util.List;
@@ -44,6 +46,8 @@ public class InduceService extends Service {
         super.onCreate();
         Log.e("开启感应开锁", "开启感应开锁服务器启动");
         Notification("感应开锁已经开启");
+        //因为是新的进程，所以需要重新读取设备信息
+        DeviceManager.getInstance(getApplication(), null, null).getCacheDevice();
 
     }
 
@@ -67,7 +71,7 @@ public class InduceService extends Service {
                 for (ScanResult result : scanResults) {
                     BluetoothDevice device = result.getDevice();
                     Log.e("启动服务2", "获得设备" + device.getName() + ":::" + result.getRssi());
-                        DistanceUnlock.instance(getApplication()).connectDeviceRanging(result);
+                    DistanceUnlock.instance(getApplication()).connectDeviceRanging(result);
 
                 }
             }

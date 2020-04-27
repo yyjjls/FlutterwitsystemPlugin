@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:flutterwitsystem/flutterwitsystem.dart';
 import 'package:flutterwitsystem/WitsBlue.dart';
 
 void main() => runApp(MyApp());
@@ -24,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-      platformVersion = await WitsBlue().witsSdkInit().toString();
+      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'qqqqq',userToken: 'c7013a75f9db493bba73d6f2f1ef2742-1587198542122')}' ;
     } on PlatformException {
       platformVersion = '初始化失败.';
     }

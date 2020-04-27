@@ -10,6 +10,8 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
+import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
@@ -26,7 +28,7 @@ import java.util.UUID;
 public class DistanceUnlock {
 
     //开门信号
-    private int unlockRssi = -40;
+    private int unlockRssi = -55;
 
     private static final String SERVICES = "0000fff1-0000-1000-8000-00805f9b34fb";
 
@@ -79,6 +81,12 @@ public class DistanceUnlock {
             }
             //如果不为空代表已经有连接
             if (gatt != null) {
+                return;
+            }
+
+            DeviceInfo device = DeviceManager.getInstance(context, null, null).getDevice(scanResult.getDevice().getName());
+            Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + device);
+            if (device == null) {
                 return;
             }
             ll = System.currentTimeMillis();
@@ -216,7 +224,9 @@ public class DistanceUnlock {
      * 写入开锁值的方法
      */
     private void writeOpenValue(BluetoothGatt gatt, byte[] value) {
-        String devicesKey = "491b86de5a7258a63df7277760881ded";
+        //String devicesKey = "491b86de5a7258a63df7277760881ded";
+        String devicesKey = DeviceManager.getInstance(context, null, null).getDevice(gatt.getDevice().getName()).getBleDeviceKey();
+        ;
         byte[] encrypt = AesEncryption.encrypt(value, devicesKey);
         String encryptText = ByteToString.bytesToHexString(encrypt);
         Log.i("加密好的数据", encryptText);

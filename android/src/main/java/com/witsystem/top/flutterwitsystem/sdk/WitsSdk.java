@@ -1,6 +1,8 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 
+import com.witsystem.top.flutterwitsystem.device.Device;
+import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 
 /**
@@ -9,6 +11,10 @@ import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 public interface WitsSdk {
 
 
+    /**
+     * 获得设备信息对象
+     */
+    Device<DeviceInfo> getBleLockDevice();
 
     /**
      * 获得感应开锁对象

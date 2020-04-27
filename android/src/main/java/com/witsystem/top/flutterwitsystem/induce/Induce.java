@@ -9,6 +9,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 
@@ -72,9 +73,9 @@ public final class Induce implements InduceUnlock {
         }
         List<ScanFilter> scanFilterList = new ArrayList<>();
         ScanFilter.Builder builder = new ScanFilter.Builder();
-        // builder.setServiceUuid(ParcelUuid.fromString("0000fff1-0000-1000-8000-00805f9b34fb"));
+         builder.setServiceUuid(ParcelUuid.fromString("0000fff1-0000-1000-8000-00805f9b34fb"));
         //builder.setServiceUuid(ParcelUuid.fromString("0000f1ff-0000-1000-8000-00805f9b34fb"));
-        builder.setDeviceName("Slock04EE033EA8CF");//你要扫描的设备的名称，如果使用lightble这个app来模拟蓝牙可以直接设置name
+        //builder.setDeviceName("Slock04EE033EA8CF");//你要扫描的设备的名称，如果使用lightble这个app来模拟蓝牙可以直接设置name
         ScanFilter scanFilter = builder.build();
         scanFilterList.add(scanFilter);
         //指定蓝牙的方式，这里设置的ScanSettings.SCAN_MODE_LOW_LATENCY是比较高频率的扫描方式

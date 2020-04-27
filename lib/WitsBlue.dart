@@ -1,19 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 class WitsBlue {
   static const platform = const MethodChannel('witsystem.top/blue');
 
-
   ///初始化感应开锁
-  Future<bool> witsSdkInit() async {
+  Future<bool> witsSdkInit(
+      {@required String appId, @required String userToken}) async {
     try {
-      return await platform.invokeMethod('witsSdkInit');
+      return await platform.invokeMethod(
+          'witsSdkInit', {'appId': appId, 'userToken': userToken});
     } on PlatformException catch (e) {
       print('调用初始化失败');
       return false;
     }
   }
-
 
   ///开启感应开锁
   Future<bool> openInduceUnlock() async {
@@ -34,7 +35,6 @@ class WitsBlue {
       return false;
     }
   }
-
 
   ///是否在运行感应开锁
   Future<bool> isRunningInduceUnlock() async {
