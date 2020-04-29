@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutterwitsystem (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutterwitsystem (from `.symlinks/plugins/flutterwitsystem/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutterwitsystem:
+    :path: ".symlinks/plugins/flutterwitsystem/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutterwitsystem: e194bc7ccafaa01290e83302486ec887852d2bc4
+
+PODFILE CHECKSUM: c34e2287a9ccaa606aeceab922830efb9a6ff69a
+
+COCOAPODS: 1.9.1

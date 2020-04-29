@@ -9,16 +9,16 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-          if (call.method.equals("witsSdkInit")) {
+          if (call.method=="witsSdkInit") {
               //初始化SDK成功返回true
-              result.success(false);
-          } else if (call.method.equals("openInduceUnlock")) {
+              result(false);
+          } else if (call.method=="openInduceUnlock") {
               //开启感应开锁
-              result.success(false);
-          } else if (call.method.equals("stopInduceUnlock")) {
-              result.success(false);
-          } else if (call.method.equals("isRunningInduceUnlock")) {
-              result.success(false);
+              result(false);
+          } else if (call.method=="stopInduceUnlock") {
+              result(false);
+          } else if (call.method=="isRunningInduceUnlock") {
+              result(false);
           }
 
   }
