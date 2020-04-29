@@ -1,7 +1,6 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.device.Device;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;

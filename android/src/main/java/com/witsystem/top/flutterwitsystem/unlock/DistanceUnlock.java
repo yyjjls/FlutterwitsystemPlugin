@@ -238,9 +238,7 @@ public class DistanceUnlock {
     private byte[] getOpenLockData(byte[] by) {
         byte[] openLock = new byte[by.length + 1];
         openLock[0] = 0x01;
-        for (int i = 0; i < by.length; i++) {
-            openLock[i + 1] = by[i];
-        }
+        System.arraycopy(by, 0, openLock, 1, by.length);
         return openLock;
 
     }
