@@ -9,6 +9,11 @@ import Foundation
 
 class WitsSdkInit: WitsSdk,Register {
     
+    private init() {}
+    
+    static let getInstance = WitsSdkInit()
+    
+    
     
     func getBleLockDevice()->String{
         return "";
