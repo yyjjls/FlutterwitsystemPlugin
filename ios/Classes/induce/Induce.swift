@@ -24,9 +24,7 @@ class Induce:NSObject,CBCentralManagerDelegate{
     
     ///开启感应开锁
    public func openInduceUnlock()->Bool{
-    print("蓝牙已关闭\(centralManager == centralManager2)");
-    centralManager2=centralManager;
-//        centralManager?.scanForPeripherals(withServices:nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
+        centralManager?.scanForPeripherals(withServices:nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
     
         return true;
     }
