@@ -9,6 +9,6 @@ import Foundation
 
 protocol Register{
     
-    func witsSdkInit()->Bool;
+    func witsSdkInit()->WitsSdk;
     
 }

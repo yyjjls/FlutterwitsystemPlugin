@@ -11,22 +11,34 @@ class WitsSdkInit: WitsSdk,Register {
     
     private init() {}
     
-    static let getInstance = WitsSdkInit()
+    public static let getInstance = WitsSdkInit()
     
+//    private  var witsSdkInit:WitsSdkInit;
+//
+//
+//    public static func getInstance()->Register{
+//        if(witsSdkInit==nil){
+//            witsSdkInit=WitsSdkInit();
+//        }
+//     return witsSdkInit;
+//    }
+  
+   
     
+   public func witsSdkInit()->WitsSdk{
+           
+           return self;
+       }
     
     func getBleLockDevice()->String{
         return "";
     }
        
-    func getInduceUnlock()->String{
-        return "";
+    func getInduceUnlock()->Induce{
+        return Induce.getInstance;
     }
        
     
-    func witsSdkInit()->Bool{
-        
-        return false;
-    }
+   
     
 }

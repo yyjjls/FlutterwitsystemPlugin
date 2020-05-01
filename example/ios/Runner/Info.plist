@@ -41,5 +41,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+    	<string>We need BT access because it&apos;s a BT App.</string>
+    	<key>NSBluetoothPeripheralUsageDescription</key>
+    	<string>We need BT access because it&apos;s a BT App.</string>
 </dict>
 </plist>
