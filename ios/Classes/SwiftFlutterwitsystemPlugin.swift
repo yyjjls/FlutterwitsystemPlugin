@@ -22,7 +22,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
               //开启感应开锁
               result(witsSdk?.getInduceUnlock().openInduceUnlock());
           } else if (call.method=="stopInduceUnlock") {
-            
               result(witsSdk?.getInduceUnlock().stopInduceUnlock());
           } else if (call.method=="isRunningInduceUnlock") {
               result(false);
