@@ -6,75 +6,57 @@
 //
 
 import Foundation
-enum CryptError: Error {
-    case noIV
-    case cryptFailed
-    case notConvertTypeToData
-}
 
-extension Data {
-///***********加密&解密************///
-//===>>>>>>>AES128
-public func dataCryptAES128(_ options: CCOptions?, _ operation: CCOperation, _ keyData: Data, _ iv: Data?)  throws -> Data {
-    return try self.dataCrypt(options ?? CCOptions(kCCOptionECBMode),
-                              operation,
-                              keyData,
-                              iv,
-                              CCAlgorithm(kCCAlgorithmAES128))
-}
-//===>>>>>>>基本方法
-func dataCrypt(_ options: CCOptions, _ operation: CCOperation, _ keyData: Data, _ iv: Data?, _ algorithm: UInt32) throws -> Data {
-    
-    if iv == nil && (options & CCOptions(kCCOptionECBMode)) == 0 {
-        print("Error in crypto operation: dismiss iv!")
-        throw(CryptError.noIV)
-    }
-    //key
-    let keyBytes = keyData.bytes()
-    let keyLength = size_t(kCCKeySizeAES128)
-    //data(input)
-    let dataBytes = self.bytes()
-    let dataLength = size_t(self.count)
-    //data(output)
-    var buffer = Data(count: dataLength + Int(kCCBlockSizeAES128))
-    let bufferBytes = buffer.mutableBytes()
-    let bufferLength = size_t(buffer.count)
-    //iv
-    let ivBuffer: UnsafePointer<UInt8>? = iv == nil ? nil : iv!.bytes()
 
-    var bytesDecrypted: size_t = 0
-    
-    let cryptState = CCCrypt(operation,
-                             algorithm,
-                             options,
-                             keyBytes,
-                             keyLength,
-                             ivBuffer,
-                             dataBytes,
-                             dataLength,
-                             bufferBytes,
-                             bufferLength,
-                             &bytesDecrypted)
-    
-    guard Int32(cryptState) == Int32(kCCSuccess) else {
-        print("Error in crypto operation: \(cryptState)")
-        throw(CryptError.cryptFailed)
+
+
+extension Data{
+
+    func aesEncrypt( keyData: Data,  operation: Int) -> Data {
+
+        let dataLength = self.count
+        let cryptLength  = size_t(dataLength + kCCBlockSizeAES128)
+        var cryptData = Data(count:cryptLength)
+        let keyLength = size_t(kCCKeySizeAES128)
+        let options = CCOptions(kCCOptionECBMode)
+        print("需要加密的数据\(self.toHexString())")
+        
+        let ivData=Data.init();
+        var numBytesEncrypted :size_t = 0
+
+        let cryptStatus = cryptData.withUnsafeMutableBytes {cryptBytes in
+            
+            self.withUnsafeBytes {dataBytes in
+                
+                ivData.withUnsafeBytes {ivBytes in
+                    
+                    keyData.withUnsafeBytes {keyBytes in
+                        CCCrypt(
+                                CCOperation(operation),
+                                CCAlgorithm(kCCAlgorithmAES),
+                                options,
+                                keyBytes,
+                                keyLength,
+                                ivBytes,
+                                dataBytes,
+                                dataLength,
+                                cryptBytes,
+                                cryptLength,
+                                &numBytesEncrypted
+                        )
+                    }
+                }
+            }
+        }
+
+        if UInt32(cryptStatus) == UInt32(kCCSuccess) {
+            cryptData.removeSubrange(numBytesEncrypted..<cryptData.count)
+
+        } else {
+            print("Error: \(cryptStatus)")
+        }
+
+        return cryptData;
     }
 
-    buffer.count = bytesDecrypted
-    return buffer
-}
-
-//===>>>>>>>Help Funcations<<<<<<<===//
-func bytes() -> UnsafePointer<UInt8> {
-    return self.withUnsafeBytes { (bytes: UnsafePointer<UInt8>) -> UnsafePointer<UInt8> in
-        return bytes
-    }
-}
-
-mutating func mutableBytes() -> UnsafeMutablePointer<UInt8> {
-    return self.withUnsafeMutableBytes { (bytes: UnsafeMutablePointer<UInt8>) -> UnsafeMutablePointer<UInt8> in
-        return bytes
-    }
-}
 }

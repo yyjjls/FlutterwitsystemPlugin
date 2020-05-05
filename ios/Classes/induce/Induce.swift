@@ -150,29 +150,13 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
             let allData = characteristic.value;
             print("读取到的token\(dataToString(data: allData!))");
             print("读取到的token\(allData?.toHexString())");
-            //进行加密
-            //加密密钥：491b86de5a7258a63df7277760881ded
-            //加密数据：3d734b49014bc2f9d541175d0524ff93
-         //加密好的数据：01559319fb9a10dc4dcfd05a02255d39e9
-//            let aes = try Data.init().aes(keyData: Data(hex:"491b86de5a7258a63df7277760881ded"), ivData: allData!, operation: 0)
+            let key = "491b86de5a7258a63df7277760881ded"
+             let encryptedPassword128 = allData?.aesEncrypt(keyData:Data.init(hex: key), operation: kCCEncrypt)
+                
+              print("加密好的数据4::\(encryptedPassword128!.toHexString())")
             
-//            do{
-//                let aes = try Data.init().dataCryptAES128(0x0001,
-//                                                          0,
-//                                                          Data(hex:"491b86de5a7258a63df7277760881ded"),
-//                                                          Data(hex: "3cfc7868cd86832e7121d84133462e4c"))
-//            print("加密好的数据\(Data(hex: "01\(aes.toHexString())").toHexString())")
-//                 print("加密好的数据1111:\(Data(hex:"3d734b49014bc2f9d541175d0524ff93"))")
-//            peripheral.writeValue(Data(hex: "01\(aes.toHexString())"), for: unlockCharacteristic!, type: CBCharacteristicWriteType.withResponse)
-//            }catch CryptError.noIV{
-//                
-//            }catch CryptError.cryptFailed{
-//                
-//            }catch CryptError.notConvertTypeToData{
-//                
-//            }catch{
-//                
-//            }
+            peripheral.writeValue(Data(hex: "01\(encryptedPassword128!.toHexString())"), for: unlockCharacteristic!, type: CBCharacteristicWriteType.withResponse)
+         
              
             
             
