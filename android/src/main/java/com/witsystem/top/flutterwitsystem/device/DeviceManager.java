@@ -29,12 +29,14 @@ public final class DeviceManager implements Device<DeviceInfo> {
     private String userToken;
     private List<DeviceInfo> deviceList;
     private Map<String, DeviceInfo> deviceMap;
+    private Map<String, DeviceInfo> macMap;
 
     private DeviceManager(Context context, String appId, String userToken) {
         this.appId = appId;
         this.userToken = userToken;
         this.deviceList = new ArrayList<>();
         this.deviceMap = new HashMap<>();
+        this.macMap = new HashMap<>();
         this.context = context;
     }
 
@@ -110,6 +112,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
     }
 
     @Override
+    public DeviceInfo getMacDevice(String mac) {
+        return macMap.get(mac);
+    }
+
+    @Override
     public List<DeviceInfo> getDevices() {
         return deviceList;
     }
@@ -135,6 +142,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
         JSONObject jsonObjects;
         JSONObject authorityInfo;
         deviceMap.clear();
+        macMap.clear();
         deviceList.clear();
         for (int i = 0; i < jsonArray.length(); i++) {
             jsonObjects = jsonArray.getJSONObject(i);
@@ -159,6 +167,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                             .setEndTime(authorityInfo.getString("endTime")));
             deviceList.add(deviceInfo);
             deviceMap.put(deviceInfo.getBleDeviceId(), deviceInfo);
+            macMap.put(deviceInfo.getBleMac(), deviceInfo);
         }
         return true;
     }
