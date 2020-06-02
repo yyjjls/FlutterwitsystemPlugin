@@ -13,6 +13,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.ble.Ble;
+import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
@@ -52,19 +53,42 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     @Override
     public boolean unlock() {
         time = System.currentTimeMillis();
+        if (!isDeviceInfoOrBleState()) {
+            return false;
+        }
         return scan();
     }
 
     @Override
     public boolean unlock(String deviceId) {
-        time = System.currentTimeMillis();
-        DeviceInfo deviceInfo = DeviceManager.getInstance(context, null, null).getDevice(deviceId);
-        if (deviceInfo == null) {
+        if (!isDeviceInfoOrBleState()) {
             return false;
         }
+        DeviceInfo deviceInfo = DeviceManager.getInstance(context, null, null).getDevice(deviceId);
+        if (deviceInfo == null) {
+            failCall("Failed to obtain device information", BleCode.GET_DEVICE_INFO_FAIL);
+            return false;
+        }
+        time = System.currentTimeMillis();
         connection(Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceInfo.getBleMac()));
         return true;
     }
+
+    /**
+     * 判断蓝牙获得设备的信息状态
+     */
+    private boolean isDeviceInfoOrBleState() {
+        if (!Ble.instance(context).getBlueAdapter().isEnabled()) {
+            failCall("Bluetooth not on", BleCode.DEVICE_BLUE_OFF);
+            return false;
+        }
+        if (DeviceManager.getInstance(context, null, null).getDevicesNumber() == 0) {
+            failCall("No equipment currently available", BleCode.NO_DEVICE);
+            return false;
+        }
+        return true;
+    }
+
 
     @Override
     public void addCallBack(UnlockInfo unlockInfo) {
@@ -169,8 +193,6 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     /**
      * 》》》》》》》》》》》》》》》》》》》》》》》   连接成功的回调 》》》》》》》》》》》》》》》》》》》》》》》》
      */
-
-
 
 
     /**
