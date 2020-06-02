@@ -2,6 +2,8 @@ package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
 
+import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
+
 /**
  * 注册SDK的接口
  */
@@ -16,4 +18,9 @@ public interface Register {
       * @return
      */
     WitsSdk witsSdkInit(Context context, String appId, String userToken);
+
+
+
+
+
 }

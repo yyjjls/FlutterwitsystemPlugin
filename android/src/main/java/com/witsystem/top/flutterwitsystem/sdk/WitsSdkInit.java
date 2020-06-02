@@ -7,6 +7,8 @@ import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
+import com.witsystem.top.flutterwitsystem.unlock.Unlock;
 
 
 /**
@@ -39,7 +41,7 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (appId == null || userToken == null) {
             return null;
         }
-        if(DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()){
+        if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
             WitsSdkInit.this.context = context;
         }
         return this.context == null ? null : this;
@@ -54,5 +56,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     @Override
     public InduceUnlock getInduceUnlock() {
         return context == null ? null : Induce.instance(context);
+    }
+
+    @Override
+    public BleUnlock getBleUnlock() {
+        return Unlock.instance(context);
     }
 }

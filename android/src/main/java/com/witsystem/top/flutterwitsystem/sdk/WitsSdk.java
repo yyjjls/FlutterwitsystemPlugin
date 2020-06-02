@@ -4,6 +4,7 @@ package com.witsystem.top.flutterwitsystem.sdk;
 import com.witsystem.top.flutterwitsystem.device.Device;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 
 /**
  * sdk接口
@@ -26,4 +27,5 @@ public interface WitsSdk {
     /**
      * 获得开锁对象 还是没有实现
      */
+    BleUnlock getBleUnlock();
 }

@@ -83,6 +83,7 @@ public class DistanceUnlock {
                 return;
             }
             DeviceInfo device = DeviceManager.getInstance(context, null, null).getDevice(scanResult.getDevice().getName());
+
             if (device == null) {
                 return;
             }

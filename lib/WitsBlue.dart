@@ -11,7 +11,7 @@ class WitsBlue {
       return await platform.invokeMethod(
           'witsSdkInit', {'appId': appId, 'userToken': userToken});
     } on PlatformException catch (e) {
-      print('调用初始化失败');
+      print('调用初始化失败$e');
       return false;
     }
   }
@@ -21,7 +21,7 @@ class WitsBlue {
     try {
       return await platform.invokeMethod('openInduceUnlock');
     } on PlatformException catch (e) {
-      print('调用开启失败');
+      print('调用开启失败$e');
       return false;
     }
   }
@@ -31,7 +31,7 @@ class WitsBlue {
     try {
       return await platform.invokeMethod('stopInduceUnlock');
     } on PlatformException catch (e) {
-      print('调用关闭失败');
+      print('调用关闭失败$e');
       return false;
     }
   }
@@ -41,7 +41,19 @@ class WitsBlue {
     try {
       return await platform.invokeMethod('isRunningInduceUnlock');
     } on PlatformException catch (e) {
-      print('调用关闭失败');
+      print('调用关闭失败$e');
+      return false;
+    }
+  }
+
+
+
+  ///是否在运行感应开锁
+  Future<bool> unlock() async {
+    try {
+      return await platform.invokeMethod('unlock');
+    } on PlatformException catch (e) {
+      print('调用关闭失败$e');
       return false;
     }
   }

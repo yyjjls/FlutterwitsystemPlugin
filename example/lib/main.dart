@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'qqqqq',userToken: 'c7013a75f9db493bba73d6f2f1ef2742-1587198542122')}' ;
+      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'qqqqq',userToken: '14b0e7e616334856ad10d9f361b88578-1591020869294')}' ;
     } on PlatformException {
       platformVersion = '初始化失败.';
     }
@@ -59,6 +59,15 @@ class _MyAppState extends State<MyApp> {
                 child: Text('关闭'),
                 onPressed: () async {
                   bool b = await WitsBlue().stopInduceUnlock();
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
+              FlatButton(
+                child: Text('开锁'),
+                onPressed: () async {
+                  bool b = await WitsBlue().unlock();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
