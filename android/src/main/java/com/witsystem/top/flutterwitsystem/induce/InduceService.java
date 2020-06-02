@@ -15,7 +15,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
-import com.witsystem.top.flutterwitsystem.unlock.DistanceUnlock;
+
 import java.util.List;
 
 

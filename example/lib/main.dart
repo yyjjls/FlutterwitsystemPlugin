@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'qqqqq',userToken: '14b0e7e616334856ad10d9f361b88578-1591020869294')}' ;
+      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'qqqqq',userToken: 'f88a4bb6186f4d7cbc4c7400d889e6dc-1591104469192')}' ;
     } on PlatformException {
       platformVersion = '初始化失败.';
     }

@@ -6,6 +6,9 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.util.Log;
 
@@ -27,6 +30,8 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
 
     private Context context;
 
+    private UnlockInfo unlockInfo;
+
     private Unlock(Context context) {
         this.context = context;
     }
@@ -46,26 +51,31 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
 
     @Override
     public boolean unlock() {
-
-        time=System.currentTimeMillis();
-        //scan();
-        unlock("");
-        return false;
-
+        time = System.currentTimeMillis();
+        return scan();
     }
-//04:EE:03:3E:A8:CF
+
     @Override
     public boolean unlock(String deviceId) {
-        connection(Ble.instance(context).getBlueAdapter().getRemoteDevice("04:EE:03:3E:A8:CF"));
-        return false;
+        time = System.currentTimeMillis();
+        DeviceInfo deviceInfo = DeviceManager.getInstance(context, null, null).getDevice(deviceId);
+        if (deviceInfo == null) {
+            return false;
+        }
+        connection(Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceInfo.getBleMac()));
+        return true;
     }
 
+    @Override
+    public void addCallBack(UnlockInfo unlockInfo) {
+        this.unlockInfo = unlockInfo;
+    }
 
     /**
      * 开始扫描
      */
-    private void scan() {
-        Ble.instance(context).getBlueAdapter().startLeScan(this);
+    private boolean scan() {
+        return Ble.instance(context).getBlueAdapter().startLeScan(this);
     }
 
     /**
@@ -78,7 +88,6 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
 
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        Log.e("开门", "onCharacteristicWrite: 扫描到的设备"+device.getName() );
         if (device.getName() == null || device.getName().equals("")) {
             return;
         }
@@ -96,10 +105,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param device
      */
     private void connection(BluetoothDevice device) {
-        Log.e("开门", "onCharacteristicWrite: 开始连接" +(System.currentTimeMillis()-time));
         BluetoothGatt gatt = device.connectGatt(context, false, this);
-
-
     }
 
     /**
@@ -131,16 +137,15 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
-
         if (characteristic.getUuid().toString().equals(Ble.TOKEN)) {
-
             DeviceInfo device = DeviceManager.getInstance(context, null, null).getMacDevice(gatt.getDevice().getAddress());
-            Log.e("开门", "onCharacteristicWrite: 结束连接" +(gatt.getDevice().getAddress()));
-            Log.e("开门", "onCharacteristicWrite: 结束连接" +(device));
             byte[] encrypt = AesEncryption.encrypt(characteristic.getValue(), device.getBleDeviceKey());
             BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
             BluetoothGattCharacteristic characteristicUnlock = service.getCharacteristic(UUID.fromString(Ble.UNLOCK));
-            characteristicUnlock.setValue(encrypt);
+            byte[] openLock = new byte[encrypt.length + 1];
+            openLock[0] = 0x01;
+            System.arraycopy(encrypt, 0, openLock, 1, encrypt.length);
+            characteristicUnlock.setValue(openLock);
             gatt.writeCharacteristic(characteristicUnlock);
         }
     }
@@ -149,7 +154,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
         if (characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
-            Log.e("开门", "onCharacteristicWrite: 开门成功" +(System.currentTimeMillis()-time));
+            Log.e("开门", "onCharacteristicWrite: 开门成功" + (System.currentTimeMillis() - time));
             disConnection(gatt);
             gatt.close();
         }
@@ -161,5 +166,47 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     }
 
 
-    /** 》》》》》》》》》》》》》》》》》》》》》》》   连接成功的回调 》》》》》》》》》》》》》》》》》》》》》》》》 */
+    /**
+     * 》》》》》》》》》》》》》》》》》》》》》》》   连接成功的回调 》》》》》》》》》》》》》》》》》》》》》》》》
+     */
+
+
+
+
+    /**
+     * 失败的回调
+     *
+     * @param error
+     * @param code
+     */
+    private void failCall(String error, int code) {
+        if (unlockInfo != null)
+            unlockInfo.fail(error, code);
+    }
+
+
+    /**
+     * 成功的回调
+     *
+     * @param deviceId
+     * @param code
+     */
+    private void successCall(String deviceId, int code) {
+        if (unlockInfo != null)
+            unlockInfo.success(deviceId, code);
+    }
+
+
+    /**
+     * 电量的回调
+     *
+     * @param deviceId
+     * @param battery
+     */
+    private void batteryCall(String deviceId, int battery) {
+        if (unlockInfo != null)
+            unlockInfo.battery(deviceId, battery);
+    }
+
+
 }

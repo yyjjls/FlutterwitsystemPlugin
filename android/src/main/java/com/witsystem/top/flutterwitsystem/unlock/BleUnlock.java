@@ -18,4 +18,10 @@ public interface BleUnlock {
     boolean unlock(String deviceId);
 
 
+    /**
+     * 添加回调
+     */
+    void addCallBack(UnlockInfo unlockInfo);
+
+
 }

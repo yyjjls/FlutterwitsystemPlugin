@@ -49,7 +49,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler 
         } else if (call.method.equals("isRunningInduceUnlock")) {
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
-           // Log.e("开门", "onCharacteristicWrite: 扫描到的设备unlock");
+            Log.e("开门", "onCharacteristicWrite: 扫描到的设备unlock");
             result.success(witsSdkInit.getBleUnlock().unlock());
         }
     }
