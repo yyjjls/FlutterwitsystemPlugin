@@ -213,23 +213,36 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             byte[] encrypt = AesEncryption.encrypt(characteristic.getValue(), device.getBleDeviceKey());
             BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
             BluetoothGattCharacteristic characteristicUnlock = service.getCharacteristic(UUID.fromString(Ble.UNLOCK));
-            byte[] openLock = new byte[encrypt.length + 1];
-            openLock[0] = 0x01;
-            System.arraycopy(encrypt, 0, openLock, 1, encrypt.length);
-            characteristicUnlock.setValue(openLock);
+            characteristicUnlock.setValue(AesEncryption.getOpenLockData(encrypt));
             gatt.writeCharacteristic(characteristicUnlock);
+        } else if (characteristic.getUuid().toString().equals(Ble.BATTERY)) {
+            byte[] value = characteristic.getValue();
+            if (value != null && value.length >= 7)
+                batteryCall(gatt.getDevice().getName(), value[6]);
         }
     }
 
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
-        if (characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
-            disConnection(gatt);
-            gatt.close();
-            gattMap.remove(gatt.getDevice().getAddress());
-            successCall(gatt.getDevice().getName(), BleCode.UNLOCK_SUCCESS);
+        if (!characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
+            return;
         }
+        successCall(gatt.getDevice().getName(), BleCode.UNLOCK_SUCCESS);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disConnection(gatt);
+                gatt.close();
+                gattMap.remove(gatt.getDevice().getAddress());
+                timer.cancel();
+            }
+        }, 900);
+
+        BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
+        BluetoothGattCharacteristic batteryCharacteristic = service.getCharacteristic(UUID.fromString(Ble.BATTERY));
+        gatt.readCharacteristic(batteryCharacteristic);
     }
 
     @Override

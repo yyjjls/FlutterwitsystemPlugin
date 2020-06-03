@@ -3,7 +3,6 @@
  */
 package com.witsystem.top.flutterwitsystem.tools;
 
-import android.util.Log;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -43,15 +42,12 @@ public class AesEncryption {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
-        Log.i("扫描到设备", "执行加密算法" + token);
         return token;
     }
 
 
     public static byte[] parseHexStringToBytes(final String hex) {
         byte[] bytes = new byte[hex.length() / 2]; // every two letters in the
-        // string are one byte
-        // finally
         String part = "";
         for (int i = 0; i < bytes.length; ++i) {
             part = "0x" + hex.substring(i * 2, i * 2 + 2);
@@ -65,9 +61,7 @@ public class AesEncryption {
     public static byte[] getOpenLockData(byte[] by) {
         byte[] openLock = new byte[by.length + 1];
         openLock[0] = 0x01;
-        for (int i = 0; i < by.length; i++) {
-            openLock[i + 1] = by[i];
-        }
+        System.arraycopy(by, 0, openLock, 1, by.length);
         return openLock;
 
     }
@@ -75,11 +69,16 @@ public class AesEncryption {
     public static byte[] authenticationData(byte[] by) {
         byte[] openLock = new byte[by.length + 1];
         openLock[0] = 0x02;
-        for (int i = 0; i < by.length; i++) {
-            openLock[i + 1] = by[i];
-        }
+        System.arraycopy(by, 0, openLock, 1, by.length);
         return openLock;
     }
 
-
+    public static int bytesToInt(byte[] src, int offset) {
+        int value;
+        value = (int) ((src[offset] & 0xFF)
+                | ((src[offset + 1] & 0xFF) << 8)
+                | ((src[offset + 2] & 0xFF) << 16)
+                | ((src[offset + 3] & 0xFF) << 24));
+        return value;
+    }
 }

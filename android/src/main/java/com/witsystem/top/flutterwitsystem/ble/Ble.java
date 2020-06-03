@@ -15,14 +15,11 @@ public class Ble {
 
     public static final String SERVICES = "0000fff1-0000-1000-8000-00805f9b34fb";
 
-    /**
-     * 读取token 的UUID
-     */
     public static final String TOKEN = "0000ff05-0000-1000-8000-00805f9b34fb";
-    /**
-     * 开锁特征
-     */
+
     public static final String UNLOCK = "0000ff04-0000-1000-8000-00805f9b34fb";
+
+    public static final String BATTERY = "0000ff01-0000-1000-8000-00805f9b34fb";
 
 
     private Context context;

@@ -50,7 +50,6 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler 
         } else if (call.method.equals("isRunningInduceUnlock")) {
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
-            Log.e("开门", "onCharacteristicWrite: 扫描到的设备unlock");
             witsSdkInit.getBleUnlock().addCallBack(new UnlockInfo() {
                 @Override
                 public void success(String deviceId, int code) {
@@ -64,10 +63,10 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler 
 
                 @Override
                 public void battery(String deviceId, int b) {
-
+                    Log.e("开门", "onCharacteristicWrite: 设备电量"+ b+"%");
                 }
             });
-            result.success(witsSdkInit.getBleUnlock().unlock());
+            result.success(witsSdkInit.getBleUnlock().unlock("Slock04EE033EA8CF"));
         }
     }
 
