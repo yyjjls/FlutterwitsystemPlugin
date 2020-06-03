@@ -18,6 +18,8 @@ import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 
@@ -32,6 +34,8 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     private Context context;
 
     private UnlockInfo unlockInfo;
+
+    private Timer timer;
 
     private Unlock(Context context) {
         this.context = context;
@@ -99,6 +103,15 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * 开始扫描
      */
     private boolean scan() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                stopScan();
+                failCall("Scan Timeout", BleCode.SCAN_OUT_TIME);
+                timer.cancel();
+            }
+        }, 10000);//延时1s执行
         return Ble.instance(context).getBlueAdapter().startLeScan(this);
     }
 
@@ -119,6 +132,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         if (deviceInfo == null) {
             return;
         }
+        timer.cancel();
         stopScan();
         connection(device);
     }
