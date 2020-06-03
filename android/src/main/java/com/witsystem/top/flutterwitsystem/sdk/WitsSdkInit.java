@@ -2,13 +2,14 @@ package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
 
-import com.witsystem.top.flutterwitsystem.device.Device;
-import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
+import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 import com.witsystem.top.flutterwitsystem.unlock.Unlock;
+
+import java.util.List;
 
 
 /**
@@ -49,8 +50,8 @@ public final class WitsSdkInit implements Register, WitsSdk {
 
 
     @Override
-    public Device<DeviceInfo> getBleLockDevice() {
-        return context == null ? null : DeviceManager.getInstance(null, null, null);
+    public List<DeviceBasicInfo> getDeviceInfo() {
+        return DeviceManager.getInstance(context, null, null).getThreeDevices();
     }
 
     @Override

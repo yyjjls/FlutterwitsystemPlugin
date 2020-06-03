@@ -21,4 +21,6 @@ public interface Device<T> {
 
     //获得设备的个数
     int getDevicesNumber();
+
+    List<DeviceBasicInfo> getThreeDevices();
 }

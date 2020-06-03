@@ -60,11 +60,9 @@ public final class DeviceManager implements Device<DeviceInfo> {
                 json.put("appId", appId);
                 json.put("token", userToken);
                 String https = HttpsClient.https("/device/get_device", json);
-                //  Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + https);
                 if (https != null) {
                     try {
                         JSONObject jsonObject = new JSONObject(https);
-                        //服务器返回错误一场清空缓存
                         if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
                             cleanCache();
                             return;
@@ -72,8 +70,6 @@ public final class DeviceManager implements Device<DeviceInfo> {
                         if (analyzaDevice(jsonObject.getJSONArray("data"))) {
                             saveDeviceInfo(jsonObject.getJSONArray("data").toString());
                         }
-                        //  Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + deviceList.toString());
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -124,6 +120,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
     @Override
     public int getDevicesNumber() {
         return deviceList.size();
+    }
+
+    @Override
+    public List<DeviceBasicInfo> getThreeDevices() {
+        return DeviceBasicInfo.deviceInfoFormat(deviceList);
     }
 
 
