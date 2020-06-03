@@ -78,6 +78,9 @@ public class BleCode {
     ///当前一个设备都没有
     public static int NO_DEVICE = 100025;
 
+    //手机其他app已经连接该设备
+    public static int OTHER_APP_CONN_DEVICE = 100026;
+
 
 
 
@@ -134,4 +137,7 @@ public class BleCode {
 
     ///添加成功
     public static int ADD_SUCCESS = 000000;
+
+    //开门成功
+    public static int UNLOCK_SUCCESS = 200000;
 }

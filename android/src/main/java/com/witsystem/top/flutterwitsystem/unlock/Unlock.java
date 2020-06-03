@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
@@ -18,6 +19,10 @@ import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -29,6 +34,8 @@ import java.util.UUID;
 
 public class Unlock extends BluetoothGattCallback implements BleUnlock, BluetoothAdapter.LeScanCallback {
 
+    private static final String TAG = "开锁";
+
     private static Unlock unlock;
 
     private Context context;
@@ -37,8 +44,11 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
 
     private Timer timer;
 
+    private Map<String, BluetoothGatt> gattMap;
+
     private Unlock(Context context) {
         this.context = context;
+        gattMap = new HashMap<>();
     }
 
     public static Unlock instance(Context context) {
@@ -52,11 +62,9 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         return unlock;
     }
 
-    Long time;
 
     @Override
     public boolean unlock() {
-        time = System.currentTimeMillis();
         if (!isDeviceInfoOrBleState()) {
             return false;
         }
@@ -73,7 +81,6 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             failCall("Failed to obtain device information", BleCode.GET_DEVICE_INFO_FAIL);
             return false;
         }
-        time = System.currentTimeMillis();
         connection(Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceInfo.getBleMac()));
         return true;
     }
@@ -143,7 +150,25 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param device
      */
     private void connection(BluetoothDevice device) {
-        BluetoothGatt gatt = device.connectGatt(context, false, this);
+        List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
+        if (connectedDevices.toString().contains(device.getAddress())) {
+            if (gattMap.get(device.getAddress()) == null) {
+                failCall("Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
+            } else {
+                Objects.requireNonNull(gattMap.get(device.getAddress())).discoverServices();
+            }
+        } else {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    stopScan();
+                    failCall("Connection timeout", BleCode.CONNECTION_TIMEOUT);
+                    timer.cancel();
+                }
+            }, 5000);
+            device.connectGatt(context, false, this);
+        }
     }
 
     /**
@@ -159,8 +184,16 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
-
-        gatt.discoverServices();
+        timer.cancel();
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            gatt.discoverServices();
+            gattMap.put(gatt.getDevice().getAddress(), gatt);
+        } else {
+            disConnection(gatt);
+            gatt.close();
+            failCall(status == 8 ? "Accidentally disconnected" : "Connection device failed", status == 8 ? BleCode.UNEXPECTED_DISCONNECT : BleCode.CONNECTION_FAIL);
+            gattMap.remove(gatt.getDevice().getAddress());
+        }
     }
 
     @Override
@@ -192,9 +225,10 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
         if (characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
-            Log.e("开门", "onCharacteristicWrite: 开门成功" + (System.currentTimeMillis() - time));
             disConnection(gatt);
             gatt.close();
+            gattMap.remove(gatt.getDevice().getAddress());
+            successCall(gatt.getDevice().getName(), BleCode.UNLOCK_SUCCESS);
         }
     }
 

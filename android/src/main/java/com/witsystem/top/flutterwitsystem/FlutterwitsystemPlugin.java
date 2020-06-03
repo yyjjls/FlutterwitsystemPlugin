@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdk;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
+import com.witsystem.top.flutterwitsystem.unlock.UnlockInfo;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -50,6 +51,22 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler 
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
             Log.e("开门", "onCharacteristicWrite: 扫描到的设备unlock");
+            witsSdkInit.getBleUnlock().addCallBack(new UnlockInfo() {
+                @Override
+                public void success(String deviceId, int code) {
+                    Log.e("开门", "onCharacteristicWrite: 开门成功"+deviceId);
+                }
+
+                @Override
+                public void fail(String error, int code) {
+                    Log.e("开门", "onCharacteristicWrite: 开门失败"+code);
+                }
+
+                @Override
+                public void battery(String deviceId, int b) {
+
+                }
+            });
             result.success(witsSdkInit.getBleUnlock().unlock());
         }
     }
