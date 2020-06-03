@@ -1,10 +1,9 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 
-import com.witsystem.top.flutterwitsystem.device.Device;
 import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
-import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.operation.Operation;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 
 import java.util.List;
@@ -38,4 +37,12 @@ public interface WitsSdk {
      * 获得开锁对象 还是没有实现
      */
     BleUnlock getBleUnlock();
+
+    /**
+     * 获得设备的操作对象
+     * @return
+     */
+    Operation getOperation();
+
+
 }

@@ -31,6 +31,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
     private Map<String, DeviceInfo> deviceMap;
     private Map<String, DeviceInfo> macMap;
 
+    private boolean state= true;
     private DeviceManager(Context context, String appId, String userToken) {
         this.appId = appId;
         this.userToken = userToken;
@@ -54,6 +55,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
 
     @Override
     public boolean getNetWorkDevice() {
+        state= true;
         Thread thread = new Thread() {
             public void run() {
                 HashMap<String, Object> json = new HashMap<>();
@@ -65,6 +67,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                         JSONObject jsonObject = new JSONObject(https);
                         if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
                             cleanCache();
+                            state= false;
                             return;
                         }
                         if (analyzaDevice(jsonObject.getJSONArray("data"))) {
@@ -72,6 +75,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        state= false;
                     }
                 } else {
                     //返回空读取缓存
@@ -86,8 +90,9 @@ public final class DeviceManager implements Device<DeviceInfo> {
             thread.join(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            state= false;
         }
-        return deviceList.size() != 0;
+        return state;
     }
 
     @Override

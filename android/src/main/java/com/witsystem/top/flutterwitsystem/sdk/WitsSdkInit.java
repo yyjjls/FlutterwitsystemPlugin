@@ -6,6 +6,8 @@ import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.operation.BleOperation;
+import com.witsystem.top.flutterwitsystem.operation.Operation;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 import com.witsystem.top.flutterwitsystem.unlock.Unlock;
 
@@ -21,6 +23,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     private Context context;
 
     private static Register mRegister;
+
+    private String appId;
+
+    private String userToken;
 
     private WitsSdkInit() {
     }
@@ -45,6 +51,8 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
             WitsSdkInit.this.context = context;
         }
+        this.appId = appId;
+        this.userToken = userToken;
         return this.context == null ? null : this;
     }
 
@@ -62,5 +70,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     @Override
     public BleUnlock getBleUnlock() {
         return Unlock.instance(context);
+    }
+
+    @Override
+    public Operation getOperation() {
+        return BleOperation.instance(context, appId, userToken);
     }
 }

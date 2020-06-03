@@ -2,7 +2,6 @@ package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
 
-import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 
 /**
  * 注册SDK的接口
