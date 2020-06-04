@@ -299,6 +299,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     private void batteryCall(String deviceId, int battery) {
         if (unlockInfo != null)
             unlockInfo.battery(deviceId, battery);
+        uploadRecord(0,deviceId,battery);
     }
 
 
@@ -313,7 +314,8 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             @Override
             public void run() {
                 super.run();
-                HttpsClient.https("/device/upload_record", map);
+                String https = HttpsClient.https("/device/upload_record", map);
+                Log.e(TAG, "run: 上传记录返回"+https );
             }
         }.start();
 
