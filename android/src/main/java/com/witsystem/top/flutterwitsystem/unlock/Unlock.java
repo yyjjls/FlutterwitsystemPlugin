@@ -17,6 +17,7 @@ import com.witsystem.top.flutterwitsystem.ble.Ble;
 import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
+import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 
 import java.util.HashMap;
@@ -46,16 +47,23 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
 
     private Map<String, BluetoothGatt> gattMap;
 
-    private Unlock(Context context) {
+    private String appId;
+
+    private String userToken;
+
+
+    private Unlock(Context context, String appId, String userToken) {
         this.context = context;
+        this.appId = appId;
+        this.userToken = userToken;
         gattMap = new HashMap<>();
     }
 
-    public static Unlock instance(Context context) {
+    public static Unlock instance(Context context, String appId, String userToken) {
         if (unlock == null) {
             synchronized (Unlock.class) {
                 if (unlock == null) {
-                    unlock = new Unlock(context);
+                    unlock = new Unlock(context, appId, userToken);
                 }
             }
         }
@@ -78,7 +86,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         }
         DeviceInfo deviceInfo = DeviceManager.getInstance(context, null, null).getDevice(deviceId);
         if (deviceInfo == null) {
-            failCall("Failed to obtain device information", BleCode.GET_DEVICE_INFO_FAIL);
+            failCall(deviceId, "Failed to obtain device information", BleCode.GET_DEVICE_INFO_FAIL);
             return false;
         }
         connection(Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceInfo.getBleMac()));
@@ -90,11 +98,11 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      */
     private boolean isDeviceInfoOrBleState() {
         if (!Ble.instance(context).getBlueAdapter().isEnabled()) {
-            failCall("Bluetooth not on", BleCode.DEVICE_BLUE_OFF);
+            failCall(null, "Bluetooth not on", BleCode.DEVICE_BLUE_OFF);
             return false;
         }
         if (DeviceManager.getInstance(context, null, null).getDevicesNumber() == 0) {
-            failCall("No equipment currently available", BleCode.NO_DEVICE);
+            failCall(null, "No equipment currently available", BleCode.NO_DEVICE);
             return false;
         }
         return true;
@@ -115,7 +123,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             @Override
             public void run() {
                 stopScan();
-                failCall("Scan Timeout", BleCode.SCAN_OUT_TIME);
+                failCall(null, "Scan Timeout", BleCode.SCAN_OUT_TIME);
                 timer.cancel();
             }
         }, 10000);//延时1s执行
@@ -153,7 +161,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
             if (gattMap.get(device.getAddress()) == null) {
-                failCall("Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
+                failCall(device.getName(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
             } else {
                 Objects.requireNonNull(gattMap.get(device.getAddress())).discoverServices();
             }
@@ -163,7 +171,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 @Override
                 public void run() {
                     stopScan();
-                    failCall("Connection timeout", BleCode.CONNECTION_TIMEOUT);
+                    failCall(device.getName(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
                     timer.cancel();
                 }
             }, 5000);
@@ -191,7 +199,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         } else {
             disConnection(gatt);
             gatt.close();
-            failCall(status == 8 ? "Accidentally disconnected" : "Connection device failed", status == 8 ? BleCode.UNEXPECTED_DISCONNECT : BleCode.CONNECTION_FAIL);
+            failCall(gatt.getDevice().getName(), status == 8 ? "Accidentally disconnected" : "Connection device failed", status == 8 ? BleCode.UNEXPECTED_DISCONNECT : BleCode.CONNECTION_FAIL);
             gattMap.remove(gatt.getDevice().getAddress());
         }
     }
@@ -262,7 +270,9 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param error
      * @param code
      */
-    private void failCall(String error, int code) {
+    private void failCall(String deviceId, String error, int code) {
+        if (deviceId != null)
+            uploadRecord(code == BleCode.CONNECTION_TIMEOUT ? 2 : 1, deviceId, -1);
         if (unlockInfo != null)
             unlockInfo.fail(error, code);
     }
@@ -289,6 +299,24 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     private void batteryCall(String deviceId, int battery) {
         if (unlockInfo != null)
             unlockInfo.battery(deviceId, battery);
+    }
+
+
+    private void uploadRecord(int state, String deviceId, int battery) {
+        Map<String, Object> map = new HashMap();
+        map.put("token", userToken);
+        map.put("state", state);
+        map.put("deviceId", deviceId);
+        if (battery >= 0)
+            map.put("battery", battery);
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                HttpsClient.https("/device/upload_record", map);
+            }
+        }.start();
+
     }
 
 

@@ -69,7 +69,7 @@ public final class WitsSdkInit implements Register, WitsSdk {
 
     @Override
     public BleUnlock getBleUnlock() {
-        return Unlock.instance(context);
+        return Unlock.instance(context,appId,userToken);
     }
 
     @Override

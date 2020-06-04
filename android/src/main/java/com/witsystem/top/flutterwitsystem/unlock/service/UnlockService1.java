@@ -18,7 +18,7 @@ public class UnlockService1 extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Unlock.instance(getApplication()).unlock();
+      //  Unlock.instance(getApplication()).unlock();
         return super.onStartCommand(intent, flags, startId);
     }
 
