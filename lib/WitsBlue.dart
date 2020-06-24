@@ -13,23 +13,25 @@ class WitsBlue {
 
 
 
-//  dsd(){
+  dsd(){
 //    bleEvent.receiveBroadcastStream().listen((data){
 //      print('调用初始bleEvent化失败$data');
 //    },onError: (err){
 //      print('调用初bleEvent始化失败$err');
 //    });
-//    unlockEvent.receiveBroadcastStream().listen((data){
-//      print('调用初始unlockEvent化失败$data');
-//    },onError: (err){
-//      print('调用初unlockEvent始化失败$err');
-//    });
-//
-//  }
+
+    unlockEvent.receiveBroadcastStream().listen((data){
+      print('调用初始unlockEvent化失败$data');
+    },onError: (err){
+      print('调用初unlockEvent始化失败$err');
+    });
+
+  }
 
   ///初始化感应开锁
   Future<bool> witsSdkInit(
       {@required String appId, @required String userToken}) async {
+    dsd();
     try {
       return await methodChannel.invokeMethod(
           'witsSdkInit', {'appId': appId, 'userToken': userToken});
