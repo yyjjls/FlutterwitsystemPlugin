@@ -114,6 +114,19 @@ public class FlutterwitsystemEventPlugin {
                 addBleEventSink = null;
             }
         });
+
+        EventChannel serialPortEventChannel = new EventChannel(registrar.messenger(), serialPortEvent);
+        serialPortEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object o, EventChannel.EventSink eventSink) {
+                serialPortEventSink = eventSink;
+            }
+
+            @Override
+            public void onCancel(Object o) {
+                serialPortEventSink = null;
+            }
+        });
     }
 
 
