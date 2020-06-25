@@ -26,7 +26,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
-    private  Context context;
+    private static Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
     private Handler handler = new Handler();
