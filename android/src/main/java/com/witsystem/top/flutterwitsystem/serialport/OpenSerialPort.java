@@ -141,7 +141,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         timer.cancel();
-        if (status == BluetoothGatt.GATT_SUCCESS) {
+        if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
             gattMap.put(gatt.getDevice().getAddress(), gatt);
             timer = new Timer();
@@ -154,9 +154,15 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             }, 6000);
         } else {
             disConnection(gatt);
-            gatt.close();
-            failCall(gatt.getDevice().getName(), status == 8 ? "Accidentally disconnected" : "Connection device failed", status == 8 ? BleCode.UNEXPECTED_DISCONNECT : BleCode.CONNECTION_FAIL);
+            if (status == 8) {
+                failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
+            } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+                failCall(gatt.getDevice().getName(),"Bluetooth off",BleCode.BLUE_OFF);
+            } else {
+                failCall(gatt.getDevice().getName(),"Connection device failed",BleCode.CONNECTION_FAIL);
+            }
             gattMap.remove(gatt.getDevice().getAddress());
+            timer.cancel();
         }
     }
 
@@ -178,8 +184,6 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             BluetoothGattCharacteristic characteristicUnlock = service.getCharacteristic(UUID.fromString(Ble.UNLOCK));
             characteristicUnlock.setValue(AesEncryption.authenticationData(encrypt));
             gatt.writeCharacteristic(characteristicUnlock);
-        } else if (characteristic.getUuid().toString().equals(Ble.BATTERY)) {
-
         }
     }
 
@@ -189,7 +193,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
         if (characteristic.getUuid().toString().equals(Ble.SERIAL_PORT_WRITE)) {
             timer.cancel();
             successCall(gatt.getDevice().getAddress(), BleCode.SERIAL_PORT_SEND_DATA_SUCCESS);
-            Log.e("串口", "数据发送成功");
+            //Log.e("串口", "数据发送成功");
         } else if (characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
             //开启启动串口通知监听
             BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
@@ -197,7 +201,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             boolean state = gatt.setCharacteristicNotification(serialPortRead, true);
             timer.cancel();
             if (state) {
-                Log.e("串口", "认证成功");
+                // Log.e("串口", "认证成功");
                 successCall(gatt.getDevice().getAddress(), BleCode.SERIAL_PORT_SUCCESS);
                 writeData(gatt);
             } else {
@@ -235,7 +239,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     private void failCall(String deviceId, String err, int code) {
         if (serialPortListen == null)
             return;
-        serialPortListen.serialPortFail(deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId, err, code);
+        serialPortListen.serialPortFail((deviceId != null && deviceId.contains(":")) ? "Slock" + deviceId.replaceAll(":", "") : deviceId, err, code);
     }
 
 

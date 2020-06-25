@@ -184,6 +184,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      */
     private void disConnection(BluetoothGatt gatt) {
         gatt.disconnect();
+        gatt.close();
     }
 
     /**
@@ -193,13 +194,18 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         timer.cancel();
-        if (status == BluetoothGatt.GATT_SUCCESS) {
+        if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
             gattMap.put(gatt.getDevice().getAddress(), gatt);
         } else {
             disConnection(gatt);
-            gatt.close();
-            failCall(gatt.getDevice().getName(), status == 8 ? "Accidentally disconnected" : "Connection device failed", status == 8 ? BleCode.UNEXPECTED_DISCONNECT : BleCode.CONNECTION_FAIL);
+            if (status == 8) {
+                failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
+            } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+                failCall(gatt.getDevice().getName(),"Bluetooth off",BleCode.BLUE_OFF);
+            } else {
+                failCall(gatt.getDevice().getName(),"Connection device failed",BleCode.CONNECTION_FAIL);
+            }
             gattMap.remove(gatt.getDevice().getAddress());
         }
     }
@@ -299,7 +305,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     private void batteryCall(String deviceId, int battery) {
         if (unlockInfo != null)
             unlockInfo.battery(deviceId, battery);
-        uploadRecord(0,deviceId,battery);
+        uploadRecord(0, deviceId, battery);
     }
 
 
@@ -315,7 +321,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             public void run() {
                 super.run();
                 String https = HttpsClient.https("/device/upload_record", map);
-                Log.e(TAG, "run: 上传记录返回"+https );
+                Log.e(TAG, "run: 上传记录返回" + https);
             }
         }.start();
 
