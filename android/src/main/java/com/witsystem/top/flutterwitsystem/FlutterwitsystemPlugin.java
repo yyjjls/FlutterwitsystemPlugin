@@ -25,7 +25,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  * 状态更新发送
  */
 public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen {
-    private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
+    private  final String CHANNEL = PluginConfig.CHANNEL + "/method";
     private  Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
@@ -50,7 +50,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         }
         context = registrar.activity().getApplication();
         final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-        channel.setMethodCallHandler(this);
+        channel.setMethodCallHandler(new FlutterwitsystemPlugin());
         FlutterwitsystemEventPlugin.create().registerWith(registrar);
     }
 
