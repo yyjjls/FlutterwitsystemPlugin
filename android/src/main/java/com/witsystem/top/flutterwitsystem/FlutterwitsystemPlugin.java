@@ -116,7 +116,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     /* 下面是蓝牙串口的回调*/
     @Override
     public void serialPortFail(String deviceId, String error, int code) {
-        //Log.e("初始化", "发送数据serialPortFail" + code);
+        Log.e("初始化", "发送数据serialPortFail" + code);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("serialPortFail").setDeviceId(deviceId).setError(error).setCode(code).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
 
@@ -124,14 +124,14 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void serialPortSuccess(String deviceId, int code) {
-        //  Log.e("初始化", "发送数据serialPortSuccess" + code);
+          Log.e("初始化", "发送数据serialPortSuccess" + code);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("serialPortSuccess").setDeviceId(deviceId).setCode(code).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
     }
 
     @Override
     public void acceptedData(String deviceId, byte[] data) {
-        //  Log.e("初始化", "发送数据acceptedData" + data);
+          Log.e("初始化", "发送数据acceptedData" + data);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("acceptedData").setDeviceId(deviceId).setData(ByteToString.bytesToHexString(data)).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
     }

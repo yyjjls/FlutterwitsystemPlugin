@@ -202,14 +202,15 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             boolean state = gatt.setCharacteristicNotification(serialPortRead, true);
             timer.cancel();
             if (state) {
-                serialPortRead.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-                for(final BluetoothGattDescriptor dp: serialPortRead.getDescriptors()){
-                    if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                        dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    } else if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-                        dp.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-                    }
-                    gatt.writeDescriptor(dp);
+                List<BluetoothGattDescriptor> descriptors = serialPortRead.getDescriptors();
+                if (descriptors == null || descriptors.size() == 0) {
+                    disConnection(gatt);
+                    failCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+                    return;
+                }
+                for (BluetoothGattDescriptor descriptor : descriptors) {
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    gatt.writeDescriptor(descriptor);
                 }
                 successCall(gatt.getDevice().getAddress(), BleCode.SERIAL_PORT_SUCCESS);
                 timer = new Timer();
