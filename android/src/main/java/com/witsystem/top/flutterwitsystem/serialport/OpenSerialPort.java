@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -201,7 +202,15 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             boolean state = gatt.setCharacteristicNotification(serialPortRead, true);
             timer.cancel();
             if (state) {
-                // Log.e("串口", "认证成功");
+                serialPortRead.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                for(final BluetoothGattDescriptor dp: serialPortRead.getDescriptors()){
+                    if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                        dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    } else if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                        dp.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                    }
+                    gatt.writeDescriptor(dp);
+                }
                 successCall(gatt.getDevice().getAddress(), BleCode.SERIAL_PORT_SUCCESS);
                 timer = new Timer();
                 timer.schedule(new TimerTask() {
