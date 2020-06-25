@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 
+import com.witsystem.top.flutterwitsystem.device.DeviceManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,12 @@ public class Ble {
     public static final String UNLOCK = "0000ff04-0000-1000-8000-00805f9b34fb";
 
     public static final String BATTERY = "0000ff01-0000-1000-8000-00805f9b34fb";
+
+    ///串口发送数据特征
+    public static final String SERIAL_PORT_WRITE = "0000ff06-0000-1000-8000-00805f9b34fb";
+
+    ///串口发送接受通知特征
+    public static final String SERIAL_PORT_READ = "0000ff07-0000-1000-8000-00805f9b34fb";
 
 
     private Context context;
@@ -72,4 +80,10 @@ public class Ble {
     public void setListDevice(List<BluetoothDevice> listDevice) {
         this.listDevice = listDevice;
     }
+
+
+
+
+
+
 }

@@ -73,7 +73,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         } else if (call.method.equals("isRunningInduceUnlock")) {
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
-            // OpenSerialPort.instance().sendData("","");
+            OpenSerialPort.instance().sendData("","");
             witsSdkInit.getBleUnlock().addCallBack(this);
             result.success(witsSdkInit.getBleUnlock().unlock("Slock04EE033EA882"));
         }

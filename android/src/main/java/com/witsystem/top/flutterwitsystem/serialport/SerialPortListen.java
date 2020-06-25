@@ -17,4 +17,10 @@ public interface SerialPortListen {
     void success(String deviceId, int code);
 
 
+    /**
+     * 接受到的数据
+     */
+    void acceptedData(String deviceId, byte[] data);
+
+
 }

@@ -81,6 +81,21 @@ public class BleCode {
     //手机其他app已经连接该设备
     public static int OTHER_APP_CONN_DEVICE = 100026;
 
+    //串口认证超时
+    public static int SERIAL_PORT_AUTH_OVERTIME = 100027;
+
+    //串口认证成功
+    public static int SERIAL_PORT_SUCCESS = 100028;
+
+    //串口认证失败
+    public static int SERIAL_PORT_FAIL = 100029;
+
+    //发送数据成功
+    public static int SERIAL_PORT_SEND_DATA_SUCCESS = 100030;
+
+    //数据发送超时
+    public static int SERIAL_PORT_SEND_DATA_OVERTIME = 100031;
+
 
 
 

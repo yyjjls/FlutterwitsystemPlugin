@@ -1,6 +1,7 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
@@ -48,8 +49,9 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (appId == null || userToken == null) {
             return null;
         }
+
         if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
-            WitsSdkInit.this.context = context;
+            this.context = context;
         }
         this.appId = appId;
         this.userToken = userToken;
