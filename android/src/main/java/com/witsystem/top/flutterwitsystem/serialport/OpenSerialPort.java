@@ -82,7 +82,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     public void closeSerialPort() {
         Set<String> strings = gattMap.keySet();
         for (String string : strings) {
-            disConnection(gattMap.get(string));
+            disConnection(Objects.requireNonNull(gattMap.get(string)));
         }
         gattMap.clear();
     }
@@ -237,8 +237,9 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
         }, 1000);
         BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
         BluetoothGattCharacteristic serialPortWrite = service.getCharacteristic(UUID.fromString(Ble.SERIAL_PORT_WRITE));
-        serialPortWrite.setValue(data);
+        serialPortWrite.setValue(AesEncryption.parseHexStringToBytes(data));
         gatt.writeCharacteristic(serialPortWrite);
+        Log.d("发送的数据", data);
         data = null;
     }
 

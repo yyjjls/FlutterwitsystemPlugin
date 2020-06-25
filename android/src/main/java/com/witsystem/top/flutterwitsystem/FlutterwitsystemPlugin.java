@@ -77,6 +77,9 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             //Log.e("初始化", "调用串口发送数据" + call.argument("deviceId"));
             witsSdkInit.getSerialPort().addCall(this);
             result.success(witsSdkInit.getSerialPort().sendData(call.argument("deviceId"), call.argument("data")));
+        }else if (call.method.equals("closeSerialPort")) {
+            witsSdkInit.getSerialPort().closeSerialPort();
+            result.success(true);
         }
     }
 
