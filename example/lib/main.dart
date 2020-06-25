@@ -18,25 +18,21 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 2), () async {
-      initPlatformState();
-    });
+    initPlatformState();
   }
 
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-
-      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',userToken: 'ece45922bf59487693da036d04454c88-1593066443710')}' ;
-
+      platformVersion =
+          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'ece45922bf59487693da036d04454c88-1593066443710')}';
     } on PlatformException {
       platformVersion = '初始化失败.';
     }
     if (!mounted) return;
-    _platformVersion ='是否已经运行:'+ (await WitsBlue().isRunningInduceUnlock()).toString();
-    setState(() {
-
-    });
+    _platformVersion =
+        '是否已经运行:' + (await WitsBlue().isRunningInduceUnlock()).toString();
+    setState(() {});
   }
 
   @override
@@ -47,7 +43,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child:Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text('$_platformVersion'),
@@ -77,12 +73,11 @@ class _MyAppState extends State<MyApp> {
                   setState(() {});
                 },
               ),
-
-
               FlatButton(
                 child: Text('串口发送数据'),
                 onPressed: () async {
-                  bool b = await WitsBlue().serialPortSendData(deviceId: 'Slock04EE033EA882', data: '265273162538');
+                  bool b = await WitsBlue().serialPortSendData(
+                      deviceId: 'Slock04EE033EA882', data: '265273162538');
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
