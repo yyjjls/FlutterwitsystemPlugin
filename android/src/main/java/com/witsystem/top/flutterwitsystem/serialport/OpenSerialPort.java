@@ -223,6 +223,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
         acceptedDataCall(gatt.getDevice().getAddress(), characteristic.getValue());
+        Log.e("接受到的数据", characteristic.getValue() + "");
     }
 
     //写入数据

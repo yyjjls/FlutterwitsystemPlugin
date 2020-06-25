@@ -93,8 +93,7 @@ class WitsBlue {
   }
 
   ///关闭串口
-  Future<bool> closeSerialPort(
-      {@required String deviceId, @required String data}) async {
+  Future<bool> closeSerialPort() async {
     try {
       return await methodChannel.invokeMethod('closeSerialPort');
     } on PlatformException catch (e) {
