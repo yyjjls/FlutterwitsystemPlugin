@@ -8,7 +8,7 @@ public class FlutterUnlock {
     private String error;
     private int battery;
 
-    private byte[] data;
+    private String data;
 
     public String getEvent() {
         return event;
@@ -30,7 +30,7 @@ public class FlutterUnlock {
         return battery;
     }
 
-    public byte[] getData() {
+    public String getData() {
         return data;
     }
 
@@ -40,7 +40,7 @@ public class FlutterUnlock {
         private int code;
         private String error;
         private int battery;
-        private byte[] data;
+        private String data;
 
         public Builder setEvent(String event) {
             this.event = event;
@@ -67,7 +67,7 @@ public class FlutterUnlock {
             return this;
         }
 
-        public Builder setData(byte[] data) {
+        public Builder setData(String data) {
             this.data = data;
             return this;
         }

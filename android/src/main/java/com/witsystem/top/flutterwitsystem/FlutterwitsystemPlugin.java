@@ -11,6 +11,7 @@ import com.witsystem.top.flutterwitsystem.flutter.FlutterUnlock;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdk;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
 import com.witsystem.top.flutterwitsystem.serialport.SerialPortListen;
+import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 import com.witsystem.top.flutterwitsystem.unlock.UnlockInfo;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -120,15 +121,15 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void serialPortSuccess(String deviceId, int code) {
-      //  Log.e("初始化", "发送数据serialPortSuccess" + code);
+        //  Log.e("初始化", "发送数据serialPortSuccess" + code);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("serialPortSuccess").setDeviceId(deviceId).setCode(code).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
     }
 
     @Override
     public void acceptedData(String deviceId, byte[] data) {
-      //  Log.e("初始化", "发送数据acceptedData" + data);
-        FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("acceptedData").setDeviceId(deviceId).setData(data).builder();
+        //  Log.e("初始化", "发送数据acceptedData" + data);
+        FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("acceptedData").setDeviceId(deviceId).setData(ByteToString.bytesToHexString(data)).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
     }
 }
