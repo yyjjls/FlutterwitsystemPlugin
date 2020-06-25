@@ -25,7 +25,7 @@ class WitsBlue {
   ///初始化感应开锁
   Future<bool> witsSdkInit(
       {@required String appId, @required String userToken}) async {
-    dsd();
+  /*  dsd();*/
     try {
       return await methodChannel.invokeMethod(
           'witsSdkInit', {'appId': appId, 'userToken': userToken});
