@@ -26,7 +26,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
-    private static Context context;
+    private  Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
     private Handler handler = new Handler();
@@ -38,7 +38,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         }
         context = flutterPluginBinding.getApplicationContext();
         final MethodChannel channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL);
-        channel.setMethodCallHandler(new FlutterwitsystemPlugin());
+        channel.setMethodCallHandler(this);
         FlutterwitsystemEventPlugin.create().onAttachedToEngine(flutterPluginBinding);
 
     }
@@ -50,7 +50,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         }
         context = registrar.activity().getApplication();
         final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-        channel.setMethodCallHandler(new FlutterwitsystemPlugin());
+        channel.setMethodCallHandler(this);
         FlutterwitsystemEventPlugin.create().registerWith(registrar);
     }
 
