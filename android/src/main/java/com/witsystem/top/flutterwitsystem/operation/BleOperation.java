@@ -37,7 +37,6 @@ public final class BleOperation implements Operation {
         return bleOperation;
     }
 
-
     @Override
     public boolean sendAdminKey(String deviceId, String recipient) {
         boolean sta = false;

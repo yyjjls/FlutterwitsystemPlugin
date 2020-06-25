@@ -77,6 +77,17 @@ class _MyAppState extends State<MyApp> {
                   setState(() {});
                 },
               ),
+
+
+              FlatButton(
+                child: Text('串口发送数据'),
+                onPressed: () async {
+                  bool b = await WitsBlue().serialPortSendData(deviceId: 'Slock04EE033EA882', data: '265273162538');
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
             ],
           ),
         ),

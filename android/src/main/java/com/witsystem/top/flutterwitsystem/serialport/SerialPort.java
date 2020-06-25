@@ -17,8 +17,6 @@ public interface SerialPort {
     boolean sendData(String deviceId, String data);
 
 
-
-
     /**
      * 关闭串口
      */

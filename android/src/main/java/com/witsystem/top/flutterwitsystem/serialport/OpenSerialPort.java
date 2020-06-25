@@ -102,7 +102,6 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
         return true;
     }
 
-
     /**
      * 连接设备
      */
@@ -190,6 +189,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
         if (characteristic.getUuid().toString().equals(Ble.SERIAL_PORT_WRITE)) {
             timer.cancel();
             successCall(gatt.getDevice().getAddress(), BleCode.SERIAL_PORT_SEND_DATA_SUCCESS);
+            Log.e("串口", "数据发送成功");
         } else if (characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
             //开启启动串口通知监听
             BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
@@ -235,14 +235,14 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     private void failCall(String deviceId, String err, int code) {
         if (serialPortListen == null)
             return;
-        serialPortListen.fail(deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId, err, code);
+        serialPortListen.serialPortFail(deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId, err, code);
     }
 
 
     private void successCall(String deviceId, int code) {
         if (serialPortListen == null)
             return;
-        serialPortListen.success(deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId, code);
+        serialPortListen.serialPortSuccess(deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId, code);
     }
 
 

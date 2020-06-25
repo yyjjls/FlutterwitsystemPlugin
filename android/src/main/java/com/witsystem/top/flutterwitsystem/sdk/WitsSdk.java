@@ -4,6 +4,7 @@ package com.witsystem.top.flutterwitsystem.sdk;
 import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
+import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 
 import java.util.List;
@@ -38,11 +39,18 @@ public interface WitsSdk {
      */
     BleUnlock getBleUnlock();
 
+
+
     /**
      * 获得设备的操作对象
      * @return
      */
     Operation getOperation();
 
+
+    /**
+     * 获得ble串口通信对象
+     */
+    SerialPort getSerialPort();
 
 }

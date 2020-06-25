@@ -12,11 +12,13 @@ public class FlutterwitsystemEventPlugin {
     private static final String bleEvent = PluginConfig.CHANNEL + "/event/ble";
     private static final String unlockEvent = PluginConfig.CHANNEL + "/event/unlock";
     private static final String addBleEvent = PluginConfig.CHANNEL + "/event/addBleDevice";
+    private static final String serialPortEvent = PluginConfig.CHANNEL + "/event/serialPort";
 
 
     public EventChannel.EventSink bleEventSink;
     public EventChannel.EventSink unlockBleEventSink;
     public EventChannel.EventSink addBleEventSink;
+    public EventChannel.EventSink serialPortEventSink;
 
     private static FlutterwitsystemEventPlugin flutterwitsystemEventPlugin;
 
@@ -58,6 +60,20 @@ public class FlutterwitsystemEventPlugin {
                 addBleEventSink = null;
             }
         });
+        EventChannel serialPortEventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), serialPortEvent);
+        serialPortEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object o, EventChannel.EventSink eventSink) {
+                serialPortEventSink = eventSink;
+            }
+
+            @Override
+            public void onCancel(Object o) {
+                serialPortEventSink = null;
+            }
+        });
+
+
     }
 
     public void registerWith(PluginRegistry.Registrar registrar) {
@@ -136,6 +152,17 @@ public class FlutterwitsystemEventPlugin {
     public void sendAddBleEvent(Object data) {
         if (addBleEventSink != null) {
             addBleEventSink.success(data);
+        } else {
+            Log.e(">>>", "没有监听者");
+        }
+    }
+
+    /**
+     * 发送串口事件
+     */
+    public void sendSerialPortEvent(Object data) {
+        if (serialPortEventSink != null) {
+            serialPortEventSink.success(data);
         } else {
             Log.e(">>>", "没有监听者");
         }

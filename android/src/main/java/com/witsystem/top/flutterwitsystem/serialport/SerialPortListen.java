@@ -9,12 +9,12 @@ public interface SerialPortListen {
     /**
      * 失败
      */
-    void fail(String deviceId, String error, int code);
+    void serialPortFail(String deviceId, String error, int code);
 
     /**
      * 成功
      */
-    void success(String deviceId, int code);
+    void serialPortSuccess(String deviceId, int code);
 
 
     /**

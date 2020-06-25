@@ -9,6 +9,8 @@ import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 import com.witsystem.top.flutterwitsystem.operation.BleOperation;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
+import com.witsystem.top.flutterwitsystem.serialport.OpenSerialPort;
+import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 import com.witsystem.top.flutterwitsystem.unlock.Unlock;
 
@@ -77,5 +79,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     @Override
     public Operation getOperation() {
         return BleOperation.instance(context, appId, userToken);
+    }
+
+    @Override
+    public SerialPort getSerialPort() {
+        return OpenSerialPort.instance(context);
     }
 }

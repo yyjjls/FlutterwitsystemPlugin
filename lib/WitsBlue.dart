@@ -10,7 +10,8 @@ class WitsBlue {
   static const EventChannel unlockEvent = const EventChannel('witsystem.top/blue/event/unlock');
   //添加设备事件
   static const EventChannel addBleEvent = const EventChannel('witsystem.top/blue/event/addBleDevice');
-
+  //串口事件
+  static const EventChannel serialPortEvent = const EventChannel('witsystem.top/blue/event/serialPort');
 
 
   dsd(){
@@ -19,7 +20,6 @@ class WitsBlue {
     },onError: (err){
       print('调用初unlockEvent始化失败$err');
     });
-
   }
 
   ///初始化感应开锁
@@ -70,6 +70,19 @@ class WitsBlue {
       return await methodChannel.invokeMethod('unlock');
     } on PlatformException catch (e) {
       print('调用关闭失败$e');
+      return false;
+    }
+  }
+
+
+  ///串口发送数据
+  Future<bool> serialPortSendData(
+      {@required String deviceId, @required String data}) async {
+    try {
+      return await methodChannel.invokeMethod(
+          'serialPortSendData', {'deviceId': deviceId, 'data': data});
+    } on PlatformException catch (e) {
+      print('调用初始化失败$e');
       return false;
     }
   }

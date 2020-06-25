@@ -8,6 +8,8 @@ public class FlutterUnlock {
     private String error;
     private int battery;
 
+    private byte[] data;
+
     public String getEvent() {
         return event;
     }
@@ -28,12 +30,17 @@ public class FlutterUnlock {
         return battery;
     }
 
+    public byte[] getData() {
+        return data;
+    }
+
     public static class Builder {
         private String event;
         private String deviceId;
         private int code;
         private String error;
         private int battery;
+        private byte[] data;
 
         public Builder setEvent(String event) {
             this.event = event;
@@ -60,6 +67,11 @@ public class FlutterUnlock {
             return this;
         }
 
+        public Builder setData(byte[] data) {
+            this.data = data;
+            return this;
+        }
+
         public FlutterUnlock builder() {
             FlutterUnlock flutterUnlock = new FlutterUnlock();
             flutterUnlock.event = event;
@@ -67,6 +79,7 @@ public class FlutterUnlock {
             flutterUnlock.code = code;
             flutterUnlock.error = error;
             flutterUnlock.battery = battery;
+            flutterUnlock.data = data;
             return flutterUnlock;
         }
     }
