@@ -10,10 +10,11 @@ import com.google.gson.Gson;
 import com.witsystem.top.flutterwitsystem.flutter.FlutterUnlock;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdk;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
+import com.witsystem.top.flutterwitsystem.serialport.OpenSerialPort;
+import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
 import com.witsystem.top.flutterwitsystem.unlock.UnlockInfo;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -23,12 +24,12 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * 状态更新发送
  */
-public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,UnlockInfo {
+public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
     private static Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
-    private Handler handler =new Handler();
+    private Handler handler = new Handler();
     private static final String bleEvent = PluginConfig.CHANNEL + "/event/ble";
     private static final String unlockEvent = PluginConfig.CHANNEL + "/event/unlock";
     private static final String addBleEvent = PluginConfig.CHANNEL + "/event/addBleDevice";
@@ -46,7 +47,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     }
 
 
-    public static void registerWith(Registrar registrar) {
+    public void registerWith(Registrar registrar) {
         if (context != null) {
             return;
         }
@@ -58,6 +59,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+
         if (call.method.equals("witsSdkInit")) {
             //初始化SDK成功返回true
             witsSdkInit = WitsSdkInit.getInstance().witsSdkInit(context, call.argument("appId"), call.argument("userToken"));
@@ -71,6 +73,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         } else if (call.method.equals("isRunningInduceUnlock")) {
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
+            // OpenSerialPort.instance().sendData("","");
             witsSdkInit.getBleUnlock().addCallBack(this);
             result.success(witsSdkInit.getBleUnlock().unlock("Slock04EE033EA882"));
         }
@@ -81,14 +84,14 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     }
 
 
-
-/*    下面是开门的回调*/
+    /*    下面是开门的回调*/
     @Override
     public void success(String deviceId, int code) {
         Log.e("开门", "onCharacteristicWrite: 开门成功" + deviceId);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("success").setDeviceId(deviceId).setCode(code).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendUnlockBleEvent(gson.toJson(flutterUnlock)));
     }
+
     @Override
     public void fail(String error, int code) {
         Log.e("开门", "onCharacteristicWrite: 开门失败" + code);
@@ -96,6 +99,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendUnlockBleEvent(gson.toJson(flutterUnlock)));
 
     }
+
     @Override
     public void battery(String deviceId, int b) {
         Log.e("开门", "onCharacteristicWrite: 设备电量" + b + "%");

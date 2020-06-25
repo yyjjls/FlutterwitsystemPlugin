@@ -3,6 +3,7 @@ package com.witsystem.top.flutterwitsystem.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
@@ -70,6 +71,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                             state= false;
                             return;
                         }
+
                         if (analyzaDevice(jsonObject.getJSONArray("data"))) {
                             saveDeviceInfo(jsonObject.getJSONArray("data").toString());
                         }

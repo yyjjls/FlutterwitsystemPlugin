@@ -25,6 +25,7 @@ public class FlutterwitsystemEventPlugin {
         BleEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object o, EventChannel.EventSink eventSink) {
+                android.util.Log.e("开门", "onListen: 注册监听开门" + eventSink);
                 bleEventSink = eventSink;
             }
 
@@ -33,8 +34,6 @@ public class FlutterwitsystemEventPlugin {
                 bleEventSink = null;
             }
         });
-
-        Log.e("初始化event", BleEventChannel + "");
         EventChannel unlockEventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), unlockEvent);
         unlockEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
             @Override

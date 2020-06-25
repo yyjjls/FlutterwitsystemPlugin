@@ -17,18 +17,21 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+
+    Future.delayed(Duration(seconds: 2), () async {
+      initPlatformState();
+    });
   }
 
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
-      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',userToken: '28adde277d3442fb871e53621cd7fbd0-1592807054234')}' ;
+
+      platformVersion ='${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',userToken: 'ece45922bf59487693da036d04454c88-1593066443710')}' ;
 
     } on PlatformException {
       platformVersion = '初始化失败.';
     }
-
     if (!mounted) return;
     _platformVersion ='是否已经运行:'+ (await WitsBlue().isRunningInduceUnlock()).toString();
     setState(() {
