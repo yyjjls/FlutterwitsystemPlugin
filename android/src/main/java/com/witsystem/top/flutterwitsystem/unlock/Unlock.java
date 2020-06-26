@@ -127,7 +127,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 timer.cancel();
             }
         }, 10000);
-        return Ble.instance(context).getBlueAdapter().startLeScan(this);
+        return Ble.instance(context).getBlueAdapter().startLeScan(new UUID[]{UUID.fromString(Ble.SERVICES)},this);
     }
 
     /**
@@ -194,6 +194,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         timer.cancel();
+        Log.e("状态","状态"+status+"::"+newState);
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
             gattMap.put(gatt.getDevice().getAddress(), gatt);
@@ -248,8 +249,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                disConnection(gatt);
-                gatt.close();
+                gatt.disconnect();
                 gattMap.remove(gatt.getDevice().getAddress());
                 timer.cancel();
             }

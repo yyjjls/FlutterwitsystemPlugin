@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * 添加蓝牙设备
@@ -79,7 +80,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             errorCall(null, "Bluetooth not on", BleCode.DEVICE_BLUE_OFF);
             return;
         }
-        boolean startLeScan = blueAdapter.startLeScan(this);
+        boolean startLeScan = blueAdapter.startLeScan(new UUID[]{UUID.fromString(Ble.SERVICES)},this);
         if (!startLeScan) {
             errorCall(null, "Bluetooth not on", BleCode.BLE_SCAN_FAIL);
             stopDevice();
