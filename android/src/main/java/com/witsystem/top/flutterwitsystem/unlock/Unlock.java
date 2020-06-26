@@ -127,7 +127,8 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 timer.cancel();
             }
         }, 10000);
-        return Ble.instance(context).getBlueAdapter().startLeScan(new UUID[]{UUID.fromString(Ble.SERVICES)},this);
+        // return Ble.instance(context).getBlueAdapter().startLeScan(new UUID[]{UUID.fromString(Ble.SERVICES)},this);
+        return Ble.instance(context).getBlueAdapter().startLeScan(this);
     }
 
     /**
@@ -194,7 +195,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         timer.cancel();
-        Log.e("状态","状态"+status+"::"+newState);
+        Log.e("状态", "状态" + status + "::" + newState);
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
             gattMap.put(gatt.getDevice().getAddress(), gatt);
@@ -203,9 +204,10 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             if (status == 8) {
                 failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                failCall(gatt.getDevice().getName(),"Bluetooth off",BleCode.BLUE_OFF);
+                if (!Ble.instance(context).getBlueAdapter().isEnabled())
+                    failCall(gatt.getDevice().getName(), "Bluetooth off", BleCode.BLUE_OFF);
             } else {
-                failCall(gatt.getDevice().getName(),"Connection device failed",BleCode.CONNECTION_FAIL);
+                failCall(gatt.getDevice().getName(), "Connection device failed", BleCode.CONNECTION_FAIL);
             }
             gattMap.remove(gatt.getDevice().getAddress());
         }
