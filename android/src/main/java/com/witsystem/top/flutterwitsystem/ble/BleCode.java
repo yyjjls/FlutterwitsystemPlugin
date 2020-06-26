@@ -96,6 +96,9 @@ public class BleCode {
     //数据发送超时
     public static int SERIAL_PORT_SEND_DATA_OVERTIME = 100031;
 
+    //蓝牙扫描失败
+    public static int BLE_SCAN_FAIL = 100032;
+
 
 
 

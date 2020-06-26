@@ -3,6 +3,8 @@ package com.witsystem.top.flutterwitsystem.sdk;
 import android.content.Context;
 import android.util.Log;
 
+import com.witsystem.top.flutterwitsystem.add.AddDevice;
+import com.witsystem.top.flutterwitsystem.add.ble.AddBleDevice;
 import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
@@ -73,7 +75,7 @@ public final class WitsSdkInit implements Register, WitsSdk {
 
     @Override
     public BleUnlock getBleUnlock() {
-        return Unlock.instance(context,appId,userToken);
+        return Unlock.instance(context, appId, userToken);
     }
 
     @Override
@@ -84,5 +86,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     @Override
     public SerialPort getSerialPort() {
         return OpenSerialPort.instance(context);
+    }
+
+    @Override
+    public AddDevice getAddBleDevice() {
+        return AddBleDevice.instance(context, appId, userToken);
     }
 }

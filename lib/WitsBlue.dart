@@ -21,7 +21,7 @@ class WitsBlue {
       const EventChannel('witsystem.top/blue/event/serialPort');
 
   dsd() {
-    serialPortEvent.receiveBroadcastStream().listen((data) {
+    unlockEvent.receiveBroadcastStream().listen((data) {
       print('调用初始获得$data');
     }, onError: (err) {
       print('调用初unlockEvent始化失败$err');
@@ -98,6 +98,26 @@ class WitsBlue {
       return await methodChannel.invokeMethod('closeSerialPort');
     } on PlatformException catch (e) {
       print('调用初始化失败$e');
+      return false;
+    }
+  }
+
+  ///添加设备扫描附近设备
+  Future<bool> scanDevice() async {
+    try {
+      return await methodChannel.invokeMethod('scanDevice');
+    } on PlatformException catch (e) {
+      print('调用关闭失败$e');
+      return false;
+    }
+  }
+
+  ///添加设备停止扫描附近设备
+  Future<bool> stopDevice() async {
+    try {
+      return await methodChannel.invokeMethod('stopDevice');
+    } on PlatformException catch (e) {
+      print('调用关闭失败$e');
       return false;
     }
   }

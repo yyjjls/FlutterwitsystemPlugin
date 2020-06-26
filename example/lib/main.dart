@@ -83,6 +83,24 @@ class _MyAppState extends State<MyApp> {
                   setState(() {});
                 },
               ),
+              FlatButton(
+                child: Text('扫描添加设备'),
+                onPressed: () async {
+                  bool b = await WitsBlue().scanDevice();
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
+              FlatButton(
+                child: Text('停止添加设备扫描'),
+                onPressed: () async {
+                  bool b = await WitsBlue().stopDevice();
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
             ],
           ),
         ),

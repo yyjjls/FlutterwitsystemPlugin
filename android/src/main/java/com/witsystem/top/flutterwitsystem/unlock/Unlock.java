@@ -126,7 +126,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 failCall(null, "Scan Timeout", BleCode.SCAN_OUT_TIME);
                 timer.cancel();
             }
-        }, 10000);//延时1s执行
+        }, 10000);
         return Ble.instance(context).getBlueAdapter().startLeScan(this);
     }
 
@@ -242,6 +242,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
         if (!characteristic.getUuid().toString().equals(Ble.UNLOCK)) {
             return;
         }
+        timer.cancel();
         successCall(gatt.getDevice().getName(), BleCode.UNLOCK_SUCCESS);
         timer = new Timer();
         timer.schedule(new TimerTask() {

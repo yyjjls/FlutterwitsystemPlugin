@@ -1,6 +1,7 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 
+import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
@@ -52,5 +53,12 @@ public interface WitsSdk {
      * 获得ble串口通信对象
      */
     SerialPort getSerialPort();
+
+
+
+    /**
+     * 获得ble串口通信对象
+     */
+    AddDevice getAddBleDevice();
 
 }
