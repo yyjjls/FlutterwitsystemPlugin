@@ -133,7 +133,14 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     private void disConnection(BluetoothGatt gatt) {
         gattMap.remove(gatt.getDevice().getAddress());
         gatt.disconnect();
-        // gatt.close();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                timer.cancel();
+                gatt.close();
+            }
+        }, 200);
+
     }
 
     /**********************连接设备的回调************************/
