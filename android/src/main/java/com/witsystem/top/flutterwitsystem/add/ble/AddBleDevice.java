@@ -14,10 +14,8 @@ import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 /**
  * 添加蓝牙设备
@@ -49,7 +47,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         return addDevice;
     }
 
-
     @Override
     public void addCall(AddBleDeviceCall addBleDeviceCall) {
         this.addBleDeviceCall = addBleDeviceCall;
@@ -80,7 +77,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             errorCall(null, "Bluetooth not on", BleCode.DEVICE_BLUE_OFF);
             return;
         }
-        boolean startLeScan = blueAdapter.startLeScan(new UUID[]{UUID.fromString(Ble.SERVICES)},this);
+        boolean startLeScan = blueAdapter.startLeScan(this);
         if (!startLeScan) {
             errorCall(null, "Bluetooth not on", BleCode.BLE_SCAN_FAIL);
             stopDevice();
@@ -93,6 +90,10 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         Log.d("扫描到的设备", device.getName() + "::" + ByteToString.bytesToHexString(scanRecord));
+
+
+        processCall(device.getName(), BleCode.SCAN_ADD_DEVICE_INFO);
+        scanDeviceCall(device.getName(), rssi);
     }
 
 
@@ -100,6 +101,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      * 连接设备
      */
     private void connection(BluetoothDevice device) {
+        stopDevice();
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
             errorCall(device.getName(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
@@ -112,10 +114,11 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
                     timer.cancel();
                 }
             }, 5000);
-            device.connectGatt(context, false, this);
+            BluetoothGatt gatt = device.connectGatt(context, false, this);
 
         }
     }
+
 
     /**
      * 断开连接
@@ -152,6 +155,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
     }
 
+
     /**
      * 回调异常
      */
@@ -166,6 +170,15 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     private void processCall(String deviceId, int code) {
         if (addBleDeviceCall != null)
             addBleDeviceCall.addProcess(deviceId, code);
+    }
+
+
+    /**
+     * 回调扫描到的设备
+     */
+    private void scanDeviceCall(String deviceId, int rssi) {
+        if (addBleDeviceCall != null)
+            addBleDeviceCall.scanDevice(deviceId, rssi);
     }
 
 }

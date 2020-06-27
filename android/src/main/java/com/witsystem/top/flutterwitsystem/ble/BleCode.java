@@ -110,7 +110,7 @@ public class BleCode {
 
 
 
-    ///扫描到设备 只在界面使用，回调里面没有
+    ///扫描到设备
     public static int SCAN_ADD_DEVICE_INFO = 200100;
 
     ///正在扫描 开始扫描

@@ -133,7 +133,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     private void disConnection(BluetoothGatt gatt) {
         gattMap.remove(gatt.getDevice().getAddress());
         gatt.disconnect();
-        gatt.close();
+        // gatt.close();
     }
 
     /**********************连接设备的回调************************/
@@ -155,10 +155,12 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             }, 6000);
         } else {
             disConnection(gatt);
+            gatt.close();
             if (status == 8) {
                 failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                failCall(gatt.getDevice().getName(), "Bluetooth off", BleCode.BLUE_OFF);
+                if (!Ble.instance(context).getBlueAdapter().isEnabled())
+                    failCall(gatt.getDevice().getName(), "Bluetooth off", BleCode.BLUE_OFF);
             } else {
                 failCall(gatt.getDevice().getName(), "Connection device failed", BleCode.CONNECTION_FAIL);
             }
@@ -233,7 +235,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
         acceptedDataCall(gatt.getDevice().getAddress(), characteristic.getValue());
-       // Log.e("接受到的数据", characteristic.getValue() + "");
+        // Log.e("接受到的数据", characteristic.getValue() + "");
     }
 
     //写入数据
