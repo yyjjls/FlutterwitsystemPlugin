@@ -167,16 +167,18 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 Objects.requireNonNull(gattMap.get(device.getAddress())).discoverServices();
             }
         } else {
+            BluetoothGatt gatt = device.connectGatt(context, false, this);
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     stopScan();
+                    disConnection(gatt);
                     failCall(device.getName(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
                     timer.cancel();
                 }
             }, 5000);
-            device.connectGatt(context, false, this);
+
         }
     }
 
@@ -185,7 +187,16 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      */
     private void disConnection(BluetoothGatt gatt) {
         gatt.disconnect();
-        gatt.close();
+        timer.cancel();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timer.cancel();
+                gatt.close();
+            }
+        }, 200);
+
     }
 
     /**
@@ -195,11 +206,12 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         timer.cancel();
-        Log.e("状态", "状态" + status + "::" + newState);
+        //Log.e("状态", "状态" + status + "::" + newState);
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
             gattMap.put(gatt.getDevice().getAddress(), gatt);
         } else {
+            gatt.close();
             disConnection(gatt);
             if (status == 8) {
                 failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);

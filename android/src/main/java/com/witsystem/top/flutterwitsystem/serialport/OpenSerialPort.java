@@ -115,15 +115,18 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
                 writeData(Objects.requireNonNull(gattMap.get(device.getAddress())));
             }
         } else {
+            BluetoothGatt gatt = device.connectGatt(context, false, this);
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
+                    disConnection(gatt);
                     failCall(device.getName(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
                     timer.cancel();
                 }
-            }, 5000);
-            device.connectGatt(context, false, this);
+            }, 6000);
+
+
         }
     }
 
