@@ -248,6 +248,11 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             byte[] value = characteristic.getValue();
             if (value != null && value.length >= 7)
                 batteryCall(gatt.getDevice().getName(), value[6]);
+
+            for (byte b : value) {
+                Log.d("读取的电量", b + "");
+            }
+
         }
     }
 

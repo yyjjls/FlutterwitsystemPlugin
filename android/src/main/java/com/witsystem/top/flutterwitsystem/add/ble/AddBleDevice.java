@@ -4,6 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
@@ -11,11 +14,19 @@ import android.util.Log;
 import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.ble.Ble;
 import com.witsystem.top.flutterwitsystem.ble.BleCode;
+import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
+import com.witsystem.top.flutterwitsystem.tools.NetWork;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * 添加蓝牙设备
@@ -33,6 +44,19 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     private static AddDevice addDevice;
 
     private Timer timer;
+
+    //安全认证通过
+    private static final int SECURITY_OK = 0x00;
+
+    //安全认证失败
+    private static final int SECURITY_FAIL = 0x01;
+
+    //沒有进入设置状态
+    private static final int SECURITY_NO_SETTING_STATE = 0x02;
+
+    //网络认证的权限码
+    private int checkCode = 0;
+
 
     private AddBleDevice(Context context, String appId, String token) {
         this.context = context;
@@ -61,6 +85,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void stopDevice() {
         Ble.instance(context).getBlueAdapter().stopLeScan(this);
+        processCall(null, BleCode.SCAN_END);
     }
 
     @Override
@@ -91,7 +116,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         Log.d("扫描到的设备", device.getName() + "::" + ByteToString.bytesToHexString(scanRecord));
 
-
         processCall(device.getName(), BleCode.SCAN_ADD_DEVICE_INFO);
         scanDeviceCall(device.getName(), rssi);
     }
@@ -102,19 +126,19 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      */
     private void connection(BluetoothDevice device) {
         stopDevice();
+        processCall(device.getName(), BleCode.CONNECTING);
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
             errorCall(device.getName(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
         } else {
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
+            BluetoothGatt gatt = device.connectGatt(context, false, this);
+            startTimer(new TimerTask() {
                 @Override
                 public void run() {
-                    errorCall(device.getName(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
-                    timer.cancel();
+                    disConnection(gatt);
+                    errorCall(device.getAddress(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
                 }
             }, 5000);
-            BluetoothGatt gatt = device.connectGatt(context, false, this);
 
         }
     }
@@ -125,7 +149,12 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      */
     private void disConnection(BluetoothGatt gatt) {
         gatt.disconnect();
-        gatt.close();
+        startTimer(new TimerTask() {
+            @Override
+            public void run() {
+                gatt.close();
+            }
+        }, 200);
     }
 
 
@@ -137,13 +166,14 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
         } else {
-            disConnection(gatt);
+            gatt.disconnect();
+            gatt.close();
             if (status == 8) {
-                errorCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
+                errorCall(gatt.getDevice().getAddress(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                errorCall(gatt.getDevice().getName(), "Bluetooth off", BleCode.BLUE_OFF);
+                errorCall(gatt.getDevice().getAddress(), "Bluetooth off", BleCode.BLUE_OFF);
             } else {
-                errorCall(gatt.getDevice().getName(), "Connection device failed", BleCode.CONNECTION_FAIL);
+                errorCall(gatt.getDevice().getAddress(), "Connection device failed", BleCode.CONNECTION_FAIL);
             }
         }
     }
@@ -151,8 +181,165 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         super.onServicesDiscovered(gatt, status);
+        processCall(gatt.getDevice().getAddress(), BleCode.CONNECT_SUCCESS);
+        BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(Ble.BATTERY));
+        processCall(gatt.getDevice().getAddress(), BleCode.SECURITY_CERTIFICATION_ONGOING);
+        gatt.readCharacteristic(characteristic);
+    }
+
+    @Override
+    public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        super.onCharacteristicRead(gatt, characteristic, status);
+        if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
+            handlerFf01(gatt, characteristic, characteristic.getValue());
+        } else if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.KEY)) {
+            processCall(gatt.getDevice().getAddress(), cBleCode.ACCESS_INFORMATION_COMPLETED);
+
+        }
+
+    }
 
 
+    /**
+     * 处理读取的ff01数据
+     */
+    private void handlerFf01(BluetoothGatt gatt, BluetoothGattCharacteristic characteristicFf01, byte[] data) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                DeviceInfo deviceInfo = analyze(data);
+                int security = security(gatt.getDevice().getAddress(), deviceInfo);
+                if (security == SECURITY_FAIL) {
+                    disConnection(gatt);
+                } else if (security == SECURITY_OK) {//验证成功立马读取数据
+                    readKey(gatt);
+                } else if (security == SECURITY_NO_SETTING_STATE) {//设置监听通知
+                    monitorNotification(gatt, characteristicFf01);
+                }
+
+            }
+        }.start();
+
+    }
+
+
+    /**
+     * 设置接受ff01的通知
+     */
+    private void monitorNotification(BluetoothGatt gatt, BluetoothGattCharacteristic characteristicFf01) {
+        boolean state = gatt.setCharacteristicNotification(characteristicFf01, true);
+        if (state) {
+            List<BluetoothGattDescriptor> descriptors = characteristicFf01.getDescriptors();
+            if (descriptors == null || descriptors.size() == 0) {
+                disConnection(gatt);
+                errorCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+                return;
+            }
+            for (BluetoothGattDescriptor descriptor : descriptors) {
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                gatt.writeDescriptor(descriptor);
+            }
+        } else {
+            disConnection(gatt);
+            errorCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+        }
+    }
+
+
+    /**
+     * 读取密钥
+     */
+    private void readKey(BluetoothGatt gatt) {
+        processCall(gatt.getDevice().getAddress(), BleCode.ACCESS_INFORMATION);
+        BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
+        BluetoothGattCharacteristic characteristicKey = service.getCharacteristic(UUID.fromString(Ble.KEY));
+        gatt.readCharacteristic(characteristicKey);
+    }
+
+
+    /**
+     * 解析发ff01的数据
+     */
+    private DeviceInfo analyze(byte[] ff01) {
+        if (ff01 == null || ff01.length < 6)
+            return null;
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setNewDevice(ff01[0] == 1);
+        deviceInfo.setSetup(ff01[1] == 1);
+        deviceInfo.setFirmwareVersion(ByteToString.bytesToHexString(new byte[]{ff01[2], ff01[3], ff01[4]}));
+        deviceInfo.setBattery(ff01[6]);
+        if (ff01.length <= 10) {
+            return deviceInfo;
+        }
+        deviceInfo.setModel(ByteToString.bytesToHexString(new byte[]{ff01[7], ff01[8], ff01[9], ff01[10]}));
+        byte[] other = new byte[ff01.length - 11];
+        System.arraycopy(ff01, 11, other, 0, other.length);
+        deviceInfo.setOther(ByteToString.bytesToHexString(other));
+        return deviceInfo;
+    }
+
+
+    /**
+     * 进行安全认证
+     */
+    private int security(String mac, DeviceInfo deviceInfo) {
+        if (deviceInfo == null) {
+            errorCall(mac, "Inconsistent equipment information", BleCode.FAILED_SECURITY_FAIL);
+            return SECURITY_FAIL;
+        }
+
+        if (!deviceInfo.isNewDevice()) {
+            errorCall(mac, "Device is not new.", BleCode.NO_NEW_DEVICE);
+            return SECURITY_FAIL;
+        }
+
+        if (!NetWork.isNetworkConnected(context)) {
+            errorCall(mac, "Current network not available.", BleCode.NO_NETWORK);
+            return SECURITY_FAIL;
+        }
+        //网络认证设备
+        Map<String, Object> map = new HashMap<>();
+        map.put("deviceId", "Slock" + mac.replaceAll(":", ""));
+        map.put("appId", appId);
+        map.put("token", token);
+        String clientData = HttpsClient.https("/device/get_verify_device", map);
+        if (clientData == null) {
+            errorCall(mac, "Failed to get service.", BleCode.SERVER_EXCEPTION);
+            return SECURITY_FAIL;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(clientData);
+            if (jsonObject.getInt("err") != 0) {
+                errorCall(mac, "Server authentication failed.", BleCode.SERVER_VERIFY_EXCEPTION);
+                return SECURITY_FAIL;
+            }
+            checkCode = jsonObject.getJSONArray("data").getJSONObject(0).getInt("code");
+        } catch (JSONException e) {
+            errorCall(mac, "Failed to get service.", BleCode.SERVER_EXCEPTION);
+            return SECURITY_FAIL;
+        }
+        if (!deviceInfo.isSetup()) {
+            processCall(mac, BleCode.NO_DEVICE_SET_UP);
+            return SECURITY_NO_SETTING_STATE;
+        }
+        processCall(mac, BleCode.SAFETY_CERTIFICATION_COMPLETED);
+        return SECURITY_OK;
+    }
+
+
+    /**
+     * 创建一个统一的定时器整个过程中有且只能有一个定时器存在
+     *
+     * @param delay
+     * @param timerTask
+     */
+    private void startTimer(TimerTask timerTask, int delay) {
+        if (timer != null)
+            timer.cancel();
+        timer = new Timer();
+        timer.schedule(timerTask, delay);
     }
 
 

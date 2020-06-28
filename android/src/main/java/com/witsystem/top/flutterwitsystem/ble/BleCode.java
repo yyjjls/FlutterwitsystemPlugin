@@ -99,6 +99,9 @@ public class BleCode {
     //蓝牙扫描失败
     public static int BLE_SCAN_FAIL = 100032;
 
+    //当前网络不可用
+    public static int NO_NETWORK = 100033;
+
 
 
 

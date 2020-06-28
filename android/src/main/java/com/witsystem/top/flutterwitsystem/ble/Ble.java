@@ -21,6 +21,7 @@ public class Ble {
 
     public static final String UNLOCK = "0000ff04-0000-1000-8000-00805f9b34fb";
 
+    ///读取电量
     public static final String BATTERY = "0000ff01-0000-1000-8000-00805f9b34fb";
 
     ///串口发送数据特征
@@ -28,6 +29,9 @@ public class Ble {
 
     ///串口发送接受通知特征
     public static final String SERIAL_PORT_READ = "0000ff07-0000-1000-8000-00805f9b34fb";
+
+    ///读取设备的key
+    public static  String KEY = "0000ff02-0000-1000-8000-00805f9b34fb";
 
 
     private Context context;
