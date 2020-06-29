@@ -57,6 +57,9 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     //网络认证的权限码
     private int checkCode = 0;
 
+    //读取出来的设备信息
+    private DeviceInfo deviceInfo;
+
 
     private AddBleDevice(Context context, String appId, String token) {
         this.context = context;
@@ -194,9 +197,24 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
             handlerFf01(gatt, characteristic, characteristic.getValue());
         } else if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.KEY)) {
-            processCall(gatt.getDevice().getAddress(), cBleCode.ACCESS_INFORMATION_COMPLETED);
+            processCall(gatt.getDevice().getAddress(), BleCode.ACCESS_INFORMATION_COMPLETED);
 
         }
+
+    }
+
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        super.onCharacteristicChanged(gatt, characteristic);
+        //接受到进入设置状态的通知
+        if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
+            deviceInfo = analyze(characteristic.getValue());
+            if (deviceInfo.isSetup()) {
+                processCall(gatt.getDevice().getAddress(), BleCode.DEVICE_SET_UP);
+                readKey(gatt);
+            }
+        }
+
 
     }
 
@@ -209,7 +227,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             @Override
             public void run() {
                 super.run();
-                DeviceInfo deviceInfo = analyze(data);
+                deviceInfo = analyze(data);
                 int security = security(gatt.getDevice().getAddress(), deviceInfo);
                 if (security == SECURITY_FAIL) {
                     disConnection(gatt);
