@@ -14,6 +14,7 @@ import android.util.Log;
 import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.ble.Ble;
 import com.witsystem.top.flutterwitsystem.ble.BleCode;
+import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 import com.witsystem.top.flutterwitsystem.tools.NetWork;
@@ -168,13 +169,21 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         timer.cancel();
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices();
+            startTimer(new TimerTask() {
+                public void run() {
+                    timer.cancel();
+                    disConnection(gatt);
+                    errorCall(gatt.getDevice().getAddress(), "Found service failure ", BleCode.GET_SERVICE_FAIL);
+                }
+            }, 10000);
         } else {
             gatt.disconnect();
             gatt.close();
             if (status == 8) {
                 errorCall(gatt.getDevice().getAddress(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                errorCall(gatt.getDevice().getAddress(), "Bluetooth off", BleCode.BLUE_OFF);
+                if (!Ble.instance(context).getBlueAdapter().isEnabled())
+                    errorCall(gatt.getDevice().getAddress(), "Bluetooth off", BleCode.BLUE_OFF);
             } else {
                 errorCall(gatt.getDevice().getAddress(), "Connection device failed", BleCode.CONNECTION_FAIL);
             }
@@ -184,21 +193,36 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         super.onServicesDiscovered(gatt, status);
+        timer.cancel();
         processCall(gatt.getDevice().getAddress(), BleCode.CONNECT_SUCCESS);
         BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
         BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(Ble.BATTERY));
         processCall(gatt.getDevice().getAddress(), BleCode.SECURITY_CERTIFICATION_ONGOING);
         gatt.readCharacteristic(characteristic);
+        startTimer(new TimerTask() {
+            public void run() {
+                timer.cancel();
+                disConnection(gatt);
+                errorCall(gatt.getDevice().getAddress(), "Read Data Timeout", BleCode.READ_OVERTIME);
+            }
+        }, 1500);
+
     }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
+        timer.cancel();
         if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
             handlerFf01(gatt, characteristic, characteristic.getValue());
         } else if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.KEY)) {
+            deviceInfo.setKey(ByteToString.bytesToHexString(characteristic.getValue()));
             processCall(gatt.getDevice().getAddress(), BleCode.ACCESS_INFORMATION_COMPLETED);
-
+            new Thread() {
+                public void run() {
+                    uploadDeviceInfo(gatt);
+                }
+            }.start();
         }
 
     }
@@ -206,6 +230,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
+        timer.cancel();
         //接受到进入设置状态的通知
         if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
             deviceInfo = analyze(characteristic.getValue());
@@ -218,6 +243,17 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
     }
 
+    @Override
+    public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        super.onCharacteristicWrite(gatt, characteristic, status);
+        timer.cancel();
+        if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.ADD_FINISH)) {
+            processCall(gatt.getDevice().getAddress(), BleCode.ADD_SUCCESS);
+            addSuccessCall(gatt.getDevice().getAddress(), BleCode.ADD_SUCCESS);
+            disConnection(gatt);
+        }
+
+    }
 
     /**
      * 处理读取的ff01数据
@@ -234,6 +270,13 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
                 } else if (security == SECURITY_OK) {//验证成功立马读取数据
                     readKey(gatt);
                 } else if (security == SECURITY_NO_SETTING_STATE) {//设置监听通知
+                    startTimer(new TimerTask() {
+                        public void run() {
+                            timer.cancel();
+                            disConnection(gatt);
+                            errorCall(gatt.getDevice().getAddress(), "Wait to set state timeout", BleCode.WAIT_DEVICE_SET_UP_OVERTIME);
+                        }
+                    }, 1000);
                     monitorNotification(gatt, characteristicFf01);
                 }
 
@@ -274,6 +317,13 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
         BluetoothGattCharacteristic characteristicKey = service.getCharacteristic(UUID.fromString(Ble.KEY));
         gatt.readCharacteristic(characteristicKey);
+        startTimer(new TimerTask() {
+            public void run() {
+                timer.cancel();
+                disConnection(gatt);
+                errorCall(gatt.getDevice().getAddress(), "Read Data Timeout", BleCode.READ_OVERTIME);
+            }
+        }, 1500);
     }
 
 
@@ -348,6 +398,66 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
 
     /**
+     * 提交设备信息到服务器
+     */
+    private void uploadDeviceInfo(BluetoothGatt gatt) {
+        processCall(gatt.getDevice().getAddress(), BleCode.ADDITIONS_BEING_COMPLETED);
+        Map<String, Object> map = new HashMap<>();
+        map.put("bleDeviceId", "Slock" + gatt.getDevice().getAddress().replaceAll(":", ""));
+        map.put("checkCode", String.valueOf(checkCode));
+        map.put("bleDeviceKey", deviceInfo.getKey());
+        map.put("bleMac", gatt.getDevice().getAddress());
+        map.put("bleDeviceModel", deviceInfo.getModel());
+        map.put("bleVersion", deviceInfo.getFirmwareVersion());
+        map.put("bleDeviceName", deviceInfo.getName() + DeviceManager.getInstance(context, appId, token).getDevicesNumber());//设备名字默认为
+        map.put("bleDeviceBattery", String.valueOf(deviceInfo.getBattery()));//设备名字默认为
+        //map["bleLongitude"]=val.battery.toString();
+        //map["bleLatitude"]=val.battery.toString();
+        String clientData = HttpsClient.https("/device/ble/add_ble_device", map);
+        if (clientData == null) {
+            disConnection(gatt);
+            errorCall(gatt.getDevice().getAddress(), "Failed to get service.", BleCode.SERVER_EXCEPTION);
+            return;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(clientData);
+            if (jsonObject.getInt("err") != 0) {
+                disConnection(gatt);
+                errorCall(gatt.getDevice().getAddress(), "Server authentication failed.", BleCode.SERVER_VERIFY_EXCEPTION);
+                return;
+            }
+            processCall(gatt.getDevice().getAddress(), BleCode.ADD_FINISH);
+            sendSuccessCommand(gatt);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            disConnection(gatt);
+            errorCall(gatt.getDevice().getAddress(), "Failed to get service.", BleCode.SERVER_EXCEPTION);
+            return;
+        }
+
+
+    }
+
+    /**
+     * 发送添加成功的指令
+     */
+    private void sendSuccessCommand(BluetoothGatt gatt) {
+        BluetoothGattService service = gatt.getService(UUID.fromString(Ble.SERVICES));
+        BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(Ble.ADD_FINISH));
+        characteristic.setValue(new byte[0x03]);
+        gatt.writeCharacteristic(characteristic);
+        startTimer(new TimerTask() {
+            public void run() {
+                timer.cancel();
+                //如果出现这种情况代表服务器已经保存，设备没有反应，需要删除服务器设备重试
+                disConnection(gatt);
+                errorCall(gatt.getDevice().getAddress(), "Waiting for equipment confirmation timeout", BleCode.CONFIRMATION_TIMEOUT);
+            }
+        }, 1000);
+    }
+
+
+    /**
      * 创建一个统一的定时器整个过程中有且只能有一个定时器存在
      *
      * @param delay
@@ -384,6 +494,15 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     private void scanDeviceCall(String deviceId, int rssi) {
         if (addBleDeviceCall != null)
             addBleDeviceCall.scanDevice(deviceId, rssi);
+    }
+
+
+    /**
+     * 添加成功的回调
+     */
+    private void addSuccessCall(String deviceId, int code) {
+        if (addBleDeviceCall != null)
+            addBleDeviceCall.addSuccess(deviceId, code);
     }
 
 }

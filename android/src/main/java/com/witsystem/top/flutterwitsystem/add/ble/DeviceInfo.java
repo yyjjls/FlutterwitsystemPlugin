@@ -24,6 +24,11 @@ public class DeviceInfo {
     private String other = "";
 
 
+    private String key = "";
+
+    private String name = "imo智能门锁";
+
+
     public boolean isNewDevice() {
         return isNewDevice;
     }
@@ -70,5 +75,21 @@ public class DeviceInfo {
 
     public void setOther(String other) {
         this.other = other;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

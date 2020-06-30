@@ -33,6 +33,9 @@ public class Ble {
     ///读取设备的key
     public static  String KEY = "0000ff02-0000-1000-8000-00805f9b34fb";
 
+    ///发送完成添加设备命令
+    public static  String ADD_FINISH = "0000ff03-0000-1000-8000-00805f9b34fb";
+
 
     private Context context;
 

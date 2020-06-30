@@ -102,6 +102,15 @@ public class BleCode {
     //当前网络不可用
     public static int NO_NETWORK = 100033;
 
+    //蓝牙发送信息等待确认超时
+    public static int CONFIRMATION_TIMEOUT  = 100034;
+
+    //读取数据超时
+    public static int READ_OVERTIME  = 100035;
+
+    //等待进入设置状态超时
+    public static int WAIT_DEVICE_SET_UP_OVERTIME  = 100036;
+
 
 
 
