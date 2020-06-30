@@ -95,6 +95,9 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void addDevice(String deviceId) {
         //???ID的转成mac
+        if (deviceId == null) {
+            return;
+        }
         BluetoothDevice remoteDevice = Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceId);
         connection(remoteDevice);
     }
@@ -119,9 +122,10 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         Log.d("扫描到的设备", device.getName() + "::" + ByteToString.bytesToHexString(scanRecord));
-
-        processCall(device.getName(), BleCode.SCAN_ADD_DEVICE_INFO);
-        scanDeviceCall(device.getName(), rssi);
+        if (device.getName().contains("Slock") && scanRecord[5] == -15 && scanRecord[6] == -1) {
+            processCall(device.getAddress(), BleCode.SCAN_ADD_DEVICE_INFO);
+            scanDeviceCall(device.getName(), rssi);
+        }
     }
 
 
@@ -133,7 +137,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         processCall(device.getName(), BleCode.CONNECTING);
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
-            errorCall(device.getName(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
+            errorCall(device.getAddress(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
         } else {
             BluetoothGatt gatt = device.connectGatt(context, false, this);
             startTimer(new TimerTask() {
@@ -476,7 +480,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      */
     private void errorCall(String deviceId, String err, int code) {
         if (addBleDeviceCall != null)
-            addBleDeviceCall.error(deviceId, err, code);
+            addBleDeviceCall.error(deviceId != null ? "Slock" + deviceId.replaceAll(":", "") : null, err, code);
     }
 
     /**
@@ -484,7 +488,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      */
     private void processCall(String deviceId, int code) {
         if (addBleDeviceCall != null)
-            addBleDeviceCall.addProcess(deviceId, code);
+            addBleDeviceCall.addProcess(deviceId != null ? "Slock" + deviceId.replaceAll(":", "") : null, code);
     }
 
 
@@ -502,7 +506,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
      */
     private void addSuccessCall(String deviceId, int code) {
         if (addBleDeviceCall != null)
-            addBleDeviceCall.addSuccess(deviceId, code);
+            addBleDeviceCall.addSuccess("Slock" + deviceId.replaceAll(":", ""), code);
     }
 
 }

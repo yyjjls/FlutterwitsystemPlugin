@@ -121,4 +121,15 @@ class WitsBlue {
       return false;
     }
   }
+
+  ///添加设备，传入指定设备的设备ID
+  Future<bool> addDevice(deviceId) async {
+    try {
+      return await methodChannel
+          .invokeMethod('addDevice', {'deviceId': deviceId});
+    } on PlatformException catch (e) {
+      print('调用关闭失败$e');
+      return false;
+    }
+  }
 }

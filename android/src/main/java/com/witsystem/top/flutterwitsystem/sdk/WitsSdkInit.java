@@ -1,7 +1,6 @@
 package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.add.ble.AddBleDevice;

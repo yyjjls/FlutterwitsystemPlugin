@@ -7,6 +7,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.witsystem.top.flutterwitsystem.add.ble.AddBleDeviceCall;
+import com.witsystem.top.flutterwitsystem.flutter.FlutterAddBleDevice;
+import com.witsystem.top.flutterwitsystem.flutter.FlutterSerialPort;
 import com.witsystem.top.flutterwitsystem.flutter.FlutterUnlock;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdk;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
@@ -24,7 +27,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * 状态更新发送
  */
-public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen {
+public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen, AddBleDeviceCall {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
     private static Context context;
     private WitsSdk witsSdkInit;
@@ -77,15 +80,19 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             //Log.e("初始化", "调用串口发送数据" + call.argument("deviceId"));
             witsSdkInit.getSerialPort().addCall(this);
             result.success(witsSdkInit.getSerialPort().sendData(call.argument("deviceId"), call.argument("data")));
-        }else if (call.method.equals("closeSerialPort")) {
+        } else if (call.method.equals("closeSerialPort")) {
             witsSdkInit.getSerialPort().closeSerialPort();
             result.success(true);
-        }else if (call.method.equals("scanDevice")) {
+        } else if (call.method.equals("scanDevice")) {
             witsSdkInit.getAddBleDevice().scanDevice();
             result.success(true);
-        }else if (call.method.equals("stopDevice")) {
+        } else if (call.method.equals("stopDevice")) {
             witsSdkInit.getAddBleDevice().stopDevice();
             result.success(true);
+        } else if (call.method.equals("addDevice")) {
+            if (call.argument("deviceId") != null)
+                witsSdkInit.getAddBleDevice().addDevice(call.argument("deviceId"));
+            result.success(call.argument("deviceId") != null);
         }
     }
 
@@ -112,7 +119,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void battery(String deviceId, int b) {
-      //  Log.e("开门", "onCharacteristicWrite: 设备电量" + b + "%");
+        //  Log.e("开门", "onCharacteristicWrite: 设备电量" + b + "%");
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("battery").setDeviceId(deviceId).setBattery(b).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendUnlockBleEvent(gson.toJson(flutterUnlock)));
 
@@ -122,23 +129,68 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     /* 下面是蓝牙串口的回调*/
     @Override
     public void serialPortFail(String deviceId, String error, int code) {
-      //  Log.e("初始化", "发送数据serialPortFail" + code);
-        FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("serialPortFail").setDeviceId(deviceId).setError(error).setCode(code).builder();
-        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
+        //  Log.e("初始化", "发送数据serialPortFail" + code);
+        FlutterSerialPort flutterSerialPort = new FlutterSerialPort.Builder().setEvent("serialPortFail").setDeviceId(deviceId).setError(error).setCode(code).builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterSerialPort)));
 
     }
 
     @Override
     public void serialPortSuccess(String deviceId, int code) {
-       //   Log.e("初始化", "发送数据serialPortSuccess" + code);
-        FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("serialPortSuccess").setDeviceId(deviceId).setCode(code).builder();
-        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
+        //   Log.e("初始化", "发送数据serialPortSuccess" + code);
+        FlutterSerialPort flutterSerialPort = new FlutterSerialPort.Builder().setEvent("serialPortSuccess").setDeviceId(deviceId).setCode(code).builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterSerialPort)));
     }
 
     @Override
     public void acceptedData(String deviceId, byte[] data) {
         //  Log.e("初始化", "发送数据acceptedData" + data);
-        FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("acceptedData").setDeviceId(deviceId).setData(ByteToString.bytesToHexString(data)).builder();
-        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterUnlock)));
+        FlutterSerialPort flutterSerialPort = new FlutterSerialPort.Builder().setEvent("acceptedData").setDeviceId(deviceId).setData(ByteToString.bytesToHexString(data)).builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendSerialPortEvent(gson.toJson(flutterSerialPort)));
+    }
+
+
+    /* 下面是添加设备的回调*/
+    @Override
+    public void scanDevice(String deviceId, int rssi) {
+        FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
+                .setEvent("scanDevice")
+                .setDeviceId(deviceId)
+                .setCode(rssi)
+                .setData(String.valueOf(rssi))
+                .builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendAddBleEvent(gson.toJson(flutterAddBleDevice)));
+
+    }
+
+    @Override
+    public void addProcess(String deviceId, int code) {
+        FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
+                .setEvent("addProcess")
+                .setDeviceId(deviceId)
+                .setCode(code)
+                .builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendAddBleEvent(gson.toJson(flutterAddBleDevice)));
+    }
+
+    @Override
+    public void error(String deviceId, String err, int code) {
+        FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
+                .setEvent("error")
+                .setDeviceId(deviceId)
+                .setCode(code)
+                .setError(err)
+                .builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendAddBleEvent(gson.toJson(flutterAddBleDevice)));
+    }
+
+    @Override
+    public void addSuccess(String deviceId, int code) {
+        FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
+                .setEvent("addSuccess")
+                .setDeviceId(deviceId)
+                .setCode(code)
+                .builder();
+        handler.post(() -> FlutterwitsystemEventPlugin.create().sendAddBleEvent(gson.toJson(flutterAddBleDevice)));
     }
 }
