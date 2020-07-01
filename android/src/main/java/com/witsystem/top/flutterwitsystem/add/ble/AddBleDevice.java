@@ -122,7 +122,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         Log.d("扫描到的设备", device.getName() + "::" + ByteToString.bytesToHexString(scanRecord));
-        if (device.getName().contains("Slock") && scanRecord[5] == -15 && scanRecord[6] == -1) {
+        if ("Slock".contains(device.getName()) && scanRecord[5] == -15 && scanRecord[6] == -1) {
             processCall(device.getAddress(), BleCode.SCAN_ADD_DEVICE_INFO);
             scanDeviceCall(device.getName(), rssi);
         }
