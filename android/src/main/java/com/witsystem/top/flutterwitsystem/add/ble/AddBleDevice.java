@@ -57,7 +57,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     private static final int SECURITY_NO_SETTING_STATE = 0x02;
 
     //网络认证的权限码
-    private int checkCode = 0;
+    private String checkCode ;
 
     //读取出来的设备信息
     private DeviceInfo deviceInfo;
@@ -384,17 +384,21 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         map.put("appId", appId);
         map.put("token", token);
         String clientData = HttpsClient.https("/device/get_verify_device", map);
+
         if (clientData == null) {
             errorCall(mac, "Failed to get service.", BleCode.SERVER_EXCEPTION);
             return SECURITY_FAIL;
         }
         try {
             JSONObject jsonObject = new JSONObject(clientData);
+
             if (jsonObject.getInt("err") != 0) {
                 errorCall(mac, "Server authentication failed.", BleCode.SERVER_VERIFY_EXCEPTION);
                 return SECURITY_FAIL;
             }
-            checkCode = jsonObject.getJSONArray("data").getJSONObject(0).getInt("code");
+           // Log.d("网络返回", jsonObject.getJSONArray("data").getJSONObject(0)+"");
+            checkCode = jsonObject.getJSONArray("data").getJSONObject(0).getString("code");
+
         } catch (JSONException e) {
             errorCall(mac, "Failed to get service.", BleCode.SERVER_EXCEPTION);
             return SECURITY_FAIL;
@@ -404,6 +408,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             return SECURITY_NO_SETTING_STATE;
         }
         processCall(mac, BleCode.SAFETY_CERTIFICATION_COMPLETED);
+
         return SECURITY_OK;
     }
 
@@ -415,7 +420,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         processCall(gatt.getDevice().getAddress(), BleCode.ADDITIONS_BEING_COMPLETED);
         Map<String, Object> map = new HashMap<>();
         map.put("bleDeviceId", "Slock" + gatt.getDevice().getAddress().replaceAll(":", ""));
-        map.put("checkCode", String.valueOf(checkCode));
+        map.put("checkCode", checkCode);
         map.put("bleDeviceKey", deviceInfo.getKey());
         map.put("bleMac", gatt.getDevice().getAddress());
         map.put("bleDeviceModel", deviceInfo.getModel());
