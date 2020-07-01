@@ -96,6 +96,9 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             if (call.argument("deviceId") != null)
                 witsSdkInit.getAddBleDevice().addDevice(call.argument("deviceId"));
             result.success(call.argument("deviceId") != null);
+        } else if (call.method.equals("cancelAdd")) {
+            witsSdkInit.getAddBleDevice().cancelAdd();
+            result.success(true);
         }
     }
 

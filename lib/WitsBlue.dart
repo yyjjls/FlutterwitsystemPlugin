@@ -132,4 +132,14 @@ class WitsBlue {
       return false;
     }
   }
+
+  ///取消添加设备
+  Future<bool> cancelAdd() async {
+    try {
+      return await methodChannel.invokeMethod('cancelAdd');
+    } on PlatformException catch (e) {
+      print('调用关闭失败$e');
+      return false;
+    }
+  }
 }

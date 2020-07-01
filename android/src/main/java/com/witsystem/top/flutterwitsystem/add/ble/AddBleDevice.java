@@ -17,6 +17,7 @@ import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
+import com.witsystem.top.flutterwitsystem.tools.CheckCode;
 import com.witsystem.top.flutterwitsystem.tools.NetWork;
 
 import org.json.JSONException;
@@ -61,6 +62,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     //读取出来的设备信息
     private DeviceInfo deviceInfo;
 
+    private BluetoothGatt gatt;
 
     private AddBleDevice(Context context, String appId, String token) {
         this.context = context;
@@ -94,12 +96,18 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
     @Override
     public void addDevice(String deviceId) {
-        //???ID的转成mac
-        if (deviceId == null) {
+        if (deviceId == null || !deviceId.startsWith("Slock")) {
             return;
         }
-        BluetoothDevice remoteDevice = Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceId);
+        String formatMac = CheckCode.formatMac(deviceId.replaceAll("Slock", ""), ":");
+        BluetoothDevice remoteDevice = Ble.instance(context).getBlueAdapter().getRemoteDevice(formatMac);
         connection(remoteDevice);
+    }
+
+    @Override
+    public void cancelAdd() {
+        if (timer != null) timer.cancel();
+        if (gatt != null) disConnection(gatt);
     }
 
 
@@ -112,7 +120,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         boolean startLeScan = blueAdapter.startLeScan(this);
         if (!startLeScan) {
             errorCall(null, "Bluetooth not on", BleCode.BLE_SCAN_FAIL);
-            stopDevice();
             return;
         }
         processCall(null, BleCode.SCANNING);
@@ -121,8 +128,8 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     //------------------蓝牙扫描的回调--------------------------------//
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        if (device.getName()!=null&&device.getName().startsWith("Slock") && scanRecord[5] == -1 && scanRecord[6] == -15) {
-            Log.d("扫描到的设备", device.getName() + "::" + scanRecord[5]+":::"+scanRecord[6]);
+        if (device.getName() != null && device.getName().startsWith("Slock") && scanRecord[5] == -1 && scanRecord[6] == -15) {
+            //Log.d("扫描到的设备", device.getName() + "::" + scanRecord[5]+":::"+scanRecord[6]);
             processCall(device.getAddress(), BleCode.SCAN_ADD_DEVICE_INFO);
             scanDeviceCall(device.getName(), rssi);
         }
@@ -139,7 +146,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         if (connectedDevices.toString().contains(device.getAddress())) {
             errorCall(device.getAddress(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
         } else {
-            BluetoothGatt gatt = device.connectGatt(context, false, this);
+            gatt = device.connectGatt(context, false, this);
             startTimer(new TimerTask() {
                 @Override
                 public void run() {

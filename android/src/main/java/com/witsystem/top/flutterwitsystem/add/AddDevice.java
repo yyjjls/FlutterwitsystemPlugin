@@ -32,6 +32,11 @@ public interface AddDevice {
      */
     void addDevice(String deviceId);
 
+    /**
+     * 取消添加
+     */
+    void cancelAdd();
+
 
 
 }
