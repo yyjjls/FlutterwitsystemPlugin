@@ -21,7 +21,7 @@ class WitsBlue {
       const EventChannel('witsystem.top/blue/event/serialPort');
 
   dsd() {
-    unlockEvent.receiveBroadcastStream().listen((data) {
+    addBleEvent.receiveBroadcastStream().listen((data) {
       print('调用初始获得$data');
     }, onError: (err) {
       print('调用初unlockEvent始化失败$err');

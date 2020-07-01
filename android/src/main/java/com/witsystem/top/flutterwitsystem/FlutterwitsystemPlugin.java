@@ -84,12 +84,15 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             witsSdkInit.getSerialPort().closeSerialPort();
             result.success(true);
         } else if (call.method.equals("scanDevice")) {
+            witsSdkInit.getAddBleDevice().addCall(this);
             witsSdkInit.getAddBleDevice().scanDevice();
             result.success(true);
         } else if (call.method.equals("stopDevice")) {
+            witsSdkInit.getAddBleDevice().addCall(this);
             witsSdkInit.getAddBleDevice().stopDevice();
             result.success(true);
         } else if (call.method.equals("addDevice")) {
+            witsSdkInit.getAddBleDevice().addCall(this);
             if (call.argument("deviceId") != null)
                 witsSdkInit.getAddBleDevice().addDevice(call.argument("deviceId"));
             result.success(call.argument("deviceId") != null);
