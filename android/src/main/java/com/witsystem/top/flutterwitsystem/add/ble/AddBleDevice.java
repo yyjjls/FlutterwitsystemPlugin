@@ -242,6 +242,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
         timer.cancel();
+
         //接受到进入设置状态的通知
         if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.BATTERY)) {
             deviceInfo = analyze(characteristic.getValue());
@@ -257,6 +258,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
+
         timer.cancel();
         if (characteristic.getUuid().toString().equalsIgnoreCase(Ble.ADD_FINISH)) {
             processCall(gatt.getDevice().getAddress(), BleCode.ADD_SUCCESS);
@@ -265,6 +267,8 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         }
 
     }
+
+
 
     /**
      * 处理读取的ff01数据
@@ -287,7 +291,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
                             disConnection(gatt);
                             errorCall(gatt.getDevice().getAddress(), "Wait to set state timeout", BleCode.WAIT_DEVICE_SET_UP_OVERTIME);
                         }
-                    }, 1000);
+                    }, 10000);
                     monitorNotification(gatt, characteristicFf01);
                 }
 
@@ -391,24 +395,23 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         }
         try {
             JSONObject jsonObject = new JSONObject(clientData);
-
             if (jsonObject.getInt("err") != 0) {
                 errorCall(mac, "Server authentication failed.", BleCode.SERVER_VERIFY_EXCEPTION);
                 return SECURITY_FAIL;
             }
-           // Log.d("网络返回", jsonObject.getJSONArray("data").getJSONObject(0)+"");
+
             checkCode = jsonObject.getJSONArray("data").getJSONObject(0).getString("code");
 
         } catch (JSONException e) {
             errorCall(mac, "Failed to get service.", BleCode.SERVER_EXCEPTION);
             return SECURITY_FAIL;
         }
+
         if (!deviceInfo.isSetup()) {
             processCall(mac, BleCode.NO_DEVICE_SET_UP);
             return SECURITY_NO_SETTING_STATE;
         }
         processCall(mac, BleCode.SAFETY_CERTIFICATION_COMPLETED);
-
         return SECURITY_OK;
     }
 
@@ -420,6 +423,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         processCall(gatt.getDevice().getAddress(), BleCode.ADDITIONS_BEING_COMPLETED);
         Map<String, Object> map = new HashMap<>();
         map.put("bleDeviceId", "Slock" + gatt.getDevice().getAddress().replaceAll(":", ""));
+        map.put("token", token);
         map.put("checkCode", checkCode);
         map.put("bleDeviceKey", deviceInfo.getKey());
         map.put("bleMac", gatt.getDevice().getAddress());
