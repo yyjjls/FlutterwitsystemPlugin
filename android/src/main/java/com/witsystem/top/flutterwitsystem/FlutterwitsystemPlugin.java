@@ -159,7 +159,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     /* 下面是添加设备的回调*/
     @Override
     public void scanDevice(String deviceId, int rssi) {
-        Log.e("初始化", "发送数据scanDevice" + deviceId);
+      //  Log.e("初始化", "发送数据scanDevice" + deviceId);
         FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
                 .setEvent("scanDevice")
                 .setDeviceId(deviceId)
@@ -172,7 +172,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void addProcess(String deviceId, int code) {
-        Log.e("初始化", "添加进度" + code);
+       // Log.e("初始化", "添加进度" + code);
         FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
                 .setEvent("addProcess")
                 .setDeviceId(deviceId)
@@ -183,7 +183,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void error(String deviceId, String err, int code) {
-        Log.e("初始化", "添加失败" + err+":::"+code);
+        //Log.e("初始化", "添加失败" + err+":::"+code);
         FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
                 .setEvent("error")
                 .setDeviceId(deviceId)
@@ -195,7 +195,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void addSuccess(String deviceId, int code) {
-        Log.e("初始化", "添加成功" + deviceId);
+       // Log.e("初始化", "添加成功" + deviceId);
         FlutterAddBleDevice flutterAddBleDevice = new FlutterAddBleDevice.Builder()
                 .setEvent("addSuccess")
                 .setDeviceId(deviceId)

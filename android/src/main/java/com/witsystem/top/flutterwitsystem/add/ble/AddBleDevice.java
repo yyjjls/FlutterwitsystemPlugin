@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.ble.Ble;
@@ -452,7 +451,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             e.printStackTrace();
             disConnection(gatt);
             errorCall(gatt.getDevice().getAddress(), "Failed to get service.", BleCode.SERVER_EXCEPTION);
-            return;
         }
 
 
@@ -480,8 +478,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     /**
      * 创建一个统一的定时器整个过程中有且只能有一个定时器存在
      *
-     * @param delay
-     * @param timerTask
+
      */
     private void startTimer(TimerTask timerTask, int delay) {
         if (timer != null)
