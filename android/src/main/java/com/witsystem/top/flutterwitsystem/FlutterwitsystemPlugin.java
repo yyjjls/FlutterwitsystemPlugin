@@ -73,8 +73,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             result.success(witsSdkInit.getInduceUnlock().isRunningInduceUnlock());
         } else if (call.method.equals("unlock")) {
             witsSdkInit.getBleUnlock().addCallBack(this);
-            //result.success(witsSdkInit.getBleUnlock().unlock("Slock04EE033EA882"));
-            result.success(witsSdkInit.getBleUnlock().unlock());
+            result.success(call.argument("deviceId")==null?witsSdkInit.getBleUnlock().unlock():witsSdkInit.getBleUnlock().unlock(call.argument("deviceId")));
         } else if (call.method.equals("serialPortSendData")) {
             //Log.e("初始化", "调用串口发送数据" + call.argument("deviceId"));
             witsSdkInit.getSerialPort().addCall(this);
