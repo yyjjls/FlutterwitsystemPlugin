@@ -58,6 +58,8 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
         return true;
     }
    
+    
+    
     //蓝牙设备状态更新时候的回掉
      func centralManagerDidUpdateState(_ central: CBCentralManager) {
        
@@ -148,13 +150,9 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
         print("读取数据");
         if(characteristic.uuid.isEqual(TOKEN)){
             let allData = characteristic.value;
-            print("读取到的token\(dataToString(data: allData!))");
             print("读取到的token\(allData?.toHexString())");
             let key = "491b86de5a7258a63df7277760881ded"
-             let encryptedPassword128 = allData?.aesEncrypt(keyData:Data.init(hex: key), operation: kCCEncrypt)
-                
-              print("加密好的数据4::\(encryptedPassword128!.toHexString())")
-            
+            let encryptedPassword128 = allData?.aesEncrypt(keyData:Data.init(hex: key), operation: kCCEncrypt)
             peripheral.writeValue(Data(hex: "01\(encryptedPassword128!.toHexString())"), for: unlockCharacteristic!, type: CBCharacteristicWriteType.withResponse)
          
              
