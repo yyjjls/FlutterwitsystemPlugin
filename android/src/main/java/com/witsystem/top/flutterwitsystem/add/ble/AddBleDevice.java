@@ -14,6 +14,7 @@ import com.witsystem.top.flutterwitsystem.add.AddDevice;
 import com.witsystem.top.flutterwitsystem.ble.Ble;
 import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
+import com.witsystem.top.flutterwitsystem.location.AppLocation;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 import com.witsystem.top.flutterwitsystem.tools.CheckCode;
@@ -56,7 +57,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     private static final int SECURITY_NO_SETTING_STATE = 0x02;
 
     //网络认证的权限码
-    private String checkCode ;
+    private String checkCode;
 
     //读取出来的设备信息
     private DeviceInfo deviceInfo;
@@ -71,6 +72,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
     public static AddDevice instance(Context context, String appId, String token) {
         if (addDevice == null) {
+            AppLocation.startLocation(context);
             addDevice = new AddBleDevice(context, appId, token);
         }
         return addDevice;
@@ -268,7 +270,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
     }
 
 
-
     /**
      * 处理读取的ff01数据
      */
@@ -430,8 +431,12 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         map.put("bleVersion", deviceInfo.getFirmwareVersion());
         map.put("bleDeviceName", deviceInfo.getName() + DeviceManager.getInstance(context, appId, token).getDevicesNumber());//设备名字默认为
         map.put("bleDeviceBattery", String.valueOf(deviceInfo.getBattery()));//设备名字默认为
-        //map["bleLongitude"]=val.battery.toString();
-        //map["bleLatitude"]=val.battery.toString();
+        if (AppLocation.getLocation() != null) {
+            map.put("bleLongitude", AppLocation.getLocation().getLongitude());
+            map.put("bleLatitude", AppLocation.getLocation().getLatitude());
+            map.put("position", AppLocation.getLocationAddress(context, AppLocation.getLocation()));
+        }
+
         String clientData = HttpsClient.https("/device/ble/add_ble_device", map);
         if (clientData == null) {
             disConnection(gatt);
@@ -477,8 +482,6 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
 
     /**
      * 创建一个统一的定时器整个过程中有且只能有一个定时器存在
-     *
-
      */
     private void startTimer(TimerTask timerTask, int delay) {
         if (timer != null)

@@ -8,6 +8,7 @@ import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.location.AppLocation;
 import com.witsystem.top.flutterwitsystem.operation.BleOperation;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
 import com.witsystem.top.flutterwitsystem.serialport.OpenSerialPort;
@@ -40,6 +41,7 @@ public final class WitsSdkInit implements Register, WitsSdk {
             synchronized (WitsSdkInit.class) {
                 if (mRegister == null) {
                     mRegister = new WitsSdkInit();
+
                 }
             }
         }
@@ -52,12 +54,13 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (appId == null || userToken == null) {
             return null;
         }
-
         if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
             this.context = context;
         }
         this.appId = appId;
         this.userToken = userToken;
+        if (context != null)
+            AppLocation.startLocation(context);
         return this.context == null ? null : this;
     }
 
