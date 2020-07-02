@@ -59,15 +59,14 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-
         if (call.method.equals("witsSdkInit")) {
             //初始化SDK成功返回true
             witsSdkInit = WitsSdkInit.getInstance().witsSdkInit(context, call.argument("appId"), call.argument("userToken"));
-            Log.e("初始化", "初始化结果" + witsSdkInit);
             result.success(witsSdkInit != null);
-        } else if (call.method.equals("openInduceUnlock")) {
-            //开启感应开锁
+        } else if (call.method.equals("openInduceUnlock")) { //开启感应开锁
             result.success(witsSdkInit.getInduceUnlock().openInduceUnlock());
+        }else if (call.method.equals("getDeviceInfo")) {//获得设备信息
+            result.success(witsSdkInit.getDeviceInfo());
         } else if (call.method.equals("stopInduceUnlock")) {
             result.success(witsSdkInit.getInduceUnlock().stopInduceUnlock());
         } else if (call.method.equals("isRunningInduceUnlock")) {

@@ -45,12 +45,12 @@ public class AppLocation {
             return null;
         }
         location = locationManager.getLastKnownLocation(provider);
-        if (location != null) {
-//            String string = "纬度为：" + location.getLatitude() + ",经度为："
-//                    + location.getLongitude();
-//            Log.e("定位", string);
-//            Log.e("定位", getLocationAddress(context, location));
-        }
+//        if (location != null) {
+////            String string = "纬度为：" + location.getLatitude() + ",经度为："
+////                    + location.getLongitude();
+////            Log.e("定位", string);
+////            Log.e("定位", getLocationAddress(context, location));
+//        }
         return location;
     }
 

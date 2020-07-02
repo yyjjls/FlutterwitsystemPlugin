@@ -40,6 +40,16 @@ class WitsBlue {
     }
   }
 
+  ///获得设备信息
+  Future<bool> getDeviceInfo() async {
+    try {
+      return await methodChannel.invokeMethod('getDeviceInfo');
+    } on PlatformException catch (e) {
+      print('调用初始化失败$e');
+      return false;
+    }
+  }
+
   ///开启感应开锁
   Future<bool> openInduceUnlock() async {
     try {
