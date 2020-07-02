@@ -434,7 +434,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
         if (AppLocation.getLocation() != null) {
             map.put("bleLongitude", AppLocation.getLocation().getLongitude());
             map.put("bleLatitude", AppLocation.getLocation().getLatitude());
-            map.put("position", AppLocation.getLocationAddress(context, AppLocation.getLocation()));
+            map.put("blePosition", AppLocation.getLocationAddress(context, AppLocation.getLocation()));
         }
 
         String clientData = HttpsClient.https("/device/ble/add_ble_device", map);
