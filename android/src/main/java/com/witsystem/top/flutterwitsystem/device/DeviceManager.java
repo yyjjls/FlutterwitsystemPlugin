@@ -3,6 +3,7 @@ package com.witsystem.top.flutterwitsystem.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
@@ -29,12 +30,15 @@ public final class DeviceManager implements Device<DeviceInfo> {
     private String userToken;
     private List<DeviceInfo> deviceList;
     private Map<String, DeviceInfo> deviceMap;
+    private Map<String, DeviceInfo> macMap;
 
+    private boolean state= true;
     private DeviceManager(Context context, String appId, String userToken) {
         this.appId = appId;
         this.userToken = userToken;
         this.deviceList = new ArrayList<>();
         this.deviceMap = new HashMap<>();
+        this.macMap = new HashMap<>();
         this.context = context;
     }
 
@@ -52,28 +56,28 @@ public final class DeviceManager implements Device<DeviceInfo> {
 
     @Override
     public boolean getNetWorkDevice() {
+        state= true;
         Thread thread = new Thread() {
             public void run() {
                 HashMap<String, Object> json = new HashMap<>();
                 json.put("appId", appId);
                 json.put("token", userToken);
                 String https = HttpsClient.https("/device/get_device", json);
-                //  Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + https);
                 if (https != null) {
                     try {
                         JSONObject jsonObject = new JSONObject(https);
-                        //服务器返回错误一场清空缓存
                         if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
                             cleanCache();
+                            state= false;
                             return;
                         }
+
                         if (analyzaDevice(jsonObject.getJSONArray("data"))) {
                             saveDeviceInfo(jsonObject.getJSONArray("data").toString());
                         }
-                        //  Log.e("返回值", ">>>>>>>>>>>>>>>>>>>>>>>>" + deviceList.toString());
-
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        state= false;
                     }
                 } else {
                     //返回空读取缓存
@@ -88,8 +92,9 @@ public final class DeviceManager implements Device<DeviceInfo> {
             thread.join(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            state= false;
         }
-        return deviceList.size() != 0;
+        return state;
     }
 
     @Override
@@ -110,6 +115,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
     }
 
     @Override
+    public DeviceInfo getMacDevice(String mac) {
+        return macMap.get(mac);
+    }
+
+    @Override
     public List<DeviceInfo> getDevices() {
         return deviceList;
     }
@@ -117,6 +127,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
     @Override
     public int getDevicesNumber() {
         return deviceList.size();
+    }
+
+    @Override
+    public List<DeviceBasicInfo> getThreeDevices() {
+        return DeviceBasicInfo.deviceInfoFormat(deviceList);
     }
 
 
@@ -135,6 +150,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
         JSONObject jsonObjects;
         JSONObject authorityInfo;
         deviceMap.clear();
+        macMap.clear();
         deviceList.clear();
         for (int i = 0; i < jsonArray.length(); i++) {
             jsonObjects = jsonArray.getJSONObject(i);
@@ -159,6 +175,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                             .setEndTime(authorityInfo.getString("endTime")));
             deviceList.add(deviceInfo);
             deviceMap.put(deviceInfo.getBleDeviceId(), deviceInfo);
+            macMap.put(deviceInfo.getBleMac(), deviceInfo);
         }
         return true;
     }

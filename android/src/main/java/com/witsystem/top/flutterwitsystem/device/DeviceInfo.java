@@ -1,6 +1,5 @@
 package com.witsystem.top.flutterwitsystem.device;
 
-import java.util.List;
 
 /**
  * 设备信息

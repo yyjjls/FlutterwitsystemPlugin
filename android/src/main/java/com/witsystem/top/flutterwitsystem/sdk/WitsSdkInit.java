@@ -2,11 +2,21 @@ package com.witsystem.top.flutterwitsystem.sdk;
 
 import android.content.Context;
 
-import com.witsystem.top.flutterwitsystem.device.Device;
-import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
+import com.witsystem.top.flutterwitsystem.add.AddDevice;
+import com.witsystem.top.flutterwitsystem.add.ble.AddBleDevice;
+import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
+import com.witsystem.top.flutterwitsystem.location.AppLocation;
+import com.witsystem.top.flutterwitsystem.operation.BleOperation;
+import com.witsystem.top.flutterwitsystem.operation.Operation;
+import com.witsystem.top.flutterwitsystem.serialport.OpenSerialPort;
+import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
+import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
+import com.witsystem.top.flutterwitsystem.unlock.Unlock;
+
+import java.util.List;
 
 
 /**
@@ -19,6 +29,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
 
     private static Register mRegister;
 
+    private String appId;
+
+    private String userToken;
+
     private WitsSdkInit() {
     }
 
@@ -27,6 +41,7 @@ public final class WitsSdkInit implements Register, WitsSdk {
             synchronized (WitsSdkInit.class) {
                 if (mRegister == null) {
                     mRegister = new WitsSdkInit();
+
                 }
             }
         }
@@ -39,20 +54,44 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (appId == null || userToken == null) {
             return null;
         }
-        if(DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()){
-            WitsSdkInit.this.context = context;
+        if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
+            this.context = context;
         }
+        this.appId = appId;
+        this.userToken = userToken;
+        if (context != null)
+            AppLocation.startLocation(context);
         return this.context == null ? null : this;
     }
 
 
     @Override
-    public Device<DeviceInfo> getBleLockDevice() {
-        return context == null ? null : DeviceManager.getInstance(null, null, null);
+    public List<DeviceBasicInfo> getDeviceInfo() {
+        return DeviceManager.getInstance(context, null, null).getThreeDevices();
     }
 
     @Override
     public InduceUnlock getInduceUnlock() {
         return context == null ? null : Induce.instance(context);
+    }
+
+    @Override
+    public BleUnlock getBleUnlock() {
+        return Unlock.instance(context, appId, userToken);
+    }
+
+    @Override
+    public Operation getOperation() {
+        return BleOperation.instance(context, appId, userToken);
+    }
+
+    @Override
+    public SerialPort getSerialPort() {
+        return OpenSerialPort.instance(context);
+    }
+
+    @Override
+    public AddDevice getAddBleDevice() {
+        return AddBleDevice.instance(context, appId, userToken);
     }
 }

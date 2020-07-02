@@ -14,9 +14,13 @@ public interface Device<T> {
     //设备ID获得该设备的信息
     T getDevice(String deviceId);
 
+    T getMacDevice(String mac);
+
     //获得所有的设备
     List<T> getDevices();
 
     //获得设备的个数
     int getDevicesNumber();
+
+    List<DeviceBasicInfo> getThreeDevices();
 }

@@ -1,4 +1,4 @@
-package com.witsystem.top.flutterwitsystem.unlock;
+package com.witsystem.top.flutterwitsystem.induce;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
-import com.witsystem.top.flutterwitsystem.induce.Induce;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 
@@ -83,6 +82,7 @@ public class DistanceUnlock {
                 return;
             }
             DeviceInfo device = DeviceManager.getInstance(context, null, null).getDevice(scanResult.getDevice().getName());
+
             if (device == null) {
                 return;
             }
