@@ -20,4 +20,11 @@ public protocol  BleCall {
     func error(code:Int,error:String);
     
     
+    //连接成功
+    func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral);
+    
+    //设备断开连接
+    func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?);
+    
+    
 }

@@ -76,23 +76,36 @@ class Ble:NSObject,CBCentralManagerDelegate{
      }
     
     
+
     
      
     //停止扫描
     public func stopscan(){
-        //self.bleCall!=NSNull;
          centralManager?.stopScan();
      }
     
     
      //扫描到的设备回掉
       func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        //if(self.bleCall?!=nil){
         bleCall?.scanDevice(central: central, peripheral: peripheral, advertisementData: advertisementData, rssi: RSSI)
-          //  }
        }
         
     
+    //链接成功
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        bleCall?.connect(central: central, didConnect: peripheral);
+    }
     
+    //链接失败
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        bleCall?.error(code: BleCode.CONNECTION_FAIL, error: "Failed to connect device");
+    }
+    
+    //设备断开链接
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        bleCall?.disconnect(central: central, didDisconnectPeripheral: peripheral, error: error);
+    }
+    
+
     
 }

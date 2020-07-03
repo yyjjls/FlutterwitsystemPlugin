@@ -21,16 +21,24 @@ class Unlock:NSObject,BleCall,CBPeripheralDelegate{
     
     private var ble:Ble
     
+    private var unlockInfo:UnlockInfo;
+ 
+    
+    
     private override init() {
         ble = Ble.getInstance;
+        unlockInfo=NSNull() as! UnlockInfo;
        }
     
     //单例
     public static let getInstance = Unlock()
     
+    //添加回调
+    public func addCall(unlockInfo:UnlockInfo){
+        self.unlockInfo=unlockInfo;
+    }
   
-    
-    
+   
     
     /*
      开启附近的设备
@@ -62,18 +70,26 @@ class Unlock:NSObject,BleCall,CBPeripheralDelegate{
     
     
     
-      func belState(code: Int, msg: String) {
+   func belState(code: Int, msg: String) {
            
-        }
+    }
         
-      func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
+   func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
           centralManager=central;
            print("扫描到的设备\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
-        }
+            
+            central.connect(peripheral, options: nil);
+    
+    
+    }
         
-      func error(code: Int, error: String) {
+  func error(code: Int, error: String) {
            
-        }
+    }
+    
+    
+    
+    
     
     
     
