@@ -12,7 +12,7 @@ protocol WitsSdk{
     
     func getBleLockDevice()->String;
     
-     func getInduceUnlock()->Induce;
+    func getInduceUnlock()->Induce;
     
     
 }

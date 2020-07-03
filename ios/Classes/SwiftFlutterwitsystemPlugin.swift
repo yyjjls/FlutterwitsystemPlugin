@@ -5,7 +5,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
   private var witsSdk:WitsSdk?;
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "witsystem.top/blue", binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(name: "witsystem.top/blue/method", binaryMessenger: registrar.messenger())
     let instance = SwiftFlutterwitsystemPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
@@ -25,7 +25,9 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
               result(witsSdk?.getInduceUnlock().stopInduceUnlock());
           } else if (call.method=="isRunningInduceUnlock") {
               result(false);
-          }
+          }else if (call.method=="unlock") {
+            result(Unlock.getInstance.unlock());
+           }
 
   }
 }

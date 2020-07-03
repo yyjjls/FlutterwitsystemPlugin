@@ -8,22 +8,14 @@
 import Foundation
 
 class WitsSdkInit: WitsSdk,Register {
+    private var ble:Ble;
     
-    private init() {}
+    private init() {
+        ble=Ble.getInstance;
+    }
     
     public static let getInstance = WitsSdkInit()
     
-//    private  var witsSdkInit:WitsSdkInit;
-//
-//
-//    public static func getInstance()->Register{
-//        if(witsSdkInit==nil){
-//            witsSdkInit=WitsSdkInit();
-//        }
-//     return witsSdkInit;
-//    }
-  
-   
     
    public func witsSdkInit()->WitsSdk{
            
