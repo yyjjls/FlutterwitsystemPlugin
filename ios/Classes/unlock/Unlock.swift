@@ -12,6 +12,8 @@ import CoreBluetooth
 
 
 class Unlock:NSObject,BleCall,CBPeripheralDelegate{
+   
+    
   
     
      
@@ -21,13 +23,13 @@ class Unlock:NSObject,BleCall,CBPeripheralDelegate{
     
     private var ble:Ble
     
-    private var unlockInfo:UnlockInfo;
+    private var unlockInfo:UnlockInfo?;
  
     
     
     private override init() {
         ble = Ble.getInstance;
-        unlockInfo=NSNull() as! UnlockInfo;
+        unlockInfo=nil;
        }
     
     //单例
@@ -43,8 +45,11 @@ class Unlock:NSObject,BleCall,CBPeripheralDelegate{
     /*
      开启附近的设备
      */
+    
     public func unlock() -> Bool {
         print("返回值：\(centralManager)");
+        let paramDic = [String: String]()
+        HttpsClient.POSTACtion(urlStr: "/device/get_device", param:paramDic)
         scan();
         return true;
     }
@@ -72,23 +77,28 @@ class Unlock:NSObject,BleCall,CBPeripheralDelegate{
     
    func belState(code: Int, msg: String) {
            
-    }
+   }
         
    func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
           centralManager=central;
            print("扫描到的设备\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
             
-            central.connect(peripheral, options: nil);
+            //central.connect(peripheral, options: nil);
     
-    
-    }
+  }
         
   func error(code: Int, error: String) {
            
-    }
+  }
     
     
-    
+  func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+           
+  }
+       
+  func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+           
+  }
     
     
     

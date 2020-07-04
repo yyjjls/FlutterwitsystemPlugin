@@ -86,7 +86,7 @@ class Ble:NSObject,CBCentralManagerDelegate{
     
     
      //扫描到的设备回掉
-      func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         bleCall?.scanDevice(central: central, peripheral: peripheral, advertisementData: advertisementData, rssi: RSSI)
        }
         
@@ -107,5 +107,10 @@ class Ble:NSObject,CBCentralManagerDelegate{
     }
     
 
+    
+    
+    
+    
+    
     
 }
