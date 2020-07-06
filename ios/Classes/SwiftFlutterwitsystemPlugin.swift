@@ -16,7 +16,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
           if (call.method=="witsSdkInit") {
               //初始化SDK成功返回true
-            witsSdk=WitsSdkInit.getInstance.witsSdkInit();
+            witsSdk=WitsSdkInit.getInstance.witsSdkInit(appId: "", token: "");
               result(witsSdk != nil);
           } else if (call.method=="openInduceUnlock") {
               //开启感应开锁

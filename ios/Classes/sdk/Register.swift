@@ -9,6 +9,6 @@ import Foundation
 
 protocol Register{
     
-    func witsSdkInit()->WitsSdk;
+    func witsSdkInit(appId: String?, token: String?)->WitsSdk;
     
 }

@@ -8,15 +8,15 @@ class WitsBlue {
   static const EventChannel bleEvent =
       const EventChannel('witsystem.top/blue/event/ble');
 
-  //开门事件
+  ///开门事件
   static const EventChannel unlockEvent =
       const EventChannel('witsystem.top/blue/event/unlock');
 
-  //添加设备事件
+  ///添加设备事件
   static const EventChannel addBleEvent =
       const EventChannel('witsystem.top/blue/event/addBleDevice');
 
-  //串口事件
+  ///串口事件
   static const EventChannel serialPortEvent =
       const EventChannel('witsystem.top/blue/event/serialPort');
 
