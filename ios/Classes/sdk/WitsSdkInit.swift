@@ -1,6 +1,4 @@
 //
-//  WitsSdkInit.swift
-//  flutterwitsystem
 //
 //  Created by yyjjls on 2020/4/30.
 //
@@ -27,7 +25,6 @@ class WitsSdkInit: WitsSdk, Register {
 
 
     public func witsSdkInit(appId: String?, token: String?) -> WitsSdk? {
-
         self.appId = appId;
         self.token = token;
         let state = DeviceManager.getInstance(appId: appId!, token: token!).getNetWorkDevice();

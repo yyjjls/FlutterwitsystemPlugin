@@ -92,7 +92,7 @@ class HttpsClient {
         let semaphore = DispatchSemaphore(value: 0);
         //发起请求
         let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
-            print("网络请求值\(response)");
+            //print("网络请求值\(response)");
             if (error == nil) {
                 jsonData = String(data: data!, encoding: String.Encoding.utf8)
             }

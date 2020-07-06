@@ -5,7 +5,7 @@
 import Foundation
 
 ///解析的设备信息
-public struct DeviceBasicsInfo: Decodable {
+public struct DeviceInfo: Decodable {
 
     var err: Int?;
     var serviceTime: Int?;

@@ -12,7 +12,8 @@ class DeviceManager: Device {
     private static var device: Device? = nil;
     private static var appId: String?;
     private static var token: String?;
-
+    private var deviceInfoList: [DeviceInfo.Data]?;
+    private var deviceNumber: Int=0;
 
     public static func getInstance(appId: String, token: String) -> Device {
         if (device == nil) {
@@ -23,22 +24,33 @@ class DeviceManager: Device {
         return device!;
     }
 
-
     func getNetWorkDevice() -> Bool {
         let fail = "0x0001";
         let paramDic: [String: String] = ["token": DeviceManager.token!, "appId": DeviceManager.appId!]
-        let vv: String = HttpsClient.POSTAction(urlStr: "/device/get_device", param: paramDic) ?? fail;
-        if (vv == fail) {
+        let value: String = HttpsClient.POSTAction(urlStr: "/device/get_device", param: paramDic) ?? fail;
+        if (value == fail) {
             print("网络请求失败")
             return false;
         }
-        let decoder = JSONDecoder();
-        let data = vv.data(using: String.Encoding.utf8);
-        let d = try? decoder.decode(DeviceBasicsInfo.self, from: data!)
-        print("格式句化好的shu\(d)");
-        return false;
-
+        return any(value: value);
     }
+
+    /**
+    * 解析函数
+    **/
+    private func any(value: String) -> Bool {
+        let decoder = JSONDecoder();
+        let data = value.data(using: String.Encoding.utf8);
+        let deviceInfo = try? decoder.decode(DeviceInfo.self, from: data!);
+        if (deviceInfo == nil) {
+            return false;
+        }
+        print("格式句化好的shu\(deviceInfo)");
+        deviceInfoList = deviceInfo?.data;
+        deviceNumber=deviceInfoList?.count as! Int;
+        return true;
+    }
+
 
     func getCacheDevice() -> Bool {
 
