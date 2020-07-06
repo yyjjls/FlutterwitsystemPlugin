@@ -32,11 +32,10 @@ class DeviceManager: Device {
             print("网络请求失败")
             return false;
         }
-        print("网络请求失败\(vv)");
         let decoder = JSONDecoder();
         let data = vv.data(using: String.Encoding.utf8);
-        let d = try? decoder.decode(DeviceInfo.self, from: data!)
-        print("网络请求失败\(d)");
+        let d = try? decoder.decode(DeviceBasicsInfo.self, from: data!)
+        print("格式句化好的shu\(d)");
         return false;
 
     }

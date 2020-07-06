@@ -4,26 +4,36 @@
 
 import Foundation
 
-public struct DeviceInfo: Decodable {
-    var bleDeviceId: String?;
-    var bleDeviceModel: String?;
-    var bleMac: String?;
-    var bleVersion: String?;
-    var bleDeviceBattery: Int?;
-    var bleDeviceName: String?;
-    var bleLineState: Bool?;
-    var bleDeviceKey: String?;
-    //var authorityInfo: AuthorityInfo?;
+///解析的设备信息
+public struct DeviceBasicsInfo: Decodable {
 
-//    struct AuthorityInfo {
-//        var userUuid: String?;
-//        var type: Int?;
-//        var startDate: String?;
-//        var endDate: String?;
-//        var repeatType: String?;
-//        var dayInfo: String?;
-//        var startTime: String?;
-//        var endTime: String?;
-//    }
+    var err: Int?;
+    var serviceTime: Int?;
+    var data: [Data];
+
+    struct Data: Decodable {
+        var bleDeviceId: String?;
+        var bleDeviceModel: String?;
+        var bleMac: String?;
+        var bleVersion: String?;
+        var bleDeviceBattery: Int?;
+        var bleDeviceName: String?;
+        var bleLineState: Bool?;
+        var bleDeviceKey: String?;
+        var authorityInfo: AuthorityInfo;
+
+        struct AuthorityInfo: Decodable {
+            var userUuid: String?;
+            var type: Int?;
+            var startDate: Int?;
+            var endDate: Int?;
+            var repeatType: String?;
+            var dayInfo: String?;
+            var startTime: Int?;
+            var endTime: Int?;
+        }
+    }
+
 }
+
 

@@ -8,7 +8,8 @@
 import Foundation
 
 protocol Register{
-    
-    func witsSdkInit(appId: String?, token: String?)->WitsSdk;
+
+
+    func witsSdkInit(appId: String?, token: String?)->WitsSdk?;
     
 }
