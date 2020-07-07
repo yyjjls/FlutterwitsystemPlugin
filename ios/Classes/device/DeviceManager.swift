@@ -9,11 +9,14 @@ import Foundation
 
 class DeviceManager: Device {
 
+
+
     private static var device: Device? = nil;
     private static var appId: String?;
     private static var token: String?;
     private var deviceInfoList: [DeviceInfo.Data]?;
-    private var deviceNumber: Int=0;
+    private var deviceNumber: Int? = 0;
+    private var deviceMap = [String: DeviceInfo.Data]();
 
     public static func getInstance(appId: String, token: String) -> Device {
         if (device == nil) {
@@ -36,8 +39,8 @@ class DeviceManager: Device {
     }
 
     /**
-    * 解析函数
-    **/
+     * 解析函数
+     **/
     private func any(value: String) -> Bool {
         let decoder = JSONDecoder();
         let data = value.data(using: String.Encoding.utf8);
@@ -45,9 +48,13 @@ class DeviceManager: Device {
         if (deviceInfo == nil) {
             return false;
         }
-        print("格式句化好的shu\(deviceInfo)");
         deviceInfoList = deviceInfo?.data;
-        deviceNumber=deviceInfoList?.count as! Int;
+        deviceNumber = deviceInfoList?.count;
+        deviceMap.removeAll();
+       deviceInfoList?.forEach { data in
+           deviceMap[data.bleDeviceId ?? ""] = data;
+       }
+      //  print("格式句化好的shu\(deviceNumber)");
         return true;
     }
 
@@ -57,10 +64,16 @@ class DeviceManager: Device {
         return false;
     }
 
-    func getDevice<T>(deviceId: String) -> T {
 
-        return NSNull() as! T;
+
+    /**
+    *通过id获得设备信息
+    */
+    func getDevice(deviceId: String) -> DeviceInfo.Data? {
+        return deviceMap[deviceId];
     }
+
+
 
     func getDevices<T>() -> T {
 
@@ -69,7 +82,7 @@ class DeviceManager: Device {
 
     func getDevicesNumber() -> Int {
 
-        return 0;
+        return deviceNumber ?? 0;
     }
 
     func getThreeDevices<T>() -> T {

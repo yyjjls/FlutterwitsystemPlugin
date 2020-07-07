@@ -16,7 +16,7 @@ protocol Device {
        func getCacheDevice()->Bool;
 
        //设备ID获得该设备的信息
-       func getDevice<T>(deviceId:String)->T;
+       func getDevice(deviceId:String)->DeviceInfo.Data?;
 
        //获得所有的设备
        func getDevices<T>()->T;

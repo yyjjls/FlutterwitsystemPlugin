@@ -11,7 +11,7 @@ public struct DeviceInfo: Decodable {
     var serviceTime: Int?;
     var data: [Data];
 
-    struct Data: Decodable {
+   public struct Data: Decodable {
         var bleDeviceId: String?;
         var bleDeviceModel: String?;
         var bleMac: String?;

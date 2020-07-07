@@ -33,9 +33,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
 
     override init() {
         super.init();
-       
         centralManager=CBCentralManager.init(delegate:self, queue:nil);
-        
     }
     
     ///开启感应开锁
@@ -57,9 +55,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
       
         return true;
     }
-   
-    
-    
+
     //蓝牙设备状态更新时候的回掉
      func centralManagerDidUpdateState(_ central: CBCentralManager) {
        
