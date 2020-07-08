@@ -36,7 +36,7 @@ protocol UnlockInfo {
     /**
      *  发现附近有多个设备的回调 只有转开启附近设备的时候才有可能回调¬
      */
-    func dDevice(deviceId:String);
+    func devices(deviceId:String);
     
     
     

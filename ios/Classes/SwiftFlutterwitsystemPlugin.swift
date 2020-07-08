@@ -1,7 +1,9 @@
 import Flutter
 import UIKit
 
-public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
+public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo {
+
+
     private var witsSdk: WitsSdk?;
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -9,7 +11,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
         let instance = SwiftFlutterwitsystemPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if (call.method == "witsSdkInit") {
@@ -27,8 +28,27 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
         } else if (call.method == "isRunningInduceUnlock") {
             result(false);
         } else if (call.method == "unlock") {
+            witsSdk?.getBleUnlock().addCallBack(unlockInfo: self);
             result(witsSdk?.getBleUnlock().unlock());
         }
+
+    }
+
+
+    /*  》》》》》》》》》》》》》》》》开门的回调《《《《《《《《《《《《《《《《《《《《*/
+    func success(deviceId: String, code: Int) {
+      print("开门成功的回调\(deviceId)\(code)")
+    }
+
+    func fail(error: String, code: Int) {
+
+    }
+
+    func battery(deviceId: String, battery: Int) {
+
+    }
+
+    func devices(deviceId: String) {
 
     }
 }

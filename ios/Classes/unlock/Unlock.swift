@@ -105,7 +105,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         closeBleTimer();
         ble.connect(peripheral, options: nil);
         bleTimer(timeInterval: 3, aSelector: #selector(connectOutTime));
-        print("扫描到的设备开始连接》》》》\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
+      //  print("扫描到的设备开始连接》》》》\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
     }
 
     //连接设备超时
@@ -115,20 +115,20 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func error(code: Int, error: String) {
-        print("连接异常\(error) ");
+        //print("连接异常\(error) ");
         ble.cancelConnection(peripheral!);
         failCall(error: error, code: code);
     }
 
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        print("连接成功\(peripheral.name) ");
+       // print("连接成功\(peripheral.name) ");
         closeBleTimer();
         peripheral.delegate = self;
         peripheral.discoverServices([Ble.SERVICES])
     }
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        print("断开连接\(peripheral.name)");
+       // print("断开连接\(peripheral.name)");
         if (error != nil) {
             failCall(error: "Bluetooth accidental disconnect", code: BleCode.UNEXPECTED_DISCONNECT)
         }
@@ -136,7 +136,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //发现服务
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        print("发现服务");
+       // print("发现服务");
         if (error != nil) {
             failCall(error: "Discover service failure", code: BleCode.GET_SERVICE_FAIL)
             ble.disConnect(peripheral);
@@ -152,7 +152,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //发现特征值
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        print("发现特征值");
+      //  print("发现特征值");
         if (error != nil) {
             failCall(error: "Discover Characteristics failure", code: BleCode.GET_CHARACTERISTIC_FAIL)
             ble.disConnect(peripheral);
@@ -165,7 +165,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //读取到的值
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("读取数据");
+     //   print("读取数据");
         if (error != nil) {
             failCall(error: "Failed to read data", code: BleCode.READ_DATA_FAIL)
             ble.disConnect(peripheral);
@@ -181,13 +181,13 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
             closeBleTimer();
             batteryCall(deviceId: peripheral.name!, battery: NSString(format: "%d", allData![6]).integerValue);
             ble.disConnect(peripheral);
-            print("读取出来的电量\(allData?[6])");
+        //    print("读取出来的电量\(allData?[6])");
         }
     }
 
     //写入值成功 代表开门成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("写入值成功，开门成功");
+       // print("写入值成功，开门成功");
         successCall(deviceId: peripheral.name!, code: BleCode.UNLOCK_SUCCESS);
         bleTimer(timeInterval: 0.5, aSelector: #selector(waitReadBattery));
         peripheral.readValue(for: getCharacteristic(services: peripheral.services![0], uuid: Ble.BATTERY)!);
