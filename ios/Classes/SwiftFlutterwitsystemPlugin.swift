@@ -7,9 +7,10 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo {
     private var witsSdk: WitsSdk?;
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "witsystem.top/blue/method", binaryMessenger: registrar.messenger())
-        let instance = SwiftFlutterwitsystemPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
+        let channel = FlutterMethodChannel(name: "witsystem.top/blue/method", binaryMessenger: registrar.messenger());
+        let instance = SwiftFlutterwitsystemPlugin();
+        registrar.addMethodCallDelegate(instance, channel: channel);
+        FlutterwitsystemEventPlugin().initBleEvent(registrar: registrar);
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -37,7 +38,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo {
 
     /*  》》》》》》》》》》》》》》》》开门的回调《《《《《《《《《《《《《《《《《《《《*/
     func success(deviceId: String, code: Int) {
-      print("开门成功的回调\(deviceId)\(code)")
+        print("开门成功的回调\(deviceId)\(code)")
     }
 
     func fail(error: String, code: Int) {

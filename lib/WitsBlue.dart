@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 class WitsBlue {
   static const methodChannel = const MethodChannel('witsystem.top/blue/method');
 
-  //蓝牙事件
+  ///蓝牙事件
   static const EventChannel bleEvent =
       const EventChannel('witsystem.top/blue/event/ble');
 
@@ -20,10 +20,17 @@ class WitsBlue {
   static const EventChannel serialPortEvent =
       const EventChannel('witsystem.top/blue/event/serialPort');
 
+   ddd(){
+     bleEvent.receiveBroadcastStream().listen((event) {
 
+     }).onError((errr){
+
+     });
+   }
   ///初始化感应开锁
   Future<bool> witsSdkInit(
       {@required String appId, @required String userToken}) async {
+   // ddd();
     return await methodChannel
         .invokeMethod('witsSdkInit', {'appId': appId, 'userToken': userToken});
   }
