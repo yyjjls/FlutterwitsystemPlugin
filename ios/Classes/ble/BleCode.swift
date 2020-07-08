@@ -66,7 +66,7 @@ public class BleCode{
       public static let BLUE_NO = 100020;
 
 
-      ///蓝牙设备以外断开
+      ///蓝牙设备以外断开 开门时候出现可能是设备被初始化
       public static let UNEXPECTED_DISCONNECT = 100021;
 
       ///扫描超时
@@ -115,6 +115,9 @@ public class BleCode{
 
       //等待进入设置状态超时
       public static let WAIT_DEVICE_SET_UP_OVERTIME  = 100036;
+
+      //读取数据失败
+      public static let READ_DATA_FAIL  = 100037;
 
 
 

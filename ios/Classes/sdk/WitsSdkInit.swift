@@ -23,7 +23,6 @@ class WitsSdkInit: WitsSdk, Register {
         return register!;
     }
 
-
     public func witsSdkInit(appId: String?, token: String?) -> WitsSdk? {
         self.appId = appId;
         self.token = token;
@@ -42,5 +41,7 @@ class WitsSdkInit: WitsSdk, Register {
         return Induce.getInstance;
     }
 
-
+    func getBleUnlock() -> BleUnlock {
+        return Unlock.getInstance(appId: appId, token: token);
+    }
 }

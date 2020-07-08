@@ -30,7 +30,7 @@ protocol UnlockInfo {
         *
         * @param b
         */
-    func battery(deviceId:String,b:Int);
+    func battery(deviceId:String,battery:Int);
     
     
     /**

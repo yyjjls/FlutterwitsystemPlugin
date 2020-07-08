@@ -15,8 +15,8 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
         if (call.method == "witsSdkInit") {
             //初始化SDK成功返回true
             let args: NSDictionary = call.arguments as! NSDictionary
-            let appId:String = args["appId"] as! String;
-            let token:String = args["userToken"] as! String;
+            let appId: String = args["appId"] as! String;
+            let token: String = args["userToken"] as! String;
             witsSdk = WitsSdkInit.getInstance().witsSdkInit(appId: appId, token: token);
             result(witsSdk != nil);
         } else if (call.method == "openInduceUnlock") {
@@ -27,7 +27,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin {
         } else if (call.method == "isRunningInduceUnlock") {
             result(false);
         } else if (call.method == "unlock") {
-            result(Unlock.getInstance.unlock());
+            result(witsSdk?.getBleUnlock().unlock());
         }
 
     }

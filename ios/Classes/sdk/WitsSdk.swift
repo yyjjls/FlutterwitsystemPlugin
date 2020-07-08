@@ -7,12 +7,14 @@
 
 import Foundation
 
-protocol WitsSdk{
-    
-    
-    func getBleLockDevice()->String;
-    
-    func getInduceUnlock()->Induce;
-    
-    
+protocol WitsSdk {
+
+
+    func getBleLockDevice() -> String;
+
+    func getInduceUnlock() -> Induce;
+
+    func getBleUnlock() -> BleUnlock;
+
+
 }

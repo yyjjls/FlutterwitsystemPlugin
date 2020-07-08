@@ -23,6 +23,9 @@ class Ble: NSObject, CBCentralManagerDelegate {
     // 开锁特征
     public static let UNLOCK = CBUUID.init(string: "0000ff04-0000-1000-8000-00805f9b34fb");
 
+    //读取点了
+    public static let BATTERY = CBUUID.init(string: "0000ff01-0000-1000-8000-00805f9b34fb");
+
     private var centralManager: CBCentralManager?;
 
     private var bleCall: BleCall? = nil;
@@ -94,6 +97,11 @@ class Ble: NSObject, CBCentralManagerDelegate {
     //连接设备
     public func connect(_ peripheral: CBPeripheral, options: [String: Any]? = nil) {
         centralManager?.connect(peripheral, options: nil);
+    }
+
+    //取消连接
+    public func cancelConnection(_ peripheral: CBPeripheral){
+        centralManager?.cancelPeripheralConnection(peripheral);
     }
 
     //断开设备

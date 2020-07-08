@@ -60,8 +60,6 @@ class HttpsClient {
     }
 
 
-
-
     /**
     POST请求 返回字符串
     */
@@ -103,6 +101,33 @@ class HttpsClient {
         semaphore.wait()
         return jsonData;
     }
+
+
+    /**
+        POST请无返回值飞同步
+    */
+    public static func POSTTaskAction(urlStr: String, param: [String: String]) {
+        let url: NSURL! = NSURL(string: urlStr.contains("https") ? urlStr : "https://witsystem.top" + urlStr);
+        let request: NSMutableURLRequest = NSMutableURLRequest(url: url as URL)
+        let list = NSMutableArray()
+        if param.count > 0 {
+            request.httpMethod = "POST"
+            for subDic in param {
+                let tmpStr = "\(subDic.0)=\(subDic.1)"
+                list.add(tmpStr)
+            }
+            let paramStr = list.componentsJoined(by: "&")
+            let paraData = paramStr.data(using: String.Encoding.utf8)
+            request.httpBody = paraData;
+        }
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config)
+        let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
+            print("网络请求值\(String(data: data!, encoding: String.Encoding.utf8))");
+        };
+        dataTask.resume();
+    }
+
 
     /**
        GET请求
