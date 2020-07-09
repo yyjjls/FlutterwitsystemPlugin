@@ -5,7 +5,7 @@
 import Foundation
 
 //dart  Event 通信
-public class FlutterwitsystemEventPlugin {
+ class FlutterwitsystemEventPlugin {
 
     private static let bleEvent: String? = PluginConfig.CHANNEL + "/event/ble";
     private static let unlockEvent: String? = PluginConfig.CHANNEL + "/event/unlock";
