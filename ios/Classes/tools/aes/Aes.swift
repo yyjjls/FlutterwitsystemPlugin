@@ -6,30 +6,19 @@
 //
 
 import Foundation
-
-
-
-
+//aes 加密
 extension Data{
-
     func aesEncrypt( keyData: Data,  operation: Int) -> Data {
-
         let dataLength = self.count
         let cryptLength  = size_t(dataLength + kCCBlockSizeAES128)
         var cryptData = Data(count:cryptLength)
         let keyLength = size_t(kCCKeySizeAES128)
         let options = CCOptions(kCCOptionECBMode)
-        print("需要加密的数据\(self.toHexString())")
-        
         let ivData=Data.init();
         var numBytesEncrypted :size_t = 0
-
         let cryptStatus = cryptData.withUnsafeMutableBytes {cryptBytes in
-            
             self.withUnsafeBytes {dataBytes in
-                
                 ivData.withUnsafeBytes {ivBytes in
-                    
                     keyData.withUnsafeBytes {keyBytes in
                         CCCrypt(
                                 CCOperation(operation),
