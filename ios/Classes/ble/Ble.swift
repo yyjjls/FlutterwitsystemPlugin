@@ -100,7 +100,7 @@ class Ble: NSObject, CBCentralManagerDelegate {
     }
 
     //取消连接
-    public func cancelConnection(_ peripheral: CBPeripheral){
+    public func cancelConnection(_ peripheral: CBPeripheral) {
         centralManager?.cancelPeripheralConnection(peripheral);
     }
 

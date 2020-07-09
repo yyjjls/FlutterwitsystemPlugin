@@ -58,6 +58,10 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     public func unlock() -> Bool {
         self.deviceId = nil;
         self.peripheral = nil;
+        if (DeviceManager.getInstance(appId: "", token: "").getDevicesNumber() == 0) {
+            failCall(error: "No equipment currently available", code: BleCode.NO_DEVICE);
+            return false;
+        }
         scan();
         return true;
     }
@@ -69,6 +73,10 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     public func unlock(deviceId: String) -> Bool {
         self.deviceId = deviceId;
         self.peripheral = nil;
+        if (DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: deviceId) == nil) {
+            failCall(error: "Failed to obtain device information", code: BleCode.GET_DEVICE_INFO_FAIL);
+            return false;
+        }
         scan();
         return true;
     }
@@ -90,7 +98,9 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func belState(code: Int, msg: String) {
-
+        if (ble.getBleState() == BleCode.DEVICE_BLUE_OFF) {
+            closeBleTimer();//蓝牙关闭直接关闭定时器
+        }
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
@@ -119,8 +129,10 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func error(code: Int, error: String) {
-        //print("连接异常\(error) ");
-        ble.cancelConnection(peripheral!);
+        // print("连接异常\(error) ");
+        if (ble.getBleState() == BleCode.BLUE_NO) {
+            ble.cancelConnection(peripheral!);
+        }
         failCall(error: error, code: code);
     }
 
