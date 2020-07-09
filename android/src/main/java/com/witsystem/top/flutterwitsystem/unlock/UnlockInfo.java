@@ -1,6 +1,8 @@
 package com.witsystem.top.flutterwitsystem.unlock;
 
 
+import java.util.List;
+
 /**
  * 开锁的回调
  */
@@ -25,9 +27,17 @@ public interface UnlockInfo {
     /**
      * 电量的回调
      *
-     * @param b
+     * @param battery
      */
-    void battery(String deviceId,int b);
+    void battery(String deviceId, int battery);
+
+
+    /**
+     * 发现附近多个设备的时候回调，只有在开启附近设备才有可能回调
+     * @param devices
+     * @param code
+     */
+    void devices(List<String> devices, int code);
 
 
 }

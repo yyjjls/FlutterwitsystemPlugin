@@ -5,20 +5,16 @@ class WitsBlue {
   static const methodChannel = const MethodChannel('witsystem.top/blue/method');
 
   //蓝牙事件
-  static const EventChannel bleEvent =
-      const EventChannel('witsystem.top/blue/event/ble');
+  static const EventChannel bleEvent = const EventChannel('witsystem.top/blue/event/ble');
 
   //开门事件
-  static const EventChannel unlockEvent =
-      const EventChannel('witsystem.top/blue/event/unlock');
+  static const EventChannel unlockEvent = const EventChannel('witsystem.top/blue/event/unlock');
 
   //添加设备事件
-  static const EventChannel addBleEvent =
-      const EventChannel('witsystem.top/blue/event/addBleDevice');
+  static const EventChannel addBleEvent = const EventChannel('witsystem.top/blue/event/addBleDevice');
 
   //串口事件
-  static const EventChannel serialPortEvent =
-      const EventChannel('witsystem.top/blue/event/serialPort');
+  static const EventChannel serialPortEvent = const EventChannel('witsystem.top/blue/event/serialPort');
 
 
   ///初始化感应开锁
