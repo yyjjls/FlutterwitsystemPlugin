@@ -5,12 +5,13 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo {
 
 
     private var witsSdk: WitsSdk?;
-
+    private var eventPlugin: FlutterwitsystemEventPlugin?;
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "witsystem.top/blue/method", binaryMessenger: registrar.messenger());
         let instance = SwiftFlutterwitsystemPlugin();
         registrar.addMethodCallDelegate(instance, channel: channel);
-        FlutterwitsystemEventPlugin().initBleEvent(registrar: registrar);
+        instance.eventPlugin = FlutterwitsystemEventPlugin();
+        instance.eventPlugin!.register(registrar: registrar);
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
