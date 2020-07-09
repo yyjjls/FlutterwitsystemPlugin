@@ -94,10 +94,14 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        if (self.deviceId != nil && (peripheral.name == nil || self.deviceId != peripheral.name)) {
-            self.deviceId = nil;
+        if (peripheral.name == nil) {
             return;
-        } else if (peripheral.name == nil || DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name ?? "") == nil) {
+        }
+        //判断是否开启指定设备
+        if (self.deviceId != nil && self.deviceId != peripheral.name) {
+            return;
+        } else //开启附近设备，判断是否有该设备的权限
+        if (self.deviceId == nil && DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name!) == nil) {
             return;
         }
         self.peripheral = peripheral;
@@ -105,7 +109,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         closeBleTimer();
         ble.connect(peripheral, options: nil);
         bleTimer(timeInterval: 3, aSelector: #selector(connectOutTime));
-      //  print("扫描到的设备开始连接》》》》\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
+        //  print("扫描到的设备开始连接》》》》\(peripheral.name) \(rssi.intValue) \(peripheral.state)");
     }
 
     //连接设备超时
@@ -121,14 +125,14 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-       // print("连接成功\(peripheral.name) ");
+        // print("连接成功\(peripheral.name) ");
         closeBleTimer();
         peripheral.delegate = self;
         peripheral.discoverServices([Ble.SERVICES])
     }
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-       // print("断开连接\(peripheral.name)");
+        // print("断开连接\(peripheral.name)");
         if (error != nil) {
             failCall(error: "Bluetooth accidental disconnect", code: BleCode.UNEXPECTED_DISCONNECT)
         }
@@ -136,7 +140,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //发现服务
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-       // print("发现服务");
+        // print("发现服务");
         if (error != nil) {
             failCall(error: "Discover service failure", code: BleCode.GET_SERVICE_FAIL)
             ble.disConnect(peripheral);
@@ -152,7 +156,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //发现特征值
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-      //  print("发现特征值");
+        //  print("发现特征值");
         if (error != nil) {
             failCall(error: "Discover Characteristics failure", code: BleCode.GET_CHARACTERISTIC_FAIL)
             ble.disConnect(peripheral);
@@ -165,7 +169,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //读取到的值
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-     //   print("读取数据");
+        //   print("读取数据");
         if (error != nil) {
             failCall(error: "Failed to read data", code: BleCode.READ_DATA_FAIL)
             ble.disConnect(peripheral);
@@ -181,13 +185,13 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
             closeBleTimer();
             batteryCall(deviceId: peripheral.name!, battery: NSString(format: "%d", allData![6]).integerValue);
             ble.disConnect(peripheral);
-        //    print("读取出来的电量\(allData?[6])");
+            //    print("读取出来的电量\(allData?[6])");
         }
     }
 
     //写入值成功 代表开门成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-       // print("写入值成功，开门成功");
+        // print("写入值成功，开门成功");
         successCall(deviceId: peripheral.name!, code: BleCode.UNLOCK_SUCCESS);
         bleTimer(timeInterval: 0.5, aSelector: #selector(waitReadBattery));
         peripheral.readValue(for: getCharacteristic(services: peripheral.services![0], uuid: Ble.BATTERY)!);
@@ -226,7 +230,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //失败的回调
     private func failCall(error: String, code: Int) {
-        if(peripheral != nil){
+        if (peripheral != nil) {
             uploadRecord(state: 1, deviceId: peripheral?.name ?? " ", battery: -1);
         }
         if (unlockInfo != nil) {
