@@ -26,6 +26,14 @@ class Ble: NSObject, CBCentralManagerDelegate {
     //读取点了
     public static let BATTERY = CBUUID.init(string: "0000ff01-0000-1000-8000-00805f9b34fb");
 
+
+    ///串口发送数据特征
+    public static let SERIAL_PORT_WRITE = CBUUID.init(string: "0000ff06-0000-1000-8000-00805f9b34fb");
+
+    ///串口发送接受通知特征
+    public static let SERIAL_PORT_READ = CBUUID.init(string: "0000ff07-0000-1000-8000-00805f9b34fb");
+
+
     private var centralManager: CBCentralManager?;
 
     private var bleCall: BleCall? = nil;
@@ -88,7 +96,6 @@ class Ble: NSObject, CBCentralManagerDelegate {
         centralManager?.scanForPeripherals(withServices: [SCAN, SCAN2], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
     }
 
-
     //停止扫描
     public func stopScan() {
         centralManager?.stopScan();
@@ -128,6 +135,18 @@ class Ble: NSObject, CBCentralManagerDelegate {
     //设备断开链接
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         bleCall?.disconnect(central: central, didDisconnectPeripheral: peripheral, error: error);
+    }
+
+
+
+    //获取制定的特征值
+     public func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
+        for characteristic: CBCharacteristic in services.characteristics! {
+            if (characteristic.uuid.isEqual(uuid)) {
+                return characteristic;
+            }
+        }
+        return nil;
     }
 
 

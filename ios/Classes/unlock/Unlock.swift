@@ -176,7 +176,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         }
         //读取token
         // peripheral.discoverCharacteristics([Ble.TOKEN], for: peripheral.services![0])
-        peripheral.readValue(for: getCharacteristic(services: peripheral.services![0], uuid: Ble.TOKEN)!);
+        peripheral.readValue(for: ble.getCharacteristic(services: peripheral.services![0], uuid: Ble.TOKEN)!);
     }
 
     //读取到的值
@@ -191,7 +191,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
             let allData = characteristic.value;
             let key = DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name ?? "")?.bleDeviceKey ?? "";
             let encryptedPassword128 = allData?.aesEncrypt(keyData: Data.init(hex: key), operation: kCCEncrypt)
-            peripheral.writeValue(Data(hex: "01\(encryptedPassword128!.toHexString())"), for: getCharacteristic(services: peripheral.services![0], uuid: Ble.UNLOCK)!, type: CBCharacteristicWriteType.withResponse)
+            peripheral.writeValue(Data(hex: "01\(encryptedPassword128!.toHexString())"), for: ble.getCharacteristic(services: peripheral.services![0], uuid: Ble.UNLOCK)!, type: CBCharacteristicWriteType.withResponse)
         } else if (characteristic.uuid.isEqual(Ble.BATTERY)) {
             let allData = characteristic.value;
             closeBleTimer();
@@ -203,11 +203,15 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     //写入值成功 代表开门成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if (error != nil) {
+            failCall(error: "Failed to write data", code: BleCode.WRITE_DATA_FAIL)
+            ble.disConnect(peripheral);
+            return;
+        }
         // print("写入值成功，开门成功");
         successCall(deviceId: peripheral.name!, code: BleCode.UNLOCK_SUCCESS);
         bleTimer(timeInterval: 0.5, aSelector: #selector(waitReadBattery));
-        peripheral.readValue(for: getCharacteristic(services: peripheral.services![0], uuid: Ble.BATTERY)!);
-        // ble.disConnect(peripheral);
+        peripheral.readValue(for: ble.getCharacteristic(services: peripheral.services![0], uuid: Ble.BATTERY)!);
     }
 
     //等待读取电量超时
@@ -216,15 +220,15 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         uploadRecord(state: 0, deviceId: peripheral?.name ?? " ", battery: -1);
     }
 
-    //获取制定的特征值
-    private func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
-        for characteristic: CBCharacteristic in services.characteristics! {
-            if (characteristic.uuid.isEqual(uuid)) {
-                return characteristic;
-            }
-        }
-        return nil;
-    }
+//    //获取制定的特征值
+//    private func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
+//        for characteristic: CBCharacteristic in services.characteristics! {
+//            if (characteristic.uuid.isEqual(uuid)) {
+//                return characteristic;
+//            }
+//        }
+//        return nil;
+//    }
 
     //定时器
     private func bleTimer(timeInterval: Double, aSelector: Selector) {

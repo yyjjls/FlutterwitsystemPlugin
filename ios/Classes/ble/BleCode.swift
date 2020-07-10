@@ -119,6 +119,9 @@ public class BleCode{
       //读取数据失败
       public static let READ_DATA_FAIL  = 100037;
 
+      //写入数据失败
+      public static let WRITE_DATA_FAIL  = 100038;
+
 
 
 
