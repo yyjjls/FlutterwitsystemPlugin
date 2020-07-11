@@ -83,6 +83,11 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func error(code: Int, error: String) {
+        print("异常\(code)");
+        failCall(deviceId: peripheral == nil ? "" : peripheral!.name!, err: error, code: code);
+        if (Ble.getInstance.getBleState() == BleCode.BLUE_NO) {
+            Ble.getInstance.cancelConnection(peripheral!);
+        }
     }
 
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -94,15 +99,20 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        // print("断开连接");
         connectDevicesMap.removeValue(forKey: peripheral.name!);
-        print("断开连接")
+        if (error != nil) {
+            failCall(deviceId: peripheral.name!, err: "Bluetooth accidental disconnect", code: BleCode.UNEXPECTED_DISCONNECT);
+            Ble.getInstance.disConnect(peripheral);
+            return;
+        }
     }
 
     //发现服务
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if (error != nil) {
-            //  failCall(error: "Discover service failure", code: BleCode.GET_SERVICE_FAIL)
-            //ble.disConnect(peripheral);
+            failCall(deviceId: peripheral.name!, err: "Discover Characteristics failure", code: BleCode.GET_SERVICE_FAIL)
+            Ble.getInstance.disConnect(peripheral);
             return;
         }
         peripheral.discoverCharacteristics(nil, for: peripheral.services![0])
@@ -111,8 +121,8 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     //发现特征值
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if (error != nil) {
-            //failCall(error: "Discover Characteristics failure", code: BleCode.GET_CHARACTERISTIC_FAIL)
-            //ble.disConnect(peripheral);
+            failCall(deviceId: peripheral.name!, err: "Discover Characteristics failure", code: BleCode.GET_CHARACTERISTIC_FAIL)
+            Ble.getInstance.disConnect(peripheral);
             return;
         }
         //读取token
@@ -121,10 +131,9 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     //读取到的值
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("读取到的值：\(characteristic.value?.toHexString())");
         if (error != nil) {
-            //failCall(error: "Failed to read data", code: BleCode.READ_DATA_FAIL)
-            //ble.disConnect(peripheral);
+            failCall(deviceId: peripheral.name!, err: "Failed to read data", code: BleCode.READ_DATA_FAIL);
+            Ble.getInstance.disConnect(peripheral);
             return;
         }
         if (characteristic.uuid.isEqual(Ble.TOKEN)) {
@@ -132,53 +141,51 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
             let key = DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name ?? "")?.bleDeviceKey ?? "";
             let encryptedPassword128 = allData?.aesEncrypt(keyData: Data.init(hex: key), operation: kCCEncrypt)
             peripheral.writeValue(Data(hex: "02\(encryptedPassword128!.toHexString())"), for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.UNLOCK)!, type: CBCharacteristicWriteType.withResponse)
-        } else if (characteristic.uuid.isEqual(Ble.BATTERY)) {
-            let allData = characteristic.value;
-
-            //    print("读取出来的电量\(allData?[6])");
+        } else if (characteristic.uuid.isEqual(Ble.SERIAL_PORT_READ)) {
+            print("接受到通知 数据：\(characteristic.value?.toHexString())");
+            acceptedDataCall(deviceId: peripheral.name!, data: characteristic.value!);
         }
     }
 
     //写入值成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if (error != nil) {
-            //failCall(error: "Failed to write data", code: BleCode.WRITE_DATA_FAIL)
-            //ble.disConnect(peripheral);
+            failCall(deviceId: peripheral.name!, err: "Failed to write data", code: BleCode.WRITE_DATA_FAIL)
+            Ble.getInstance.disConnect(peripheral);
             return;
         }
-        //认证成功
         if (characteristic.uuid.isEqual(Ble.UNLOCK)) {
-            print("认证成功")
+            //认证成功
+            successCall(deviceId: peripheral.name!, code: BleCode.SERIAL_PORT_SUCCESS);
             peripheral.setNotifyValue(true, for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.SERIAL_PORT_READ)!);
-
+        } else if (characteristic.uuid.isEqual(Ble.SERIAL_PORT_WRITE)) {
+            //发送数据成功
+            successCall(deviceId: peripheral.name!, code: BleCode.SERIAL_PORT_SEND_DATA_SUCCESS);
         }
-
     }
 
     //通知设置成功的回调
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        print("监听通知成功：\(characteristic.value?.toHexString())");
         if (error != nil) {
-            //  println("更改通知状态错误：\(error.localizedDescription)")
+            failCall(deviceId: peripheral.name!, err: "Failed to listen for notification", code: BleCode.NOTIFICATION_DATA_FAIL)
+            Ble.getInstance.disConnect(peripheral);
             return;
         }
         writeData(peripheral: peripheral, data: Data.init(hex: data!));
     }
-
 
     //发送数据
     private func writeData(peripheral: CBPeripheral, data: Data) {
         peripheral.writeValue(data, for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.SERIAL_PORT_WRITE)!, type: CBCharacteristicWriteType.withResponse);
     }
 
-
     //回调错误信息
-    private func failCall(deviceId: String, err: String, code: Int) {
+    private func failCall(deviceId: String?, err: String, code: Int) {
         if (serialPortListen == nil) {
             return;
         }
 
-        serialPortListen!.serialPortFail(deviceId: deviceId, error: err, code: code);
+        serialPortListen!.serialPortFail(deviceId: deviceId!, error: err, code: code);
     }
 
     //回调成功

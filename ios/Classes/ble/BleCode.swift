@@ -122,6 +122,9 @@ public class BleCode{
       //写入数据失败
       public static let WRITE_DATA_FAIL  = 100038;
 
+      //设置通知失败
+      public static let NOTIFICATION_DATA_FAIL  = 100039;
+
 
 
 

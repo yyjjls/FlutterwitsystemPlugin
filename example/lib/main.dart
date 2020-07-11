@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     try {
       platformVersion =
-          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'fafcd3e827da40fd87138c455e07f136-1594210894523')}';
+          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: '8743cd285aac44fcb8f6d3ce10bd95c4-1594390941130')}';
     } on PlatformException {
       platformVersion = '初始化失败.';
     }
@@ -77,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('串口发送数据'),
                 onPressed: () async {
                   bool b = await WitsBlue().serialPortSendData(
-                      deviceId: 'Slock04EE033EA882', data: 'ef55010313020019');
+                      deviceId: 'Slock04EE033EABD4', data: 'ef55010313020019');
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
