@@ -44,4 +44,11 @@ class WitsSdkInit: WitsSdk, Register {
     func getBleUnlock() -> BleUnlock {
         return Unlock.getInstance(appId: appId, token: token);
     }
+
+
+    func getSerialPort() -> SerialPort {
+        return OpenSerialPort.getInstance();
+    }
+
+
 }

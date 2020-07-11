@@ -10,6 +10,8 @@ import CoreBluetooth
  */
 class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
+    private var peripheral: CBPeripheral?;
+
     private var serialPortListen: SerialPortListen?;
 
     private static var serialPort: SerialPort?;
@@ -68,8 +70,14 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         }
     }
 
+    private func stopScan() {
+        Ble.getInstance.stopScan();
+    }
+
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
         if (peripheral.name != nil && peripheral.name == deviceId) {
+            self.peripheral = peripheral;
+            stopScan();
             Ble.getInstance.connect(peripheral);
         }
     }
@@ -86,7 +94,8 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-
+        connectDevicesMap.removeValue(forKey: peripheral.name!);
+        print("断开连接")
     }
 
     //发现服务
@@ -112,6 +121,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     //读取到的值
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        print("读取到的值：\(characteristic.value?.toHexString())");
         if (error != nil) {
             //failCall(error: "Failed to read data", code: BleCode.READ_DATA_FAIL)
             //ble.disConnect(peripheral);
@@ -138,24 +148,52 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         }
         //认证成功
         if (characteristic.uuid.isEqual(Ble.UNLOCK)) {
-            peripheral.setNotifyValue(true, for: characteristic);
+            print("认证成功")
+            peripheral.setNotifyValue(true, for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.SERIAL_PORT_READ)!);
+
         }
 
     }
 
-    //接受到通知
+    //通知设置成功的回调
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        if error != nil {
+        print("监听通知成功：\(characteristic.value?.toHexString())");
+        if (error != nil) {
             //  println("更改通知状态错误：\(error.localizedDescription)")
+            return;
         }
-        print("收到的特性数据：\(characteristic.value)")
+        writeData(peripheral: peripheral, data: Data.init(hex: data!));
     }
 
 
-
-//发送数据
+    //发送数据
     private func writeData(peripheral: CBPeripheral, data: Data) {
         peripheral.writeValue(data, for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.SERIAL_PORT_WRITE)!, type: CBCharacteristicWriteType.withResponse);
     }
 
+
+    //回调错误信息
+    private func failCall(deviceId: String, err: String, code: Int) {
+        if (serialPortListen == nil) {
+            return;
+        }
+
+        serialPortListen!.serialPortFail(deviceId: deviceId, error: err, code: code);
+    }
+
+    //回调成功
+    private func successCall(deviceId: String, code: Int) {
+        if (serialPortListen == nil) {
+            return;
+        }
+        serialPortListen!.serialPortSuccess(deviceId: deviceId, code: code);
+    }
+
+    //回调接受到的数据
+    private func acceptedDataCall(deviceId: String, data: Data) {
+        if (serialPortListen == nil) {
+            return;
+        }
+        serialPortListen!.acceptedData(deviceId: deviceId, data: data);
+    }
 }
