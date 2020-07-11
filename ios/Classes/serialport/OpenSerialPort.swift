@@ -102,7 +102,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func error(code: Int, error: String) {
-        print("异常\(code)");
+        //print("异常\(code)");
         failCall(deviceId: deviceId, err: error, code: code);
         if (Ble.getInstance.getBleState() == BleCode.BLUE_NO) {
             Ble.getInstance.cancelConnection(peripheral!);

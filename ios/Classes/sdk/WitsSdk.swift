@@ -21,5 +21,9 @@ protocol WitsSdk {
     //串口通信
     func getSerialPort() -> SerialPort;
 
+    /**
+     * 获得ble添加设备的对象
+     */
+    func getAddBleDevice() -> AddDevice;
 
 }

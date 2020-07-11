@@ -7,6 +7,8 @@ import Foundation
 
 class WitsSdkInit: WitsSdk, Register {
 
+
+
     private var appId: String? = "";
     private var token: String? = "";
     private static var register: Register? = nil;
@@ -50,5 +52,7 @@ class WitsSdkInit: WitsSdk, Register {
         return OpenSerialPort.getInstance();
     }
 
-
+    func getAddBleDevice() -> AddDevice {
+        return AddBleDevice.getInstance(appId: appId, token: token);
+    }
 }

@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, SerialPortListen {
+public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, SerialPortListen, AddBleDeviceCall {
 
 
     private var witsSdk: WitsSdk?;
@@ -36,15 +36,31 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
             witsSdk?.getBleUnlock().addCallBack(unlockInfo: self);
             result(witsSdk?.getBleUnlock().unlock());
         } else if (call.method == "serialPortSendData") {
-            //Log.e("初始化", "调用串口发送数据" + call.argument("deviceId"));
             witsSdk?.getSerialPort().addCall(serialPortListen: self);
             let args: NSDictionary = call.arguments as! NSDictionary
             result(witsSdk?.getSerialPort().sendData(deviceId: args["deviceId"] as! String, data: args["data"] as! String));
         } else if (call.method == "closeSerialPort") {
             witsSdk!.getSerialPort().closeSerialPort();
             result(true);
+        } else if (call.method == "scanDevice") {
+            witsSdk!.getAddBleDevice().addCall(addBleDeviceCall: self);
+            witsSdk!.getAddBleDevice().scanDevice();
+            result(true);
+        } else if (call.method == "stopDevice") {
+            witsSdk!.getAddBleDevice().addCall(addBleDeviceCall: self);
+            witsSdk!.getAddBleDevice().stopDevice();
+            result(true);
+        } else if (call.method == "addDevice") {
+            witsSdk!.getAddBleDevice().addCall(addBleDeviceCall: self);
+            let args: NSDictionary = call.arguments as! NSDictionary
+            if (args["deviceId"] != nil) {
+                witsSdk!.getAddBleDevice().addDevice(deviceId: args["deviceId"] as! String);
+            }
+            result(args["deviceId"] != nil);
+        } else if (call.method == "cancelAdd") {
+            witsSdk!.getAddBleDevice().cancelAdd();
+            result(true);
         }
-
     }
 
 
@@ -111,6 +127,20 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
         flutterSerialPort.deviceId = deviceId;
         flutterSerialPort.data = data.toHexString();
         eventPlugin?.sendSerialPortEvent(data: String(data: try! encoder.encode(flutterSerialPort), encoding: .utf8)!)
+    }
+
+
+    /*  》》》》》》》》》》》》》》》》添加设备的回调《《《《《《《《《《《《《《《《《《《《*/
+    func scanDevice(deviceId: String, rssi: Int) {
+    }
+
+    func addProcess(deviceId: String, code: Int) {
+    }
+
+    func error(deviceId: String, err: String, code: Int) {
+    }
+
+    func addSuccess(deviceId: String, code: Int) {
     }
 
 }
