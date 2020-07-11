@@ -86,6 +86,11 @@ class Ble: NSObject, CBCentralManagerDelegate {
         return bleState;
     }
 
+    //是否在扫描
+//    public func isScanning() -> Bool {
+//        return centralManager!.isScanning;
+//    }
+
     //扫描设备
     public func scan(bleCall: BleCall) {
         self.bleCall = bleCall;
@@ -138,9 +143,8 @@ class Ble: NSObject, CBCentralManagerDelegate {
     }
 
 
-
     //获取制定的特征值
-     public func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
+    public func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
         for characteristic: CBCharacteristic in services.characteristics! {
             if (characteristic.uuid.isEqual(uuid)) {
                 return characteristic;

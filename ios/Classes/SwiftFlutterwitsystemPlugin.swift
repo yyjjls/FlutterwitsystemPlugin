@@ -6,6 +6,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
 
     private var witsSdk: WitsSdk?;
     private var eventPlugin: FlutterwitsystemEventPlugin?;
+    private let encoder = JSONEncoder();
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "witsystem.top/blue/method", binaryMessenger: registrar.messenger());
@@ -13,6 +14,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
         registrar.addMethodCallDelegate(instance, channel: channel);
         instance.eventPlugin = FlutterwitsystemEventPlugin();
         instance.eventPlugin!.register(registrar: registrar);
+        instance.encoder.outputFormatting = .prettyPrinted // 输出格式
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -49,8 +51,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
     /*  》》》》》》》》》》》》》》》》开门的回调《《《《《《《《《《《《《《《《《《《《*/
     func success(deviceId: String, code: Int) {
         print("开门成功的回调\(deviceId)\(code)")
-        let encoder = JSONEncoder();
-        encoder.outputFormatting = .prettyPrinted // 输出格式
         var flutterUnlock = FlutterUnlock();
         flutterUnlock.event = "success";
         flutterUnlock.code = code;
@@ -60,8 +60,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
     }
 
     func fail(error: String, code: Int) {
-        let encoder = JSONEncoder();
-        encoder.outputFormatting = .prettyPrinted // 输出格式
         var flutterUnlock = FlutterUnlock();
         flutterUnlock.event = "fail";
         flutterUnlock.code = code;
@@ -71,8 +69,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
     }
 
     func battery(deviceId: String, battery: Int) {
-        let encoder = JSONEncoder();
-        encoder.outputFormatting = .prettyPrinted // 输出格式
         var flutterUnlock = FlutterUnlock();
         flutterUnlock.event = "battery";
         flutterUnlock.battery = battery;
@@ -82,8 +78,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
     }
 
     func devices(deviceId: String) {
-        let encoder = JSONEncoder();
-        encoder.outputFormatting = .prettyPrinted // 输出格式
         var flutterUnlock = FlutterUnlock();
         flutterUnlock.event = "devices";
         flutterUnlock.deviceId = deviceId;
@@ -94,12 +88,29 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
 
     /*  》》》》》》》》》》》》》》》》串口的回调《《《《《《《《《《《《《《《《《《《《*/
     func serialPortFail(deviceId: String, error: String, code: Int) {
+        var flutterSerialPort = FlutterSerialPort();
+        flutterSerialPort.event = "serialPortFail";
+        flutterSerialPort.deviceId = deviceId;
+        flutterSerialPort.code = code;
+        flutterSerialPort.error = error;
+        eventPlugin?.sendSerialPortEvent(data: String(data: try! encoder.encode(flutterSerialPort), encoding: .utf8)!)
+
     }
 
     func serialPortSuccess(deviceId: String, code: Int) {
+        var flutterSerialPort = FlutterSerialPort();
+        flutterSerialPort.event = "serialPortSuccess";
+        flutterSerialPort.deviceId = deviceId;
+        flutterSerialPort.code = code;
+        eventPlugin?.sendSerialPortEvent(data: String(data: try! encoder.encode(flutterSerialPort), encoding: .utf8)!)
     }
 
     func acceptedData(deviceId: String, data: Data) {
+        var flutterSerialPort = FlutterSerialPort();
+        flutterSerialPort.event = "acceptedData";
+        flutterSerialPort.deviceId = deviceId;
+        flutterSerialPort.data = data.toHexString();
+        eventPlugin?.sendSerialPortEvent(data: String(data: try! encoder.encode(flutterSerialPort), encoding: .utf8)!)
     }
 
 }

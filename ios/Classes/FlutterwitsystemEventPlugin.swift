@@ -71,6 +71,7 @@ import Foundation
 // * 发送串口事件
 //
     public func sendSerialPortEvent(data: Any) {
+       // print("没有监听者>>>\(data)");
         if (serialPortEventSink!.eventSink != nil) {
             serialPortEventSink!.eventSink!(data);
         } else {

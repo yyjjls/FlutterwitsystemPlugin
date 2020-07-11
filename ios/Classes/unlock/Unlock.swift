@@ -220,20 +220,9 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         uploadRecord(state: 0, deviceId: peripheral?.name ?? " ", battery: -1);
     }
 
-//    //获取制定的特征值
-//    private func getCharacteristic(services: CBService, uuid: CBUUID) -> CBCharacteristic? {
-//        for characteristic: CBCharacteristic in services.characteristics! {
-//            if (characteristic.uuid.isEqual(uuid)) {
-//                return characteristic;
-//            }
-//        }
-//        return nil;
-//    }
 
     //定时器
     private func bleTimer(timeInterval: Double, aSelector: Selector) {
-        //typealias DispatchSourceHandler = @convention(block) () -> Void
-        // Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerCall), userInfo: nil, repeats: true))
         timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: aSelector, userInfo: nil, repeats: false);
     }
 

@@ -20,6 +20,8 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     private var deviceId: String?;
 
+    private var timer: Timer?;
+
     //保存连接上的设备
     private var connectDevicesMap = [String: CBPeripheral]();
 
@@ -35,6 +37,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func sendData(deviceId: String, data: String) -> Bool {
+        self.peripheral = nil;
         if (data == "") {
             return false;
         }
@@ -49,7 +52,15 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func closeSerialPort() {
-
+        stopScan();
+        if (peripheral == nil) {
+            return;
+        }
+        if (connectDevicesMap[(peripheral!.name)!] == nil) {
+            Ble.getInstance.cancelConnection(peripheral!);
+        } else {
+            Ble.getInstance.disConnect(peripheral!);
+        }
     }
 
     //连接设备
@@ -57,9 +68,19 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         let peripheral = connectDevicesMap[deviceId!];
         if (peripheral == nil) {
             Ble.getInstance.scan(bleCall: self);
+            bleTimer(timeInterval: 5, aSelector: #selector(connectTimeOut));
         } else {
             writeData(peripheral: peripheral!, data: Data.init(hex: data!));
         }
+    }
+    //连接超时
+    @objc private func connectTimeOut(){
+        closeSerialPort();
+        failCall(deviceId: deviceId, err: "Connection timeout", code: BleCode.CONNECTION_TIMEOUT);
+    }
+
+    private func stopScan() {
+        Ble.getInstance.stopScan();
     }
 
     /** 《《《《《《《《《蓝牙的回调》》》》》》》》》》**/
@@ -67,11 +88,9 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         //删除所有的连接设备
         if (code != BleCode.BLUE_NO) {
             connectDevicesMap.removeAll();
+        } else {
+            closeBleTimer();
         }
-    }
-
-    private func stopScan() {
-        Ble.getInstance.stopScan();
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
@@ -84,13 +103,15 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     func error(code: Int, error: String) {
         print("异常\(code)");
-        failCall(deviceId: peripheral == nil ? "" : peripheral!.name!, err: error, code: code);
+        failCall(deviceId: deviceId, err: error, code: code);
         if (Ble.getInstance.getBleState() == BleCode.BLUE_NO) {
             Ble.getInstance.cancelConnection(peripheral!);
         }
     }
 
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        //关闭连接定时器
+        closeBleTimer();
         //添加到已经连接的设备
         connectDevicesMap.updateValue(peripheral, forKey: peripheral.name!);
         //发现服务
@@ -142,13 +163,14 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
             let encryptedPassword128 = allData?.aesEncrypt(keyData: Data.init(hex: key), operation: kCCEncrypt)
             peripheral.writeValue(Data(hex: "02\(encryptedPassword128!.toHexString())"), for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.UNLOCK)!, type: CBCharacteristicWriteType.withResponse)
         } else if (characteristic.uuid.isEqual(Ble.SERIAL_PORT_READ)) {
-            print("接受到通知 数据：\(characteristic.value?.toHexString())");
             acceptedDataCall(deviceId: peripheral.name!, data: characteristic.value!);
         }
     }
 
     //写入值成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        //关闭写入值超时定时器
+        closeBleTimer();
         if (error != nil) {
             failCall(deviceId: peripheral.name!, err: "Failed to write data", code: BleCode.WRITE_DATA_FAIL)
             Ble.getInstance.disConnect(peripheral);
@@ -176,7 +198,14 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     //发送数据
     private func writeData(peripheral: CBPeripheral, data: Data) {
+        bleTimer(timeInterval: 2, aSelector: #selector(writeDataOverTime))
         peripheral.writeValue(data, for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.SERIAL_PORT_WRITE)!, type: CBCharacteristicWriteType.withResponse);
+    }
+
+    //发送数据超时
+    @objc private func writeDataOverTime(){
+        closeSerialPort();
+        failCall(deviceId: deviceId, err: "Data send timeout", code: BleCode.SERIAL_PORT_SEND_DATA_OVERTIME);
     }
 
     //回调错误信息
@@ -184,7 +213,6 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         if (serialPortListen == nil) {
             return;
         }
-
         serialPortListen!.serialPortFail(deviceId: deviceId!, error: err, code: code);
     }
 
@@ -202,5 +230,17 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
             return;
         }
         serialPortListen!.acceptedData(deviceId: deviceId, data: data);
+    }
+
+    //定时器
+    private func bleTimer(timeInterval: Double, aSelector: Selector) {
+        timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: aSelector, userInfo: nil, repeats: false);
+    }
+
+    //关闭定时
+    private func closeBleTimer() {
+        if (timer != nil) {
+            timer?.invalidate()
+        }
     }
 }
