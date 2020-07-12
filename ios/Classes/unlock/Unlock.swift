@@ -52,9 +52,9 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
 
-/*
- 开启附近的设备
- */
+    /*
+    开启附近的设备
+    */
     public func unlock() -> Bool {
         self.deviceId = nil;
         self.peripheral = nil;
@@ -98,7 +98,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
     }
 
     func belState(code: Int, msg: String) {
-        if (ble.getBleState() == BleCode.DEVICE_BLUE_OFF) {
+        if (code == BleCode.DEVICE_BLUE_OFF) {
             closeBleTimer();//蓝牙关闭直接关闭定时器
         }
     }
@@ -175,7 +175,6 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
             return;
         }
         //读取token
-        // peripheral.discoverCharacteristics([Ble.TOKEN], for: peripheral.services![0])
         peripheral.readValue(for: ble.getCharacteristic(services: peripheral.services![0], uuid: Ble.TOKEN)!);
     }
 
@@ -219,7 +218,6 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
         ble.disConnect(peripheral!);
         uploadRecord(state: 0, deviceId: peripheral?.name ?? " ", battery: -1);
     }
-
 
     //定时器
     private func bleTimer(timeInterval: Double, aSelector: Selector) {

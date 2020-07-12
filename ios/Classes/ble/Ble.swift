@@ -11,8 +11,8 @@ import CoreBluetooth
 
 class Ble: NSObject, CBCentralManagerDelegate {
 
-    private let SCAN = CBUUID.init(string: "0000fff1-0000-1000-8000-00805f9b34fb");
-    private let SCAN2 = CBUUID.init(string: "0000f1ff-0000-1000-8000-00805f9b34fb");
+    private static let SCAN = CBUUID.init(string: "0000fff1-0000-1000-8000-00805f9b34fb");
+    public static let SCAN2 = CBUUID.init(string: "0000f1ff-0000-1000-8000-00805f9b34fb");
 
     //链接成功
     public static let SERVICES = CBUUID.init(string: "0000fff1-0000-1000-8000-00805f9b34fb");
@@ -23,15 +23,20 @@ class Ble: NSObject, CBCentralManagerDelegate {
     // 开锁特征
     public static let UNLOCK = CBUUID.init(string: "0000ff04-0000-1000-8000-00805f9b34fb");
 
-    //读取点了
+    //读取电量
     public static let BATTERY = CBUUID.init(string: "0000ff01-0000-1000-8000-00805f9b34fb");
-
 
     ///串口发送数据特征
     public static let SERIAL_PORT_WRITE = CBUUID.init(string: "0000ff06-0000-1000-8000-00805f9b34fb");
 
     ///串口发送接受通知特征
     public static let SERIAL_PORT_READ = CBUUID.init(string: "0000ff07-0000-1000-8000-00805f9b34fb");
+
+    ///读取设备的key
+    public static let KEY = CBUUID.init(string: "0000ff02-0000-1000-8000-00805f9b34fb");
+
+    ///发送完成添加设备命令
+    public static let ADD_FINISH = CBUUID.init(string: "0000ff03-0000-1000-8000-00805f9b34fb");
 
 
     private var centralManager: CBCentralManager?;
@@ -91,15 +96,26 @@ class Ble: NSObject, CBCentralManagerDelegate {
 //        return centralManager!.isScanning;
 //    }
 
-    //扫描设备
+    //扫描我们自己的设备设备
     public func scan(bleCall: BleCall) {
         self.bleCall = bleCall;
         if (bleState != BleCode.BLUE_NO) {
             bleCall.error(code: bleState, error: "Bluetooth exception see exception code");
             return;
         }
-        centralManager?.scanForPeripherals(withServices: [SCAN, SCAN2], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
+        centralManager?.scanForPeripherals(withServices: [Ble.SCAN, Ble.SCAN2], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
     }
+
+    //扫描指定包含的设备
+    public func scan(serviceUUIDs: [CBUUID]?, bleCall: BleCall) {
+        self.bleCall = bleCall;
+        if (bleState != BleCode.BLUE_NO) {
+            bleCall.error(code: bleState, error: "Bluetooth exception see exception code");
+            return;
+        }
+        centralManager?.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]);
+    }
+
 
     //停止扫描
     public func stopScan() {

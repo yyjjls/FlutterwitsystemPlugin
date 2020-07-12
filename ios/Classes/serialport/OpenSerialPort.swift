@@ -159,8 +159,8 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         }
         if (characteristic.uuid.isEqual(Ble.TOKEN)) {
             let allData = characteristic.value;
-            let key = DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name ?? "")?.bleDeviceKey ?? "";
-            let encryptedPassword128 = allData?.aesEncrypt(keyData: Data.init(hex: key), operation: kCCEncrypt)
+            let key = DeviceManager.getInstance(appId: "", token: "").getDevice(deviceId: peripheral.name!)?.bleDeviceKey!;
+            let encryptedPassword128 = allData?.aesEncrypt(keyData: Data.init(hex: key!), operation: kCCEncrypt)
             peripheral.writeValue(Data(hex: "02\(encryptedPassword128!.toHexString())"), for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.UNLOCK)!, type: CBCharacteristicWriteType.withResponse)
         } else if (characteristic.uuid.isEqual(Ble.SERIAL_PORT_READ)) {
             acceptedDataCall(deviceId: peripheral.name!, data: characteristic.value!);

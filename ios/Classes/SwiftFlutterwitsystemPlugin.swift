@@ -4,6 +4,7 @@ import UIKit
 public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, SerialPortListen, AddBleDeviceCall {
 
 
+
     private var witsSdk: WitsSdk?;
     private var eventPlugin: FlutterwitsystemEventPlugin?;
     private let encoder = JSONEncoder();
@@ -131,16 +132,18 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
 
 
     /*  》》》》》》》》》》》》》》》》添加设备的回调《《《《《《《《《《《《《《《《《《《《*/
-    func scanDevice(deviceId: String, rssi: Int) {
+    func scanDevice(deviceId: String?, rssi: Int) {
     }
 
-    func addProcess(deviceId: String, code: Int) {
+    func addProcess(deviceId: String?, code: Int) {
+        print("添加进度\(code)");
     }
 
-    func error(deviceId: String, err: String, code: Int) {
+    func error(deviceId: String?, err: String, code: Int) {
+        print("添加异常\(code)");
     }
 
-    func addSuccess(deviceId: String, code: Int) {
+    func addSuccess(deviceId: String?, code: Int) {
     }
 
 }

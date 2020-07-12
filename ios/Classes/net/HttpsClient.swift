@@ -15,43 +15,6 @@ class HttpsClient {
       POST请求
       */
     public static func POSTAction(urlStr: String, param: [String: String]) -> NSDictionary? {
-        /* //请求URL
-         let url: NSURL! = NSURL(string: urlStr.contains("https") ? urlStr : "https://witsystem.top" + urlStr);
-         let request: NSMutableURLRequest = NSMutableURLRequest(url: url as URL)
-         let list = NSMutableArray()
-         // var paramDic = [String: String]()
-         if param.count > 0 {
-             request.httpMethod = "POST"
-             //拆分字典,subDic是其中一项，将key与value变成字符串
-             for subDic in param {
-                 let tmpStr = "\(subDic.0)=\(subDic.1)"
-                 list.add(tmpStr)
-             }
-             //用&拼接变成字符串的字典各项
-             let paramStr = list.componentsJoined(by: "&")
-             //UTF8转码，防止汉字符号引起的非法网址
-             let paraData = paramStr.data(using: String.Encoding.utf8)
-             //设置请求体
-             request.httpBody = paraData;
-         }
-         //默认session配置
-         let config = URLSessionConfiguration.default
-         let session = URLSession(configuration: config)
-         var jsonData: NSDictionary? = nil;
-         let semaphore = DispatchSemaphore(value: 0);
-         //发起请求
-         let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
-             if (error == nil) {
-                 let str: String! = String(data: data!, encoding: String.Encoding.utf8)
-                 print("网络请求值\(str)");
-                 //转Json
-                 jsonData = try! JSONSerialization.jsonObject(with: data!, options: .mutableContainers) as! NSDictionary
-             }
-             semaphore.signal();
-         } as URLSessionTask;
-         //请求开始
-         dataTask.resume();
-         semaphore.wait()*/
         let jsonStr: String = POSTAction(urlStr: urlStr, param: param) ?? "";
         if (jsonStr == "") {
             return nil;
