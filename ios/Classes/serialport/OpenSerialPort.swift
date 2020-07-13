@@ -23,7 +23,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     private var timer: Timer?;
 
     //保存连接上的设备
-    private var connectDevicesMap = [String: CBPeripheral]();
+    // private var connectDevicesMap = [String: CBPeripheral]();
 
     public static func getInstance() -> SerialPort {
         if (serialPort == nil) {
@@ -37,7 +37,12 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func sendData(deviceId: String, data: String) -> Bool {
-        self.peripheral = nil;
+
+        //判断如果需要发送的设备不是当前连接的设备断开当前连接设备重新连接新设备 串口发送只能一次保证一个设备的连接
+        if (self.peripheral != nil && self.peripheral?.state == CBPeripheralState.connected && self.peripheral?.name! != deviceId) {
+            closeSerialPort();
+            self.peripheral = nil;
+        }
         if (data == "") {
             return false;
         }
@@ -56,7 +61,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
         if (peripheral == nil) {
             return;
         }
-        if (connectDevicesMap[(peripheral!.name)!] == nil) {
+        if (peripheral?.state != CBPeripheralState.connected) {
             Ble.getInstance.cancelConnection(peripheral!);
         } else {
             Ble.getInstance.disConnect(peripheral!);
@@ -65,16 +70,16 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     //连接设备
     private func connectDevice() {
-        let peripheral = connectDevicesMap[deviceId!];
-        if (peripheral == nil) {
+        if (peripheral == nil || peripheral?.state != CBPeripheralState.connected) {
             Ble.getInstance.scan(bleCall: self);
             bleTimer(timeInterval: 5, aSelector: #selector(connectTimeOut));
         } else {
             writeData(peripheral: peripheral!, data: Data.init(hex: data!));
         }
     }
+
     //连接超时
-    @objc private func connectTimeOut(){
+    @objc private func connectTimeOut() {
         closeSerialPort();
         failCall(deviceId: deviceId, err: "Connection timeout", code: BleCode.CONNECTION_TIMEOUT);
     }
@@ -87,7 +92,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     func belState(code: Int, msg: String) {
         //删除所有的连接设备
         if (code != BleCode.BLUE_NO) {
-            connectDevicesMap.removeAll();
+            //connectDevicesMap.removeAll();
         } else {
             closeBleTimer();
         }
@@ -112,8 +117,6 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         //关闭连接定时器
         closeBleTimer();
-        //添加到已经连接的设备
-        connectDevicesMap.updateValue(peripheral, forKey: peripheral.name!);
         //发现服务
         peripheral.delegate = self;
         peripheral.discoverServices([Ble.SERVICES]);
@@ -121,7 +124,6 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         // print("断开连接");
-        connectDevicesMap.removeValue(forKey: peripheral.name!);
         if (error != nil) {
             failCall(deviceId: peripheral.name!, err: "Bluetooth accidental disconnect", code: BleCode.UNEXPECTED_DISCONNECT);
             Ble.getInstance.disConnect(peripheral);
@@ -203,7 +205,7 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     //发送数据超时
-    @objc private func writeDataOverTime(){
+    @objc private func writeDataOverTime() {
         closeSerialPort();
         failCall(deviceId: deviceId, err: "Data send timeout", code: BleCode.SERIAL_PORT_SEND_DATA_OVERTIME);
     }
