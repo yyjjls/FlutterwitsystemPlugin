@@ -55,7 +55,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
             witsSdk!.getAddBleDevice().addCall(addBleDeviceCall: self);
             let args: NSDictionary = call.arguments as! NSDictionary
             if (args["deviceId"] != nil) {
-                witsSdk!.getAddBleDevice().addDevice(deviceId: args["deviceId"] as! String);
+                witsSdk!.getAddBleDevice().addDevice(deviceId: (args["deviceId"] as! String));
             }
             result(args["deviceId"] != nil);
         } else if (call.method == "cancelAdd") {
@@ -128,22 +128,46 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
         flutterSerialPort.deviceId = deviceId;
         flutterSerialPort.data = data.toHexString();
         eventPlugin?.sendSerialPortEvent(data: String(data: try! encoder.encode(flutterSerialPort), encoding: .utf8)!)
+
     }
 
 
     /*  》》》》》》》》》》》》》》》》添加设备的回调《《《《《《《《《《《《《《《《《《《《*/
     func scanDevice(deviceId: String?, rssi: Int) {
+        var flutterAddBleDevice = FlutterAddBleDevice();
+        flutterAddBleDevice.event = "scanDevice";
+        flutterAddBleDevice.deviceId = deviceId;
+        flutterAddBleDevice.code = rssi;
+        eventPlugin?.sendAddBleEvent(data: String(data: try! encoder.encode(flutterAddBleDevice), encoding: .utf8)!)
     }
 
     func addProcess(deviceId: String?, code: Int) {
-        print("添加进度\(code)");
+        var flutterAddBleDevice = FlutterAddBleDevice();
+        flutterAddBleDevice.event = "addProcess";
+        flutterAddBleDevice.deviceId = deviceId;
+        flutterAddBleDevice.code = code;
+        eventPlugin?.sendAddBleEvent(data: String(data: try! encoder.encode(flutterAddBleDevice), encoding: .utf8)!)
+
     }
 
     func error(deviceId: String?, err: String, code: Int) {
         print("添加异常\(code)");
+        var flutterAddBleDevice = FlutterAddBleDevice();
+        flutterAddBleDevice.event = "error";
+        flutterAddBleDevice.deviceId = deviceId;
+        flutterAddBleDevice.code = code;
+        flutterAddBleDevice.error = err;
+        eventPlugin?.sendAddBleEvent(data: String(data: try! encoder.encode(flutterAddBleDevice), encoding: .utf8)!)
+
     }
 
     func addSuccess(deviceId: String?, code: Int) {
+        var flutterAddBleDevice = FlutterAddBleDevice();
+        flutterAddBleDevice.event = "addSuccess";
+        flutterAddBleDevice.deviceId = deviceId;
+        flutterAddBleDevice.code = code;
+        eventPlugin?.sendAddBleEvent(data: String(data: try! encoder.encode(flutterAddBleDevice), encoding: .utf8)!)
+
     }
 
 }

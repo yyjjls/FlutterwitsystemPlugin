@@ -29,7 +29,7 @@ protocol AddDevice {
      *
      * @param deviceId
      */
-    func addDevice(deviceId: String);
+    func addDevice(deviceId: String?);
 
     /**
      * 取消添加

@@ -8,8 +8,9 @@ import CoreBluetooth
 //添加蓝牙设备
 class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     private var appId: String?;
-    private var token: String?
-    private var deviceId: String?
+    private var token: String?;
+    private var deviceId: String? = "";
+    private var timer: Timer?;
     //安全认证通过
     private static let SECURITY_OK: Int = 0x00;
     //安全认证失败
@@ -42,6 +43,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     }
 
     func scanDevice() {
+        self.deviceId = "";
         scanDevicesMap.removeAll();
         Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN2], bleCall: self);
         processCall(deviceId: deviceId, code: BleCode.SCANNING);
@@ -51,53 +53,80 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         Ble.getInstance.stopScan();
     }
 
-    func addDevice(deviceId: String) {
-        //AddBleDevice.addDevice!.addDevice(deviceId: peripheral.name!);
-        Ble.getInstance.connect(scanDevicesMap[deviceId]!)
+    func addDevice(deviceId: String?) {
+        if (deviceId == nil) {
+            return;
+        }
+        let deviceInfo = scanDevicesMap[deviceId!];
+        if (deviceInfo == nil) {//如果没有换成代表用户是直接指定连接添加的设备
+            self.deviceId = deviceId;
+            scanDevicesMap.removeAll();
+            Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN2], bleCall: self);
+            bleTimer(timeInterval: 5, aSelector: #selector(directConnectionOverTimer))
+        } else {//已经扫描完成用户直接连接指定设备
+            Ble.getInstance.connect(deviceInfo!);
+        }
         processCall(deviceId: deviceId, code: BleCode.CONNECTING);
     }
 
-    func cancelAdd() {
-//        stopScan();
-//        if (peripheral == nil) {
-//            return;
-//        }
-//        if (connectDevicesMap[(peripheral!.name)!] == nil) {
-//            Ble.getInstance.cancelConnection(peripheral!);
-//        } else {
-//            Ble.getInstance.disConnect(peripheral!);
-//        }
+    //当之前输入设备id进行添加，主要是出现扫描二维码添加，定时器
+    @objc private func directConnectionOverTimer() {
+        cancelAdd();
+        errorCall(deviceId: deviceId!, err: "Device connection timeout", code: BleCode.CONNECTION_TIMEOUT);
     }
 
+    func cancelAdd() {
+        Ble.getInstance.stopScan();
+        scanDevicesMap.forEach { key, value in
+            if (value.state == CBPeripheralState.connected) {
+                Ble.getInstance.disConnect(value);
+            } else {
+                Ble.getInstance.cancelConnection(value);
+            }
+        }
+    }
 
     /*》》》》》》》》》》》蓝牙的回调《《《《《《《《《《《《《《《《《*/
     func belState(code: Int, msg: String) {
         if (code == BleCode.DEVICE_BLUE_OFF) {
-            //closeBleTimer();//蓝牙关闭直接关闭定时器
+            closeBleTimer(); //蓝牙关闭直接关闭定时器
         }
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        print("扫描到的数据\(peripheral.name)")
-        if (peripheral.name != nil && ((peripheral.name?.contains("Slock")) != nil)) {
+        if (peripheral.name != nil) {return;}
+        if (deviceId! != "" && peripheral.name! == deviceId) { //连接指定的设备
+            scanDevicesMap[peripheral.name!] = peripheral;
+            Ble.getInstance.stopScan();
+            Ble.getInstance.connect(peripheral);
+        } else if (((peripheral.name?.contains("Slock")) != nil)) { //扫描附近的设备
             scanDevicesMap[peripheral.name!] = peripheral;
             processCall(deviceId: peripheral.name!, code: BleCode.SCAN_ADD_DEVICE_INFO);
             scanDeviceCall(deviceId: peripheral.name!, rssi: Int(truncating: rssi));
             Ble.getInstance.stopScan();
-           // AddBleDevice.addDevice!.addDevice(deviceId: peripheral.name!);
+            bleTimer(timeInterval: 5, aSelector: #selector(connectionOverTimer))
         }
     }
 
+    //连接设备超时
+    @objc private func connectionOverTimer() {
+        cancelAdd();
+        errorCall(deviceId: deviceId!, err: "Device connection timeout", code: BleCode.CONNECTION_TIMEOUT);
+    }
+
     func error(code: Int, error: String) {
+        closeBleTimer();
         errorCall(deviceId: deviceId!, err: error, code: code);
     }
 
     func connect(central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        closeBleTimer();
         processCall(deviceId: peripheral.name!, code: BleCode.CONNECT_SUCCESS);
         peripheral.delegate = self;
         peripheral.discoverServices([Ble.SERVICES])
         processCall(deviceId: peripheral.name!, code: BleCode.SECURITY_CERTIFICATION_ONGOING);
     }
+
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         if (error != nil) {
@@ -153,7 +182,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         // processCall(deviceId: peripheral.name!, code: BleCode.ACCESS_INFORMATION_COMPLETED);
     }
 
-
     //写入值成功
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if (error != nil) {
@@ -167,10 +195,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
             processCall(deviceId: peripheral.name!, code: BleCode.ADD_SUCCESS);
             addSuccessCall(deviceId: peripheral.name!, code: BleCode.ADD_SUCCESS);
         }
-
-
-
-
     }
 
     /**
@@ -190,7 +214,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
 
         }
     }
-
 
     /**
     * 解析发ff01的数据
@@ -213,7 +236,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         }
         return addDeviceInfo;
     }
-
 
     /**
     * 进行安全认证
@@ -253,7 +275,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         return AddBleDevice.SECURITY_OK;
     }
 
-
     /**
     * 提交设备信息到服务器
     */
@@ -276,10 +297,9 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
                                           "token": token!, "checkCode": checkCode!, "bleDeviceKey": addDeviceInfo!.key,
                                           "bleMac": String(hexMac), "bleDeviceModel": addDeviceInfo!.model, "bleVersion": addDeviceInfo!.firmwareVersion,
                                           "bleDeviceName": addDeviceInfo!.name + String(deviceNumber)//设备名字默认为
-                                          ,"bleDeviceBattery": String(addDeviceInfo!.battery)]
+                                          , "bleDeviceBattery": String(addDeviceInfo!.battery)]
 
-
-        var clientData: NSDictionary? = HttpsClient.POSTAction(urlStr: "/device/ble/add_ble_device", param: paramDic);
+        let clientData: NSDictionary? = HttpsClient.POSTAction(urlStr: "/device/ble/add_ble_device", param: paramDic);
         if (clientData == nil) {
             Ble.getInstance.disConnect(peripheral);
             errorCall(deviceId: peripheral.name!, err: "Failed to get service.", code: BleCode.SERVER_EXCEPTION);
@@ -300,7 +320,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     private func sendSuccessCommand(peripheral: CBPeripheral) {
         peripheral.writeValue(Data.init(hex: "0x03"), for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.ADD_FINISH)!, type: CBCharacteristicWriteType.withResponse);
         processCall(deviceId: peripheral.name!, code: BleCode.ADD_FINISH);
-         //errorCall(gatt.getDevice().getAddress(), "Waiting for equipment confirmation timeout", BleCode.CONFIRMATION_TIMEOUT);
+        //errorCall(gatt.getDevice().getAddress(), "Waiting for equipment confirmation timeout", BleCode.CONFIRMATION_TIMEOUT);
     }
 
 
@@ -341,4 +361,17 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
             addBleDeviceCall?.addSuccess(deviceId: deviceId, code: code);
         }
     }
+
+    //定时器
+    private func bleTimer(timeInterval: Double, aSelector: Selector) {
+        timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: aSelector, userInfo: nil, repeats: false);
+    }
+
+    //关闭定时
+    private func closeBleTimer() {
+        if (timer != nil) {
+            timer?.invalidate()
+        }
+    }
+
 }
