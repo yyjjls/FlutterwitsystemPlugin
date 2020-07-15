@@ -189,6 +189,8 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
             //添加成功
             processCall(deviceId: peripheral.name!, code: BleCode.ADD_SUCCESS);
             addSuccessCall(deviceId: peripheral.name!, code: BleCode.ADD_SUCCESS);
+            //刷新设备列表
+           _ = DeviceManager.getInstance(appId: appId!, token: token!).getNetWorkDevice();
         }
     }
 
