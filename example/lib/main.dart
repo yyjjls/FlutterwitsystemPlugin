@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('连接添加设备'),
                 onPressed: () async {
-                  bool b = await WitsBlue().addDevice("Slock04EE033EA7B5");
+                  bool b = await WitsBlue().addDevice("Slock04EE033EABD4");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

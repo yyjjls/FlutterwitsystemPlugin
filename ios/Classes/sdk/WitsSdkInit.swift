@@ -32,6 +32,8 @@ class WitsSdkInit: WitsSdk, Register {
         if (!state) {
             return nil
         }
+        // 启动定位
+        AppLocation.getInstance.startLocation();
         return self;
     }
 

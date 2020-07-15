@@ -27,6 +27,8 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
             witsSdk = WitsSdkInit.getInstance().witsSdkInit(appId: appId, token: token);
             result(witsSdk != nil);
         } else if (call.method == "openInduceUnlock") {
+            let location = AppLocation.getInstance;
+            print("获得的地址\(location.getLocationAddress())")
             //开启感应开锁
             result(witsSdk?.getInduceUnlock().openInduceUnlock());
         } else if (call.method == "stopInduceUnlock") {
