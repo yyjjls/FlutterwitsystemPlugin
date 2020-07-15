@@ -77,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('串口发送数据'),
                 onPressed: () async {
                   bool b = await WitsBlue().serialPortSendData(
-                      deviceId: 'Slock04EE033EABD4', data: 'ef55010313020019');
+                      deviceId: 'Slock04EE033EABD7', data: 'ef55010313020019');
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('连接添加设备'),
                 onPressed: () async {
-                  bool b = await WitsBlue().addDevice("Slock04EE033EABD4");
+                  bool b = await WitsBlue().addDevice("Slock04EE033EAD07");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

@@ -37,12 +37,12 @@ class OpenSerialPort: NSObject, SerialPort, BleCall, CBPeripheralDelegate {
     }
 
     func sendData(deviceId: String, data: String) -> Bool {
-
         //判断如果需要发送的设备不是当前连接的设备断开当前连接设备重新连接新设备 串口发送只能一次保证一个设备的连接
         if (self.peripheral != nil && self.peripheral?.state == CBPeripheralState.connected && self.peripheral?.name! != deviceId) {
             closeSerialPort();
             self.peripheral = nil;
         }
+
         if (data == "") {
             return false;
         }

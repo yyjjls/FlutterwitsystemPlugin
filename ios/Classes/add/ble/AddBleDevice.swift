@@ -94,6 +94,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
+        print(peripheral.name)
         if (peripheral.name == nil) {
             return;
         }
@@ -167,6 +168,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
 
     //通知设置成功的回调
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        //print("通知：\(error)")
         if (error != nil) {
             errorCall(deviceId: peripheral.name!, err: "Failed to listen for notification", code: BleCode.NOTIFICATION_DATA_FAIL);
             Ble.getInstance.disConnect(peripheral);
