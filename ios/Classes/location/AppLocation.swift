@@ -76,7 +76,7 @@ class AppLocation: NSObject, CLLocationManagerDelegate {
         geoCoder.reverseGeocodeLocation(location!) { (placemarks, error) in
             if ((placemarks?.count)! > 0) {
                 let placeMark = placemarks?.first
-               // print(placeMark?.addressDictionary)
+                print(placeMark?.addressDictionary)
                 self.adr = ((placeMark?.addressDictionary?["FormattedAddressLines"] as! NSArray)[0] as! String);
             } else if (error == nil && placemarks?.count == 0) {//m没有地址返回
                 self.adr = "";

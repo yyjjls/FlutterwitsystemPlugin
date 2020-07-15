@@ -21,10 +21,16 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
         if (call.method == "witsSdkInit") {
             //初始化SDK成功返回true
             let args: NSDictionary = call.arguments as! NSDictionary
+            if(args["appId"] == nil || args["userToken"] == nil){
+                result(false);
+            }
             let appId: String = args["appId"] as! String;
             let token: String = args["userToken"] as! String;
             witsSdk = WitsSdkInit.getInstance().witsSdkInit(appId: appId, token: token);
             result(witsSdk != nil);
+        }else if (witsSdk == nil) { //判断是否已经初始化
+            print("为初始化")
+            result(false);
         } else if (call.method == "getDeviceInfo") {
             result(witsSdk?.getDeviceInfo());
         } else if (call.method == "openInduceUnlock") {  //开启感应开锁
