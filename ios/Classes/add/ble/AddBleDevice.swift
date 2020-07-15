@@ -61,15 +61,15 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         if (deviceInfo == nil) {//如果没有换成代表用户是直接指定连接添加的设备
             self.deviceId = deviceId;
             scanDevicesMap.removeAll();
-            Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN2], bleCall: self);
-            bleTimer(timeInterval: 5, aSelector: #selector(directConnectionOverTimer))
+            Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN,Ble.SCAN2], bleCall: self);
         } else {//已经扫描完成用户直接连接指定设备
             Ble.getInstance.connect(deviceInfo!);
         }
+        bleTimer(timeInterval: 5, aSelector: #selector(directConnectionOverTimer))
         processCall(deviceId: deviceId, code: BleCode.CONNECTING);
     }
 
-    //当之前输入设备id进行添加，主要是出现扫描二维码添加，定时器
+    //连接指定设备超时
     @objc private func directConnectionOverTimer() {
         cancelAdd();
         errorCall(deviceId: deviceId!, err: "Device connection timeout", code: BleCode.CONNECTION_TIMEOUT);
@@ -94,24 +94,18 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        if (peripheral.name != nil) {return;}
+        if (peripheral.name == nil) {
+            return;
+        }
         if (deviceId! != "" && peripheral.name! == deviceId) { //连接指定的设备
             scanDevicesMap[peripheral.name!] = peripheral;
             Ble.getInstance.stopScan();
             Ble.getInstance.connect(peripheral);
-        } else if (((peripheral.name?.contains("Slock")) != nil)) { //扫描附近的设备
+        } else if (deviceId! == "" && ((peripheral.name?.contains("Slock")) != nil)) { //扫描附近的设备
             scanDevicesMap[peripheral.name!] = peripheral;
             processCall(deviceId: peripheral.name!, code: BleCode.SCAN_ADD_DEVICE_INFO);
             scanDeviceCall(deviceId: peripheral.name!, rssi: Int(truncating: rssi));
-            Ble.getInstance.stopScan();
-            bleTimer(timeInterval: 5, aSelector: #selector(connectionOverTimer))
         }
-    }
-
-    //连接设备超时
-    @objc private func connectionOverTimer() {
-        cancelAdd();
-        errorCall(deviceId: deviceId!, err: "Device connection timeout", code: BleCode.CONNECTION_TIMEOUT);
     }
 
     func error(code: Int, error: String) {
@@ -126,7 +120,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         peripheral.discoverServices([Ble.SERVICES])
         processCall(deviceId: peripheral.name!, code: BleCode.SECURITY_CERTIFICATION_ONGOING);
     }
-
 
     func disconnect(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         if (error != nil) {
@@ -280,11 +273,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     */
     private func uploadDeviceInfo(peripheral: CBPeripheral) {
         processCall(deviceId: peripheral.name, code: BleCode.ADDITIONS_BEING_COMPLETED);
-//        if (AppLocation.getLocation() != null) {
-//        map.put("bleLongitude", AppLocation.getLocation().getLongitude());
-//        map.put("bleLatitude", AppLocation.getLocation().getLatitude());
-//        map.put("blePosition", AppLocation.getLocationAddress(context, AppLocation.getLocation()));
-//        }
+
         let deviceName = peripheral.name!
         var hexMac = deviceName.suffix(12);
         let per = 2;
@@ -293,11 +282,17 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
             hexMac.insert(contentsOf: ":", at: hexMac.index(hexMac.startIndex, offsetBy: per * i + i - 1))
         }
         let deviceNumber = DeviceManager.getInstance(appId: appId!, token: token!).getDevicesNumber();
-        let paramDic: [String: String] = ["bleDeviceId": deviceName, "appId": appId!,
+        var paramDic: [String: String] = ["bleDeviceId": deviceName, "appId": appId!,
                                           "token": token!, "checkCode": checkCode!, "bleDeviceKey": addDeviceInfo!.key,
                                           "bleMac": String(hexMac), "bleDeviceModel": addDeviceInfo!.model, "bleVersion": addDeviceInfo!.firmwareVersion,
                                           "bleDeviceName": addDeviceInfo!.name + String(deviceNumber)//设备名字默认为
                                           , "bleDeviceBattery": String(addDeviceInfo!.battery)]
+        let location = AppLocation.getInstance;
+        if (location.getLocation() != nil) {
+            paramDic["bleLongitude"] = String(Float(location.getLocation()!.coordinate.longitude));
+            paramDic["bleLatitude"] = String(Float(location.getLocation()!.coordinate.latitude));
+            paramDic["blePosition"] = location.getLocationAddress();
+        }
 
         let clientData: NSDictionary? = HttpsClient.POSTAction(urlStr: "/device/ble/add_ble_device", param: paramDic);
         if (clientData == nil) {

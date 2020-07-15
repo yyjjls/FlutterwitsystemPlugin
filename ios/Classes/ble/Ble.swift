@@ -11,7 +11,7 @@ import CoreBluetooth
 
 class Ble: NSObject, CBCentralManagerDelegate {
 
-    private static let SCAN = CBUUID.init(string: "0000fff1-0000-1000-8000-00805f9b34fb");
+    public static let SCAN = CBUUID.init(string: "0000fff1-0000-1000-8000-00805f9b34fb");
     public static let SCAN2 = CBUUID.init(string: "0000f1ff-0000-1000-8000-00805f9b34fb");
 
     //链接成功
