@@ -9,11 +9,9 @@ import Foundation
 
 class DeviceManager: Device {
 
-
-
     private static var device: Device? = nil;
-    private static var appId: String?;
-    private static var token: String?;
+    private var appId: String?;
+    private var token: String?;
     private var deviceInfoList: [DeviceInfo.Data]?;
     private var deviceNumber: Int? = 0;
     private var deviceMap = [String: DeviceInfo.Data]();
@@ -21,20 +19,23 @@ class DeviceManager: Device {
     public static func getInstance(appId: String, token: String) -> Device {
         if (device == nil) {
             device = DeviceManager();
-            self.appId = appId;
-            self.token = token;
+            (device as! DeviceManager).appId = appId;
+            (device as! DeviceManager).token = token;
+            _ = (device as! DeviceManager).getCacheDevice();
         }
         return device!;
     }
 
+    //从网络获得设备
     func getNetWorkDevice() -> Bool {
         let fail = "0x0001";
-        let paramDic: [String: String] = ["token": DeviceManager.token!, "appId": DeviceManager.appId!]
+        let paramDic: [String: String] = ["token": token!, "appId": appId!]
         let value: String = HttpsClient.POSTAction(urlStr: "/device/get_device", param: paramDic) ?? fail;
         if (value == fail) {
-            print("网络请求失败")
+            print("网络请求失败");
             return false;
         }
+        saveDeviceInfo(info: value);
         return any(value: value);
     }
 
@@ -46,25 +47,31 @@ class DeviceManager: Device {
         let data = value.data(using: String.Encoding.utf8);
         let deviceInfo = try? decoder.decode(DeviceInfo.self, from: data!);
         if (deviceInfo == nil) {
+            cleanCache();
             return false;
         }
         deviceInfoList = deviceInfo?.data;
         deviceNumber = deviceInfoList?.count;
         deviceMap.removeAll();
-       deviceInfoList?.forEach { data in
-           deviceMap[data.bleDeviceId ?? ""] = data;
-       }
-      //  print("格式句化好的shu\(deviceNumber)");
+        deviceInfoList?.forEach { data in
+            deviceMap[data.bleDeviceId!] = data;
+        }
+        //  print("格式句化好的shu\(deviceNumber)");
         return true;
     }
 
-
+    //从缓存获得设备
     func getCacheDevice() -> Bool {
-
+        let saveDeviceInfo = getSaveDeviceInfo();
+        if (saveDeviceInfo != nil) {
+            return any(value: saveDeviceInfo!);
+        }
         return false;
     }
 
-
+    func dataInitState() -> Bool {
+        return deviceInfoList != nil;
+    }
 
     /**
     *通过id获得设备信息
@@ -74,15 +81,12 @@ class DeviceManager: Device {
     }
 
 
-
-    func getDevices<T>() -> T {
-
-        return NSNull() as! T;
+    func getDevices() -> [DeviceInfo.Data] {
+        return deviceInfoList!;
     }
 
     func getDevicesNumber() -> Int {
-
-        return deviceNumber ?? 0;
+        return deviceNumber!;
     }
 
     func getThreeDevices<T>() -> T {
@@ -91,4 +95,25 @@ class DeviceManager: Device {
     }
 
 
+    //保存设备信息
+    private func saveDeviceInfo(info: String) {
+        cleanCache();
+        let userDefault = UserDefaults.standard;
+        userDefault.set(info, forKey: appId!)
+    }
+
+    //获取保存的设备信息
+    private func getSaveDeviceInfo() -> String? {
+        let userDefault = UserDefaults.standard;
+        return userDefault.string(forKey: appId!);
+    }
+
+    //清空缓存
+    private func cleanCache() {
+        let userDefault = UserDefaults.standard;
+        userDefault.removeObject(forKey: appId!);
+        deviceMap.removeAll();
+        deviceInfoList?.removeAll();
+        deviceInfoList = nil;
+    }
 }

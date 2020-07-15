@@ -29,12 +29,14 @@ class WitsSdkInit: WitsSdk, Register {
         self.appId = appId;
         self.token = token;
         let state = DeviceManager.getInstance(appId: appId!, token: token!).getNetWorkDevice();
-        if (!state) {
-            return nil
-        }
         // 启动定位
         AppLocation.getInstance.startLocation();
-        return self;
+        if (state) {
+            return self
+        }else if(DeviceManager.getInstance(appId: appId!, token: token!).dataInitState()){
+            return self;
+        }
+        return nil;
     }
 
     func getBleLockDevice() -> String {

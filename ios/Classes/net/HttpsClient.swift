@@ -89,7 +89,7 @@ class HttpsClient {
         let config = URLSessionConfiguration.default
         let session = URLSession(configuration: config)
         let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
-            print("网络请求值\(response)");
+           // print("网络请求值\(response)");
         };
         dataTask.resume();
     }

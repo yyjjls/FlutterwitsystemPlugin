@@ -8,26 +8,29 @@
 import Foundation
 
 protocol Device {
-    
-        //从服务器获取设备
-       func getNetWorkDevice()->Bool;
 
-       //获取缓存设备，在没有网络的时候获取
-       func getCacheDevice()->Bool;
+    //从服务器获取设备
+    func getNetWorkDevice() -> Bool;
 
-       //设备ID获得该设备的信息
-       func getDevice(deviceId:String)->DeviceInfo.Data?;
+    //数据初始化状态也就是结果 返回true代表设备初始化完成
+    func dataInitState() -> Bool;
 
-       //获得所有的设备
-       func getDevices<T>()->T;
+    //获取缓存设备，在没有网络的时候获取
+    func getCacheDevice() -> Bool;
 
-       //获得设备的个数
-       func getDevicesNumber()->Int;
+    //设备ID获得该设备的信息
+    func getDevice(deviceId: String) -> DeviceInfo.Data?;
 
-        //三方获得设备信息
-       func getThreeDevices<T>()->T;
-    
-    
+    //获得所有的设备
+    func getDevices() -> [DeviceInfo.Data];
+
+    //获得设备的个数
+    func getDevicesNumber() -> Int;
+
+    //三方获得设备信息
+    func getThreeDevices<T>() -> T;
+
+
 }
 
 
