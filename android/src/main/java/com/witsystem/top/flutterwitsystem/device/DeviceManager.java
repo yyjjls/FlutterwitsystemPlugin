@@ -3,7 +3,6 @@ package com.witsystem.top.flutterwitsystem.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
@@ -23,7 +22,6 @@ import java.util.Map;
 public final class DeviceManager implements Device<DeviceInfo> {
 
     private static final String SAVE_DEVICE_INFO = "witsystem.top.deviceInfo";
-    private static final String DEVICE_INFO = "deviceInfo";
     private Context context;
     private static Device<DeviceInfo> device;
     private String appId;
@@ -31,8 +29,10 @@ public final class DeviceManager implements Device<DeviceInfo> {
     private List<DeviceInfo> deviceList;
     private Map<String, DeviceInfo> deviceMap;
     private Map<String, DeviceInfo> macMap;
+    private boolean cacheDataInitState = false; //缓存数据初始化结果
 
-    private boolean state= true;
+    private boolean state = true;
+
     private DeviceManager(Context context, String appId, String userToken) {
         this.appId = appId;
         this.userToken = userToken;
@@ -40,6 +40,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
         this.deviceMap = new HashMap<>();
         this.macMap = new HashMap<>();
         this.context = context;
+        cacheDataInitState = getCacheDevice();
     }
 
     public static Device<DeviceInfo> getInstance(Context context, String appId, String userToken) {
@@ -56,35 +57,34 @@ public final class DeviceManager implements Device<DeviceInfo> {
 
     @Override
     public boolean getNetWorkDevice() {
-        state= true;
+        state = true;
         Thread thread = new Thread() {
             public void run() {
                 HashMap<String, Object> json = new HashMap<>();
                 json.put("appId", appId);
                 json.put("token", userToken);
                 String https = HttpsClient.https("/device/get_device", json);
-                if (https != null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(https);
-                        if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
-                            cleanCache();
-                            state= false;
-                            return;
-                        }
-
-                        if (analyzaDevice(jsonObject.getJSONArray("data"))) {
-                            saveDeviceInfo(jsonObject.getJSONArray("data").toString());
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        state= false;
-                    }
-                } else {
-                    //返回空读取缓存
-                    String saveDeviceInfo = getSaveDeviceInfo();
-                    if (saveDeviceInfo != null)
-                        analyzaDevice(saveDeviceInfo);
+                if (https == null) {
+                    state = false;
+                    return;
                 }
+                try {
+                    JSONObject jsonObject = new JSONObject(https);
+                    if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
+                        cleanCache();
+                        state = false;
+                        cacheDataInitState = false;
+                        return;
+                    }
+
+                    if (analyzaDevice(jsonObject.getJSONArray("data"))) {
+                        saveDeviceInfo(jsonObject.getJSONArray("data").toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    state = false;
+                }
+
             }
         };
         thread.start();
@@ -92,9 +92,14 @@ public final class DeviceManager implements Device<DeviceInfo> {
             thread.join(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            state= false;
+            state = false;
         }
         return state;
+    }
+
+    @Override
+    public boolean dataInitState() {
+        return cacheDataInitState;
     }
 
     @Override
@@ -184,13 +189,13 @@ public final class DeviceManager implements Device<DeviceInfo> {
     //保存设备信息
     private void saveDeviceInfo(String info) {
         SharedPreferences mySharedPreferences = context.getSharedPreferences(SAVE_DEVICE_INFO, Context.MODE_PRIVATE);
-        mySharedPreferences.edit().putString(DEVICE_INFO, info).apply();
+        mySharedPreferences.edit().putString(appId, info).apply();
     }
 
     //获取保存的设备信息
     private String getSaveDeviceInfo() {
         SharedPreferences mySharedPreferences = context.getSharedPreferences(SAVE_DEVICE_INFO, Context.MODE_PRIVATE);
-        return mySharedPreferences.getString(DEVICE_INFO, null);
+        return mySharedPreferences.getString(appId, null);
     }
 
     //清空缓存

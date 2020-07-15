@@ -8,6 +8,9 @@ public interface Device<T> {
     //从服务器获取设备
     boolean getNetWorkDevice();
 
+    //数据初始化状态也就是结果 返回true代表设备初始化完成
+    boolean dataInitState();
+
     //获取缓存设备，在没有网络的时候获取
     boolean getCacheDevice();
 

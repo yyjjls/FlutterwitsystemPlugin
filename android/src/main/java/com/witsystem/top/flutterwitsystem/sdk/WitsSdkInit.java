@@ -54,7 +54,9 @@ public final class WitsSdkInit implements Register, WitsSdk {
         if (appId == null || userToken == null) {
             return null;
         }
-        if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {
+        if (DeviceManager.getInstance(context, appId, userToken).getNetWorkDevice()) {//网络初始化结果
+            this.context = context;
+        }else if(DeviceManager.getInstance(context, appId, userToken).dataInitState()){//网络初始化失败在看本地初始化结果
             this.context = context;
         }
         this.appId = appId;
