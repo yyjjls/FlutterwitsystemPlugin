@@ -53,7 +53,7 @@ public class BleCode{
       ///安全认证失败
       public static let FAILED_SECURITY_FAIL = 100016;
 
-      ///添加的设备没有进入设置状态
+      ///添加的设备没有进入设置状态 也是等待设备进入设置状态（需要点击设备的设置键）
       public static let NO_DEVICE_SET_UP = 100017;
 
       ///添加的设备从没有进入设置状态变更到设置状态

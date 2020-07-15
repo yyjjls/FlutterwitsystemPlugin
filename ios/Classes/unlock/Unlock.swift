@@ -99,7 +99,7 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
 
     func belState(code: Int, msg: String) {
         if (code == BleCode.DEVICE_BLUE_OFF) {
-            closeBleTimer();//蓝牙关闭直接关闭定时器
+            closeBleTimer(); //蓝牙关闭直接关闭定时器
         }
     }
 
@@ -263,6 +263,9 @@ class Unlock: NSObject, BleUnlock, BleCall, CBPeripheralDelegate {
             paramDic.updateValue(String(battery), forKey: "battery");
         }
         //print("电量\(paramDic)")
+//        if (!NetWork.isNetworkConnected()) {
+//            return;
+//        }
         HttpsClient.POSTTaskAction(urlStr: "/device/upload_record", param: paramDic);
     }
 

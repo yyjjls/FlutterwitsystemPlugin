@@ -206,7 +206,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         } else if (state == AddBleDevice.SECURITY_OK) {//安全认证通过去读取key
             processCall(deviceId: peripheral.name!, code: BleCode.ACCESS_INFORMATION);
             peripheral.readValue(for: Ble.getInstance.getCharacteristic(services: peripheral.services![0], uuid: Ble.KEY)!);
-
         }
     }
 
@@ -250,10 +249,10 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
             return AddBleDevice.SECURITY_NO_SETTING_STATE;
         }
 
-//        if (!NetWork.isNetworkConnected(context)) {
-//            errorCall(mac, "Current network not available.", BleCode.NO_NETWORK);
-//            return SECURITY_FAIL;
-//        }
+        if (!NetWork.isNetworkConnected()) {
+            errorCall(deviceId: deviceId!, err: "Current network not available.", code: BleCode.NO_NETWORK);
+            return AddBleDevice.SECURITY_FAIL;
+        }
         //网络认证设备
         let paramDic: [String: String] = ["deviceId": deviceId!, "appId": appId!, "token": token!]
         let clientData: NSDictionary? = HttpsClient.POSTAction(urlStr: "/device/get_verify_device", param: paramDic);
@@ -275,7 +274,6 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     */
     private func uploadDeviceInfo(peripheral: CBPeripheral) {
         processCall(deviceId: peripheral.name, code: BleCode.ADDITIONS_BEING_COMPLETED);
-
         let deviceName = peripheral.name!
         var hexMac = deviceName.suffix(12);
         let per = 2;

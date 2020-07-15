@@ -53,9 +53,12 @@ class HttpsClient {
         let semaphore = DispatchSemaphore(value: 0);
         //发起请求
         let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
-            //print("网络请求值\(response)");
-            if (error == nil) {
-                jsonData = String(data: data!, encoding: String.Encoding.utf8)
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 200 {
+                    if (error == nil) {
+                        jsonData = String(data: data!, encoding: String.Encoding.utf8)
+                    }
+                }
             }
             semaphore.signal();
         } as URLSessionTask;
@@ -67,7 +70,7 @@ class HttpsClient {
 
 
     /**
-        POST请无返回值飞同步
+        POST请无返回值异步
     */
     public static func POSTTaskAction(urlStr: String, param: [String: String]) {
         let url: NSURL! = NSURL(string: urlStr.contains("https") ? urlStr : "https://witsystem.top" + urlStr);
@@ -86,7 +89,7 @@ class HttpsClient {
         let config = URLSessionConfiguration.default
         let session = URLSession(configuration: config)
         let dataTask = session.dataTask(with: request as URLRequest) { (data, response, error) in
-            print("网络请求值\(String(data: data!, encoding: String.Encoding.utf8))");
+            print("网络请求值\(response)");
         };
         dataTask.resume();
     }
