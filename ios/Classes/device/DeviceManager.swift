@@ -89,9 +89,8 @@ class DeviceManager: Device {
         return deviceNumber!;
     }
 
-    func getThreeDevices<T>() -> T {
-
-        return NSNull() as! T;
+    func getThreeDevices() -> [DeviceBasicInfo] {
+        return deviceInfoFormat();
     }
 
 
@@ -116,4 +115,28 @@ class DeviceManager: Device {
         deviceInfoList?.removeAll();
         deviceInfoList = nil;
     }
+
+
+    func deviceInfoFormat() -> [DeviceBasicInfo] {
+        var list = [DeviceBasicInfo]();
+        for deviceInfo in deviceInfoList! {
+            var deviceBasicInfo = DeviceBasicInfo();
+            deviceBasicInfo.bleDeviceId = deviceInfo.bleDeviceId;
+            deviceBasicInfo.bleDeviceBattery = deviceInfo.bleDeviceBattery;
+            deviceBasicInfo.bleDeviceName = deviceInfo.bleDeviceName;
+            deviceBasicInfo.bleLineState = deviceInfo.bleLineState;
+            var authInfo = DeviceBasicInfo.AuthInfo();
+            deviceBasicInfo.authInfo = authInfo;
+            authInfo.type = deviceInfo.authorityInfo.type;
+            authInfo.startDate = deviceInfo.authorityInfo.startDate;
+            authInfo.endDate = deviceInfo.authorityInfo.endDate;
+            authInfo.repeatType = deviceInfo.authorityInfo.repeatType;
+            authInfo.dayInfo = deviceInfo.authorityInfo.dayInfo;
+            authInfo.startTime = deviceInfo.authorityInfo.startTime;
+            authInfo.endTime = deviceInfo.authorityInfo.endTime;
+            list.append(deviceBasicInfo);
+        }
+        return list;
+    }
+
 }

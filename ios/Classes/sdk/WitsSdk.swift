@@ -10,7 +10,12 @@ import Foundation
 protocol WitsSdk {
 
 
-    func getBleLockDevice() -> String;
+    /**
+     * 获得所有设备的信息
+     */
+    func getDeviceInfo()->[DeviceBasicInfo];
+
+//    func getBleLockDevice() -> String;
 
     //感应开锁
     func getInduceUnlock() -> Induce;

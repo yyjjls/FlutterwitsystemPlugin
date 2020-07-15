@@ -28,7 +28,7 @@ protocol Device {
     func getDevicesNumber() -> Int;
 
     //三方获得设备信息
-    func getThreeDevices<T>() -> T;
+    func getThreeDevices() -> [DeviceBasicInfo];
 
 
 }

@@ -39,8 +39,8 @@ class WitsSdkInit: WitsSdk, Register {
         return nil;
     }
 
-    func getBleLockDevice() -> String {
-        return "";
+    func getDeviceInfo() -> [DeviceBasicInfo] {
+        return DeviceManager.getInstance(appId: appId!, token: token!).getThreeDevices();
     }
 
     func getInduceUnlock() -> Induce {

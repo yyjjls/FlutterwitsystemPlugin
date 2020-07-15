@@ -4,7 +4,6 @@ import UIKit
 public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, SerialPortListen, AddBleDeviceCall {
 
 
-
     private var witsSdk: WitsSdk?;
     private var eventPlugin: FlutterwitsystemEventPlugin?;
     private let encoder = JSONEncoder();
@@ -26,8 +25,9 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
             let token: String = args["userToken"] as! String;
             witsSdk = WitsSdkInit.getInstance().witsSdkInit(appId: appId, token: token);
             result(witsSdk != nil);
-        } else if (call.method == "openInduceUnlock") {
-            //开启感应开锁
+        } else if (call.method == "getDeviceInfo") {
+            result(witsSdk?.getDeviceInfo());
+        } else if (call.method == "openInduceUnlock") {  //开启感应开锁
             result(witsSdk?.getInduceUnlock().openInduceUnlock());
         } else if (call.method == "stopInduceUnlock") {
             result(witsSdk?.getInduceUnlock().stopInduceUnlock());
