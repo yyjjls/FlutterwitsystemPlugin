@@ -17,6 +17,8 @@ import com.witsystem.top.flutterwitsystem.serialport.SerialPortListen;
 import com.witsystem.top.flutterwitsystem.tools.ByteToString;
 import com.witsystem.top.flutterwitsystem.unlock.UnlockInfo;
 
+import java.util.List;
+
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -126,6 +128,11 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         //  Log.e("开门", "onCharacteristicWrite: 设备电量" + b + "%");
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("battery").setDeviceId(deviceId).setBattery(b).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendUnlockBleEvent(gson.toJson(flutterUnlock)));
+
+    }
+
+    @Override
+    public void devices(List<String> devices, int code) {
 
     }
 
