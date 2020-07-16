@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     try {
       platformVersion =
-          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: '8743cd285aac44fcb8f6d3ce10bd95c4-1594390941130')}';
+          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'd2d48c2fb2f74911af71d650cfa3df96-1594873389734')}';
     } on PlatformException {
       platformVersion = '初始化失败.';
     }

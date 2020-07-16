@@ -29,7 +29,6 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
             witsSdk = WitsSdkInit.getInstance().witsSdkInit(appId: appId, token: token);
             result(witsSdk != nil);
         }else if (witsSdk == nil) { //判断是否已经初始化
-            print("为初始化")
             result(false);
         } else if (call.method == "getDeviceInfo") {
             result(witsSdk?.getDeviceInfo());
@@ -148,6 +147,7 @@ public class SwiftFlutterwitsystemPlugin: NSObject, FlutterPlugin, UnlockInfo, S
     }
 
     func addProcess(deviceId: String?, code: Int) {
+        print("为初始化\(code)")
         var flutterAddBleDevice = FlutterAddBleDevice();
         flutterAddBleDevice.event = "addProcess";
         flutterAddBleDevice.deviceId = deviceId;

@@ -61,7 +61,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
         if (deviceInfo == nil) {//如果没有换成代表用户是直接指定连接添加的设备
             self.deviceId = deviceId;
             scanDevicesMap.removeAll();
-            Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN,Ble.SCAN2], bleCall: self);
+            Ble.getInstance.scan(serviceUUIDs: [Ble.SCAN, Ble.SCAN2], bleCall: self);
         } else {//已经扫描完成用户直接连接指定设备
             Ble.getInstance.connect(deviceInfo!);
         }
@@ -168,13 +168,19 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
 
     //通知设置成功的回调
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        //print("通知：\(error)")
         if (error != nil) {
             errorCall(deviceId: peripheral.name!, err: "Failed to listen for notification", code: BleCode.NOTIFICATION_DATA_FAIL);
             Ble.getInstance.disConnect(peripheral);
             return;
         }
+        bleTimer(timeInterval: 10, aSelector: #selector(waitSettingStateOverTimer)); //定时进入设置状态，
         // processCall(deviceId: peripheral.name!, code: BleCode.ACCESS_INFORMATION_COMPLETED);
+    }
+
+    //等待进入设置状态超时
+    @objc private func waitSettingStateOverTimer() {
+        cancelAdd();
+        errorCall(deviceId: deviceId!, err: "Wait to set state timeout", code: BleCode.WAIT_DEVICE_SET_UP_OVERTIME);
     }
 
     //写入值成功
@@ -201,6 +207,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     private func handlerFf01(peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic) {
         addDeviceInfo = analyze(ff01: characteristic.value!);
         let state = security(deviceId: peripheral.name!, addDeviceInfo: addDeviceInfo);
+        closeBleTimer(); //关闭等待进入设置状态的定时器，因为当没有进入设置状态等待进入设置状态的时候启动流一个定时器，当进入设置状态会在次进入该方法
         if (state == AddBleDevice.SECURITY_FAIL) {//安全认证失败直接结束
             Ble.getInstance.disConnect(peripheral);
             return;
