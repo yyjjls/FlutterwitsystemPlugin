@@ -2,6 +2,7 @@ package com.witsystem.top.flutterwitsystem.device.auth;
 
 import android.content.Context;
 
+import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
 
@@ -27,7 +28,7 @@ public class AuthManager implements Auth {
 
 
     @Override
-    public AuthInfo isAuth(String deviceId) {
+    public AuthBack isAuth(String deviceId) {
         if (deviceId == null || deviceId.equals("")) {
             return null;
         }
@@ -45,12 +46,12 @@ public class AuthManager implements Auth {
             return null;
         }
         AuthInfo authInfo = device.getAuthInfo();
-
         if (authInfo == null) {
             return null;
         }
-        if(authInfo.getType() == 0){
-
+        AuthBack authBack = new AuthBack();
+        if (authInfo.getType() == 0) {
+            return authBack.setResults(true).setCode(BleCode.AUTH_SUCCESS).setError("").setAuthInfo(authInfo);
         }
 
 

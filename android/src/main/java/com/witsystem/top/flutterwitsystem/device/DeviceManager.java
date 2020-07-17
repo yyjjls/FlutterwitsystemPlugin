@@ -31,6 +31,8 @@ public final class DeviceManager implements Device<DeviceInfo> {
     private Map<String, DeviceInfo> deviceMap;
     private Map<String, DeviceInfo> macMap;
     private boolean cacheDataInitState = false; //缓存数据初始化结果
+    private long serviceTime; //更新设备时候服务器时间
+
 
     private boolean state = true;
 
@@ -77,9 +79,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
                         cacheDataInitState = false;
                         return;
                     }
-
+                    if (jsonObject.has("serviceTime")) {
+                        serviceTime = jsonObject.getLong("serviceTime");
+                    }
                     if (analyzaDevice(jsonObject.getJSONArray("data"))) {
-                        saveDeviceInfo(jsonObject.getJSONArray("data").toString());
+                        saveDeviceInfo(jsonObject.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -90,7 +94,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
         };
         thread.start();
         try {
-            thread.join(5000);
+            thread.join(6000);
         } catch (InterruptedException e) {
             e.printStackTrace();
             state = false;
@@ -106,12 +110,20 @@ public final class DeviceManager implements Device<DeviceInfo> {
     @Override
     public boolean getCacheDevice() {
         String saveDeviceInfo = getSaveDeviceInfo();
-        if (saveDeviceInfo != null) {
-            analyzaDevice(saveDeviceInfo);
-            return true;
+        if (saveDeviceInfo == null) {
+            return false;
         }
-
-        return false;
+        try {
+            JSONObject jsonObject = new JSONObject(saveDeviceInfo);
+            if (jsonObject.has("serviceTime")) {
+                serviceTime = jsonObject.getLong("serviceTime");
+            }
+            analyzaDevice(jsonObject.getJSONArray("data"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 
@@ -185,7 +197,6 @@ public final class DeviceManager implements Device<DeviceInfo> {
         }
         return true;
     }
-
 
     //保存设备信息
     private void saveDeviceInfo(String info) {

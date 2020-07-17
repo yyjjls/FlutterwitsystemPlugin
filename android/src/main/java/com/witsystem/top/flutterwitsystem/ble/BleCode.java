@@ -177,4 +177,10 @@ public class BleCode {
 
     //开门成功
     public static int UNLOCK_SUCCESS = 200000;
+
+    //权限验证成功
+    public static int AUTH_SUCCESS = 200001;
+
+
+
 }

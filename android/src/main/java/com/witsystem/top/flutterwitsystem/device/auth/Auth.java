@@ -4,7 +4,7 @@ package com.witsystem.top.flutterwitsystem.device.auth;
 public interface Auth {
 
 
-    public AuthInfo isAuth(String deviceId);
+     AuthBack isAuth(String deviceId);
 
 
 }
