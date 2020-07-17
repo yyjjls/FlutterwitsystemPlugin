@@ -72,7 +72,6 @@ public final class DeviceManager implements Device<DeviceInfo> {
                     state = false;
                     return;
                 }
-                Log.d("获得的设备", https);
                 try {
                     JSONObject jsonObject = new JSONObject(https);
                     if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
