@@ -13,6 +13,7 @@ public class DeviceInfo implements GetDeviceInfo {
     private String bleDeviceModel;
     private String bleMac;
     private String bleVersion;
+    private boolean isFreeze;
     private int bleDeviceBattery;
     private String bleDeviceName;
     private boolean bleLineState;
@@ -43,6 +44,15 @@ public class DeviceInfo implements GetDeviceInfo {
 
     public DeviceInfo setBleMac(String bleMac) {
         this.bleMac = bleMac;
+        return this;
+    }
+
+    public boolean isFreeze() {
+        return isFreeze;
+    }
+
+    public DeviceInfo setFreeze(boolean freeze) {
+        isFreeze = freeze;
         return this;
     }
 

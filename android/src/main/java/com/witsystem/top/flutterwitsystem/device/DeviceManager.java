@@ -3,6 +3,7 @@ package com.witsystem.top.flutterwitsystem.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.witsystem.top.flutterwitsystem.device.auth.AuthInfo;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
@@ -71,6 +72,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                     state = false;
                     return;
                 }
+                Log.d("获得的设备", https);
                 try {
                     JSONObject jsonObject = new JSONObject(https);
                     if (!jsonObject.has("err") || jsonObject.getInt("err") != 0) {
@@ -152,6 +154,11 @@ public final class DeviceManager implements Device<DeviceInfo> {
         return DeviceBasicInfo.deviceInfoFormat(deviceList);
     }
 
+    @Override
+    public long getServiceTime() {
+        return serviceTime;
+    }
+
 
     //解析设备信息
     private boolean analyzaDevice(String str) {
@@ -177,6 +184,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                     .setBleDeviceId(jsonObjects.getString("bleDeviceId"))
                     .setBleDeviceModel(jsonObjects.getString("bleDeviceModel"))
                     .setBleMac(jsonObjects.getString("bleMac"))
+                    .setFreeze(jsonObjects.getBoolean("isFreeze"))
                     .setBleVersion(jsonObjects.getString("bleVersion"))
                     .setBleDeviceBattery(jsonObjects.getInt("bleDeviceBattery"))
                     .setBleDeviceName(jsonObjects.getString("bleDeviceName"))
@@ -185,8 +193,8 @@ public final class DeviceManager implements Device<DeviceInfo> {
                     .setAuthInfo(authorityInfo.length() == 0 ? null : new AuthInfo()
                             .setUserUuid(authorityInfo.getString("userUuid"))
                             .setType(authorityInfo.getInt("type"))
-                            .setStartDate(authorityInfo.getString("startDate"))
-                            .setEndTime(authorityInfo.getString("endDate"))
+                            .setStartDate(authorityInfo.getLong("startDate"))
+                            .setEndDate(authorityInfo.getLong("endDate"))
                             .setRepeatType(authorityInfo.getString("repeatType"))
                             .setDayInfo(authorityInfo.getString("dayInfo"))
                             .setStartTime(authorityInfo.getString("startTime"))

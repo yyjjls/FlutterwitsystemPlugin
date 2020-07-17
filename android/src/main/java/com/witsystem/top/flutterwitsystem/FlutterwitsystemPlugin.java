@@ -117,7 +117,7 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void fail(String error, int code) {
-        //Log.e("开门", "onCharacteristicWrite: 开门失败" + code);
+        Log.e("开门", "onCharacteristicWrite: 开门失败" + code);
         FlutterUnlock flutterUnlock = new FlutterUnlock.Builder().setEvent("fail").setError(error).setCode(code).builder();
         handler.post(() -> FlutterwitsystemEventPlugin.create().sendUnlockBleEvent(gson.toJson(flutterUnlock)));
 

@@ -6,4 +6,7 @@ public interface GetDeviceInfo {
     String getKey();
 
     AuthInfo getAuthInfo();
+
+    //是否被冻结
+    boolean isFreeze();
 }

@@ -26,4 +26,6 @@ public interface Device<T> {
     int getDevicesNumber();
 
     List<DeviceBasicInfo> getThreeDevices();
+
+    long getServiceTime();
 }

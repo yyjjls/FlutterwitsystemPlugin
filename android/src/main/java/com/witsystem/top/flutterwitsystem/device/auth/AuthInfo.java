@@ -3,8 +3,8 @@ package com.witsystem.top.flutterwitsystem.device.auth;
 public class AuthInfo {
     private String userUuid;
     private int type;
-    private String startDate;
-    private String endDate;
+    private long startDate;
+    private long endDate;
     private String repeatType;
     private String dayInfo;
     private String startTime;
@@ -28,20 +28,20 @@ public class AuthInfo {
         return this;
     }
 
-    public String getStartDate() {
+    public long getStartDate() {
         return startDate;
     }
 
-    public AuthInfo setStartDate(String startDate) {
+    public AuthInfo setStartDate(long startDate) {
         this.startDate = startDate;
         return this;
     }
 
-    public String getEndDate() {
+    public long getEndDate() {
         return endDate;
     }
 
-    public AuthInfo setEndDate(String endDate) {
+    public AuthInfo setEndDate(long endDate) {
         this.endDate = endDate;
         return this;
     }

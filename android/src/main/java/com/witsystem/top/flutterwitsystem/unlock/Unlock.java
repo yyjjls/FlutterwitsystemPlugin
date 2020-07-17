@@ -13,10 +13,13 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.witsystem.top.flutterwitsystem.ble.Ble;
 import com.witsystem.top.flutterwitsystem.ble.BleCode;
 import com.witsystem.top.flutterwitsystem.device.DeviceInfo;
 import com.witsystem.top.flutterwitsystem.device.DeviceManager;
+import com.witsystem.top.flutterwitsystem.device.auth.AuthBack;
+import com.witsystem.top.flutterwitsystem.device.auth.AuthManager;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.tools.AesEncryption;
 
@@ -89,6 +92,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             failCall(deviceId, "Failed to obtain device information", BleCode.GET_DEVICE_INFO_FAIL);
             return false;
         }
+
         connection(Ble.instance(context).getBlueAdapter().getRemoteDevice(deviceInfo.getBleMac()));
         return true;
     }
@@ -159,6 +163,14 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param device
      */
     private void connection(BluetoothDevice device) {
+        //判断权限是否过期
+        AuthBack auth = AuthManager.getInstance(context).isAuth(device.getName());
+       Log.d("验证结果", new Gson().toJson(auth));
+        if (!auth.isResults()) {
+            failCall(device.getName(), auth.getError(), auth.code);
+            return;
+        }
+
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
             if (gattMap.get(device.getAddress()) == null) {
@@ -300,7 +312,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      */
     private void failCall(String deviceId, String error, int code) {
         if (deviceId != null)
-            uploadRecord(code == BleCode.CONNECTION_TIMEOUT ? 2 : 1, deviceId, -1);
+            uploadRecord(code == BleCode.CONNECTION_TIMEOUT ? 2 : code == BleCode.EXCEED_THE_TIME_LIMIT ? 3 : 1, deviceId, -1); //还要判断是否是过期
         if (unlockInfo != null)
             unlockInfo.fail(error, code);
     }
