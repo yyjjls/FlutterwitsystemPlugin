@@ -217,7 +217,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
                 List<BluetoothGattDescriptor> descriptors = serialPortRead.getDescriptors();
                 if (descriptors == null || descriptors.size() == 0) {
                     disConnection(gatt);
-                    failCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+                    failCall(gatt.getDevice().getAddress(), "Setup notification failed ", BleCode.NOTIFICATION_DATA_FAIL);
                     return;
                 }
                 for (BluetoothGattDescriptor descriptor : descriptors) {
@@ -235,7 +235,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
 
             } else {
                 disConnection(gatt);
-                failCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+                failCall(gatt.getDevice().getAddress(), "Setup notification failed ", BleCode.NOTIFICATION_DATA_FAIL);
             }
         }
 

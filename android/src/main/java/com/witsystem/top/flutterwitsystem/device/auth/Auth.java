@@ -1,6 +1,10 @@
 package com.witsystem.top.flutterwitsystem.device.auth;
 
-public class Auth {
+//权限验证
+public interface Auth {
+
+
+    public AuthInfo isAuth(String deviceId);
 
 
 }

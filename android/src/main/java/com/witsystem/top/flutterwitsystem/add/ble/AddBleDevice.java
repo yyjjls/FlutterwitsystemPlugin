@@ -310,7 +310,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             List<BluetoothGattDescriptor> descriptors = characteristicFf01.getDescriptors();
             if (descriptors == null || descriptors.size() == 0) {
                 disConnection(gatt);
-                errorCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+                errorCall(gatt.getDevice().getAddress(), "Setup notification failed ", BleCode.NOTIFICATION_DATA_FAIL);
                 return;
             }
             for (BluetoothGattDescriptor descriptor : descriptors) {
@@ -319,7 +319,7 @@ public class AddBleDevice extends BluetoothGattCallback implements AddDevice, Bl
             }
         } else {
             disConnection(gatt);
-            errorCall(gatt.getDevice().getAddress(), "Serial authentication failed", BleCode.SERIAL_PORT_FAIL);
+            errorCall(gatt.getDevice().getAddress(), "Setup notification failed ", BleCode.NOTIFICATION_DATA_FAIL);
         }
     }
 

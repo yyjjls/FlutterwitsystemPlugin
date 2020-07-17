@@ -2,11 +2,12 @@ package com.witsystem.top.flutterwitsystem.device;
 
 
 import com.witsystem.top.flutterwitsystem.device.auth.AuthInfo;
+import com.witsystem.top.flutterwitsystem.device.auth.GetDeviceInfo;
 
 /**
  * 设备信息
  */
-public class DeviceInfo {
+public class DeviceInfo implements GetDeviceInfo {
 
     private String bleDeviceId;
     private String bleDeviceModel;
@@ -72,7 +73,6 @@ public class DeviceInfo {
         return this;
     }
 
-
     public boolean isBleLineState() {
         return bleLineState;
     }
@@ -91,6 +91,12 @@ public class DeviceInfo {
         return this;
     }
 
+    @Override
+    public String getKey() {
+        return getBleDeviceKey();
+    }
+
+    @Override
     public AuthInfo getAuthInfo() {
         return authInfo;
     }

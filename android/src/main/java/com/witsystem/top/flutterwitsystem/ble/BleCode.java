@@ -111,7 +111,14 @@ public class BleCode {
     //等待进入设置状态超时
     public static int WAIT_DEVICE_SET_UP_OVERTIME  = 100036;
 
+    //读取数据失败
+    public static int READ_DATA_FAIL  = 100037;
 
+    //写入数据失败
+    public static int WRITE_DATA_FAIL  = 100038;
+
+    //设置通知失败
+    public static int NOTIFICATION_DATA_FAIL  = 100039;
 
 
 
