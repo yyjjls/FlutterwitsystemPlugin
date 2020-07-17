@@ -1,6 +1,8 @@
 package com.witsystem.top.flutterwitsystem.device;
 
 
+import com.witsystem.top.flutterwitsystem.device.auth.AuthInfo;
+
 /**
  * 设备信息
  */
@@ -14,7 +16,7 @@ public class DeviceInfo {
     private String bleDeviceName;
     private boolean bleLineState;
     private String bleDeviceKey;
-    private AuthorityInfo authorityInfo;
+    private AuthInfo authInfo;
 
     public String getBleDeviceId() {
         return bleDeviceId;
@@ -89,96 +91,96 @@ public class DeviceInfo {
         return this;
     }
 
-    public AuthorityInfo getAuthorityInfo() {
-        return authorityInfo;
+    public AuthInfo getAuthInfo() {
+        return authInfo;
     }
 
-    public DeviceInfo setAuthorityInfo(AuthorityInfo authorityInfo) {
-        this.authorityInfo = authorityInfo;
+    public DeviceInfo setAuthInfo(AuthInfo authInfo) {
+        this.authInfo = authInfo;
         return this;
     }
-
-    static class AuthorityInfo {
-        private String userUuid;
-        private int type;
-        private String startDate;
-        private String endDate;
-        private String repeatType;
-        private String dayInfo;
-        private String startTime;
-        private String endTime;
-
-        public String getUserUuid() {
-            return userUuid;
-        }
-
-        public AuthorityInfo setUserUuid(String userUuid) {
-            this.userUuid = userUuid;
-            return this;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public AuthorityInfo setType(int type) {
-            this.type = type;
-            return this;
-        }
-
-        public String getStartDate() {
-            return startDate;
-        }
-
-        public AuthorityInfo setStartDate(String startDate) {
-            this.startDate = startDate;
-            return this;
-        }
-
-        public String getEndDate() {
-            return endDate;
-        }
-
-        public AuthorityInfo setEndDate(String endDate) {
-            this.endDate = endDate;
-            return this;
-        }
-
-        public String getRepeatType() {
-            return repeatType;
-        }
-
-        public AuthorityInfo setRepeatType(String repeatType) {
-            this.repeatType = repeatType;
-            return this;
-        }
-
-        public String getDayInfo() {
-            return dayInfo;
-        }
-
-        public AuthorityInfo setDayInfo(String dayInfo) {
-            this.dayInfo = dayInfo;
-            return this;
-        }
-
-        public String getStartTime() {
-            return startTime;
-        }
-
-        public AuthorityInfo setStartTime(String startTime) {
-            this.startTime = startTime;
-            return this;
-        }
-
-        public String getEndTime() {
-            return endTime;
-        }
-
-        public AuthorityInfo setEndTime(String endTime) {
-            this.endTime = endTime;
-            return this;
-        }
-    }
+    //
+//    static class AuthorityInfo {
+//        private String userUuid;
+//        private int type;
+//        private String startDate;
+//        private String endDate;
+//        private String repeatType;
+//        private String dayInfo;
+//        private String startTime;
+//        private String endTime;
+//
+//        public String getUserUuid() {
+//            return userUuid;
+//        }
+//
+//        public AuthorityInfo setUserUuid(String userUuid) {
+//            this.userUuid = userUuid;
+//            return this;
+//        }
+//
+//        public int getType() {
+//            return type;
+//        }
+//
+//        public AuthorityInfo setType(int type) {
+//            this.type = type;
+//            return this;
+//        }
+//
+//        public String getStartDate() {
+//            return startDate;
+//        }
+//
+//        public AuthorityInfo setStartDate(String startDate) {
+//            this.startDate = startDate;
+//            return this;
+//        }
+//
+//        public String getEndDate() {
+//            return endDate;
+//        }
+//
+//        public AuthorityInfo setEndDate(String endDate) {
+//            this.endDate = endDate;
+//            return this;
+//        }
+//
+//        public String getRepeatType() {
+//            return repeatType;
+//        }
+//
+//        public AuthorityInfo setRepeatType(String repeatType) {
+//            this.repeatType = repeatType;
+//            return this;
+//        }
+//
+//        public String getDayInfo() {
+//            return dayInfo;
+//        }
+//
+//        public AuthorityInfo setDayInfo(String dayInfo) {
+//            this.dayInfo = dayInfo;
+//            return this;
+//        }
+//
+//        public String getStartTime() {
+//            return startTime;
+//        }
+//
+//        public AuthorityInfo setStartTime(String startTime) {
+//            this.startTime = startTime;
+//            return this;
+//        }
+//
+//        public String getEndTime() {
+//            return endTime;
+//        }
+//
+//        public AuthorityInfo setEndTime(String endTime) {
+//            this.endTime = endTime;
+//            return this;
+//        }
+//    }
 
 }

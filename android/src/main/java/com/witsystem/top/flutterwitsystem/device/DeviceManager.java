@@ -4,6 +4,7 @@ package com.witsystem.top.flutterwitsystem.device;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.witsystem.top.flutterwitsystem.device.auth.AuthInfo;
 import com.witsystem.top.flutterwitsystem.net.HttpsClient;
 import com.witsystem.top.flutterwitsystem.sdk.WitsSdkInit;
 
@@ -169,7 +170,7 @@ public final class DeviceManager implements Device<DeviceInfo> {
                     .setBleDeviceName(jsonObjects.getString("bleDeviceName"))
                     .setBleLineState(jsonObjects.getBoolean("bleLineState"))
                     .setBleDeviceKey(jsonObjects.getString("bleDeviceKey"))
-                    .setAuthorityInfo(authorityInfo.length() == 0 ? null : new DeviceInfo.AuthorityInfo()
+                    .setAuthInfo(authorityInfo.length() == 0 ? null : new AuthInfo()
                             .setUserUuid(authorityInfo.getString("userUuid"))
                             .setType(authorityInfo.getInt("type"))
                             .setStartDate(authorityInfo.getString("startDate"))

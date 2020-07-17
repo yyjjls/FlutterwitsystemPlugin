@@ -92,13 +92,13 @@ public class DeviceBasicInfo {
             deviceBasicInfo.bleLineState = deviceInfo.isBleLineState();
             AuthInfo authInfo = new AuthInfo();
             deviceBasicInfo.authInfo = authInfo;
-            authInfo.type = deviceInfo.getAuthorityInfo().getType();
-            authInfo.startDate = deviceInfo.getAuthorityInfo().getStartDate();
-            authInfo.endDate = deviceInfo.getAuthorityInfo().getEndDate();
-            authInfo.repeatType = deviceInfo.getAuthorityInfo().getRepeatType();
-            authInfo.dayInfo = deviceInfo.getAuthorityInfo().getDayInfo();
-            authInfo.startTime = deviceInfo.getAuthorityInfo().getStartTime();
-            authInfo.endTime = deviceInfo.getAuthorityInfo().getEndTime();
+            authInfo.type =authInfo.getType();
+            authInfo.startDate = authInfo.getStartDate();
+            authInfo.endDate = authInfo.getEndDate();
+            authInfo.repeatType = authInfo.getRepeatType();
+            authInfo.dayInfo = authInfo.getDayInfo();
+            authInfo.startTime = authInfo.getStartTime();
+            authInfo.endTime = authInfo.getEndTime();
             deviceList.add(deviceBasicInfo);
         }
         return deviceList;
