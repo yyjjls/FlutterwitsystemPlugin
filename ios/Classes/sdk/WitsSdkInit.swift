@@ -5,9 +5,7 @@
 
 import Foundation
 
-class WitsSdkInit: WitsSdk, Register {
-
-
+public class WitsSdkInit: WitsSdk, Register {
 
     private var appId: String? = "";
     private var token: String? = "";
@@ -18,14 +16,14 @@ class WitsSdkInit: WitsSdk, Register {
         ble = Ble.getInstance;
     }
 
-    public static func getInstance() -> Register {
+     static  func getInstance() -> Register {
         if (register == nil) {
             register = WitsSdkInit();
         }
         return register!;
     }
 
-    public func witsSdkInit(appId: String?, token: String?) -> WitsSdk? {
+     func witsSdkInit(appId: String?, token: String?) -> WitsSdk? {
         self.appId = appId;
         self.token = token;
         let state = DeviceManager.getInstance(appId: appId!, token: token!).getNetWorkDevice();

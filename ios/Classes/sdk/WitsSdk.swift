@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WitsSdk {
+ protocol WitsSdk {
 
 
     /**
