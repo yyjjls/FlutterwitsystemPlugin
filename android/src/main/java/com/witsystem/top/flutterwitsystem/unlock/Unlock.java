@@ -164,17 +164,16 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      */
     private void connection(BluetoothDevice device) {
         //判断权限是否过期
-        AuthBack auth = AuthManager.getInstance(context).isAuth(device.getName());
-       Log.d("验证结果", new Gson().toJson(auth));
+        AuthBack auth = AuthManager.getInstance(context).isAuth("Slock" + device.getAddress().replaceAll(":", ""));
         if (!auth.isResults()) {
-            failCall(device.getName(), auth.getError(), auth.code);
+            failCall(device.getAddress(), auth.getError(), auth.code);
             return;
         }
 
         List<BluetoothDevice> connectedDevices = Ble.instance(context).getBluetoothManager().getConnectedDevices(BluetoothProfile.GATT_SERVER);
         if (connectedDevices.toString().contains(device.getAddress())) {
             if (gattMap.get(device.getAddress()) == null) {
-                failCall(device.getName(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
+                failCall(device.getAddress(), "Another app of the phone is connected to the device", BleCode.OTHER_APP_CONN_DEVICE);
             } else {
                 Objects.requireNonNull(gattMap.get(device.getAddress())).discoverServices();
             }
@@ -186,7 +185,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 public void run() {
                     stopScan();
                     disConnection(gatt);
-                    failCall(device.getName(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
+                    failCall(device.getAddress(), "Connection timeout", BleCode.CONNECTION_TIMEOUT);
                     timer.cancel();
                 }
             }, 5000);
@@ -207,7 +206,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 timer.cancel();
                 gatt.close();
             }
-        }, 200);
+        }, 100);
 
     }
 
@@ -226,12 +225,12 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             gatt.close();
             disConnection(gatt);
             if (status == 8) {
-                failCall(gatt.getDevice().getName(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
+                failCall(gatt.getDevice().getAddress(), "Accidentally disconnected", BleCode.UNEXPECTED_DISCONNECT);
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
                 if (!Ble.instance(context).getBlueAdapter().isEnabled())
-                    failCall(gatt.getDevice().getName(), "Bluetooth off", BleCode.BLUE_OFF);
+                    failCall(gatt.getDevice().getAddress(), "Bluetooth off", BleCode.BLUE_OFF);
             } else {
-                failCall(gatt.getDevice().getName(), "Connection device failed", BleCode.CONNECTION_FAIL);
+                failCall(gatt.getDevice().getAddress(), "Connection device failed", BleCode.CONNECTION_FAIL);
             }
             gattMap.remove(gatt.getDevice().getAddress());
         }
@@ -257,16 +256,12 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             characteristicUnlock.setValue(AesEncryption.getOpenLockData(encrypt));
             gatt.writeCharacteristic(characteristicUnlock);
         } else if (characteristic.getUuid().toString().equals(Ble.BATTERY)) {
+            timer.cancel();
             byte[] value = characteristic.getValue();
             if (value != null && value.length >= 7)
-                batteryCall(gatt.getDevice().getName(), value[6]);
-/*
-
-            for (byte b : value) {
-                Log.d("读取的电量", b + "");
-            }
-*/
-
+                batteryCall(gatt.getDevice().getAddress(), value[6]);
+            gatt.disconnect();
+            gattMap.remove(gatt.getDevice().getAddress());
         }
     }
 
@@ -277,7 +272,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
             return;
         }
         timer.cancel();
-        successCall(gatt.getDevice().getName(), BleCode.UNLOCK_SUCCESS);
+        successCall(gatt.getDevice().getAddress(), BleCode.UNLOCK_SUCCESS);
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -285,6 +280,7 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
                 gatt.disconnect();
                 gattMap.remove(gatt.getDevice().getAddress());
                 timer.cancel();
+                uploadRecord(0, "Slock" + gatt.getDevice().getAddress().replaceAll(":", ""), -1);
             }
         }, 900);
 
@@ -311,8 +307,10 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param code
      */
     private void failCall(String deviceId, String error, int code) {
-        if (deviceId != null)
+        if (deviceId != null) {
+            deviceId = deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId;
             uploadRecord(code == BleCode.CONNECTION_TIMEOUT ? 2 : code == BleCode.EXCEED_THE_TIME_LIMIT ? 3 : 1, deviceId, -1); //还要判断是否是过期
+        }
         if (unlockInfo != null)
             unlockInfo.fail(error, code);
     }
@@ -325,6 +323,9 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param code
      */
     private void successCall(String deviceId, int code) {
+        if (deviceId != null) {
+            deviceId = deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId;
+        }
         if (unlockInfo != null)
             unlockInfo.success(deviceId, code);
     }
@@ -337,6 +338,9 @@ public class Unlock extends BluetoothGattCallback implements BleUnlock, Bluetoot
      * @param battery
      */
     private void batteryCall(String deviceId, int battery) {
+        if (deviceId != null) {
+            deviceId = deviceId.contains(":") ? "Slock" + deviceId.replaceAll(":", "") : deviceId;
+        }
         if (unlockInfo != null)
             unlockInfo.battery(deviceId, battery);
         uploadRecord(0, deviceId, battery);

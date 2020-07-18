@@ -141,6 +141,12 @@ public class BleCode {
     //已经超过可用时间
     public static int OVER_TIME_AVAILABLE   = 100046;
 
+    //当前时间不能开启
+    public static int CURRENT_TIME_CAN_NOT_BE_TURNED_ON   = 100047;
+
+    //只有查看权限 不能开启设备
+    public static int VIEW_PERMISSIONS    = 100048;
+
 
 
 
