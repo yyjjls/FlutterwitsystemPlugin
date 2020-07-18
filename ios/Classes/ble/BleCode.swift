@@ -125,7 +125,32 @@ public class BleCode{
       //设置通知失败
       public static let NOTIFICATION_DATA_FAIL  = 100039;
 
+    //手机时间错误
+    public static let PHONE_TIME_ERROR  = 100040;
 
+    //设备被冻结
+    public static let DEVICE_FROZEN  = 100041;
+
+    //还没有到可以使用的日期
+    public static let NO_DATE_TO_USE  = 100042;
+
+    //设备过期
+    public static let EXCEED_THE_TIME_LIMIT  = 100043;
+
+    //权限信息异常，联系管理员
+    public static let AUTH_INFO_ERROR  = 100044;
+
+    //还没有到可以使用的时间
+    public static let NO_TIME_TO_USE  = 100045;
+
+    //已经超过可用时间
+    public static let OVER_TIME_AVAILABLE   = 100046;
+
+    //当前时间不能开启
+    public static let CURRENT_TIME_CAN_NOT_BE_TURNED_ON   = 100047;
+
+    //只有查看权限 不能开启设备
+    public static let VIEW_PERMISSIONS    = 100048;
 
 
 
