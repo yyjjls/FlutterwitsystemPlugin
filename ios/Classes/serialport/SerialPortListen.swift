@@ -7,7 +7,7 @@ import Foundation
 /**
  * 串口的回调
  */
-protocol SerialPortListen {
+public protocol SerialPortListen {
 
     /**
    * 失败

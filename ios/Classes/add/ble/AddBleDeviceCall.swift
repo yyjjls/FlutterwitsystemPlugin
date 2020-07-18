@@ -7,7 +7,7 @@ import Foundation
 /**
  * 添加设备的回调
  */
-protocol AddBleDeviceCall {
+public protocol AddBleDeviceCall {
 
     /**
         * 扫描到设备的回调

@@ -17,13 +17,19 @@ import flutterwitsystem
   override func applicationWillEnterForeground(_ application: UIApplication) {
     super.applicationWillEnterForeground(application)
     print(">>>>>>>>>>>22>>>>>>>>");
+    let ios = IosWitSDkInit();
+    let fruit = ios.getWitsSdk();
+    print(">>>>>>>>>>>22>>>>>>>>\(fruit)");
   }
 
   override func applicationWillTerminate(_ application: UIApplication) {
     super.applicationWillTerminate(application)
     print(">>>>>>>>>>>33>>>>>>>>");
-   // WitsSdkInit。;
+/*    var ios = IosWitSDkInit();
+    let fruit = ios.getWitsSdk()?.witsSdkInit(appId: "", token: "");
+    print(">>>>>>>>>>>33>>>>>>>>\(fruit )");*/
+    // WitsSdkInit().getBleUnlock();
+   // WitsSdkInit
    // flutterwitsystem.WitsSdkInit
-    
   }
 }

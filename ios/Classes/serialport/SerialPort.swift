@@ -7,7 +7,7 @@ import Foundation
 /**
  * 蓝牙串口通信
  */
-protocol SerialPort {
+public protocol SerialPort {
 
     /**
      * 添加串口的回调

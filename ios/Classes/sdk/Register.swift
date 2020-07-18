@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol Register{
+public protocol Register : NSObject{
 
 
     func witsSdkInit(appId: String?, token: String?)->WitsSdk?;

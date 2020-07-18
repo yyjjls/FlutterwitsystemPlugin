@@ -8,7 +8,7 @@
 import Foundation
 import CoreBluetooth
 
-class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
+public class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
     
     public static let getInstance = Induce();
     
@@ -57,7 +57,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
     }
 
     //蓝牙设备状态更新时候的回掉
-     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
        
          switch central.state {
                 case .poweredOff:
@@ -82,7 +82,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
        
     }
      //扫描到的设备回掉
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    public  func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         print("扫描到的设备\(peripheral.name) \(RSSI.intValue) \(peripheral.state)");
         if(peripheral.name == "Slock04EE033EA8CF" && RSSI.intValue > -100){
              stopInduceUnlock();
@@ -91,9 +91,9 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
             central.connect(peripheral, options: nil);
         }
     }
-    
-    
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+
+
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("链接成功");
        
         peripheral.delegate=self;
@@ -101,19 +101,19 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
        }
     
     //链接失败
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         print("链接设备失败");
      
     }
     
     //设备断开
-      func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
           print("设备连接断开");
        
       }
  
     //发现服务
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         print("发现服务");
         if(error != nil){
             print("发现服务失败");
@@ -128,7 +128,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
     }
     
     //发现特征值
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         print("发现特征值");
         for characteristic:CBCharacteristic in service.characteristics!{
             if(characteristic.uuid.isEqual(TOKEN)){
@@ -142,7 +142,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
         
     }
     //读取到的值
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    public  func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         print("读取数据");
         if(characteristic.uuid.isEqual(TOKEN)){
             let allData = characteristic.value;
@@ -158,7 +158,7 @@ class Induce:NSObject,CBCentralManagerDelegate,CBPeripheralDelegate{
     }
     
     //写入值成功 代表开门成功
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+    public  func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         print("写入值成功，开门成功");
         
         

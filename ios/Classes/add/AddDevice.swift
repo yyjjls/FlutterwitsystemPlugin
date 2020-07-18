@@ -4,7 +4,7 @@
 
 import Foundation
 
-protocol AddDevice {
+public protocol AddDevice {
 
     /**
     * 添加回调
