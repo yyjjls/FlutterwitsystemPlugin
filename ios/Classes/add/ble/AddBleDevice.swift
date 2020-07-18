@@ -94,7 +94,7 @@ class AddBleDevice: NSObject, AddDevice, BleCall, CBPeripheralDelegate {
     }
 
     func scanDevice(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String: Any], rssi: NSNumber) {
-        print(peripheral.name)
+        //print(peripheral.name)
         if (peripheral.name == nil) {
             return;
         }
