@@ -12,11 +12,12 @@ public class WitsSdkInit: NSObject, WitsSdk, Register {
     private static var register: Register? = nil;
     private var ble: Ble;
 
-    public override init() {
+     override init() {
         ble = Ble.getInstance;
+        Induce.getInstance;
     }
 
-    static func getInstance() -> Register {
+    public static func getInstance() -> Register {
         if (register == nil) {
             register = WitsSdkInit();
         }
