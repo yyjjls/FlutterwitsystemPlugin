@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-
+  WitsBlue witsBlue;
   @override
   void initState() {
     super.initState();
@@ -22,16 +22,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initPlatformState() async {
-    String platformVersion;
-    try {
-      platformVersion =
-          '${await WitsBlue().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'c6d21fed0f7940aeb12525446640a87d-1594975725997')}';
-    } on PlatformException {
-      platformVersion = '初始化失败.';
-    }
+     witsBlue = await WitsBlue.getInstance().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'c6d21fed0f7940aeb12525446640a87d-1594975725997');
+
     if (!mounted) return;
     _platformVersion =
-        '是否已经运行:' + (await WitsBlue().isRunningInduceUnlock()).toString();
+        '是否已经运行:' + (await witsBlue.isRunningInduceUnlock()).toString();
     setState(() {});
   }
 
@@ -50,7 +45,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                   child: Text('开启'),
                   onPressed: () async {
-                    bool b = await WitsBlue().openInduceUnlock();
+                    bool b = await witsBlue.openInduceUnlock();
                     print('开启返回值：${b}');
                     _platformVersion = '开启成功$b';
                     setState(() {});
@@ -58,7 +53,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('关闭'),
                 onPressed: () async {
-                  bool b = await WitsBlue().stopInduceUnlock();
+                  bool b = await witsBlue.stopInduceUnlock();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -67,7 +62,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开锁'),
                 onPressed: () async {
-                  bool b = await WitsBlue().unlockDevice("Slock04EE033EABA4");
+                  bool b = await witsBlue.unlockDevice("Slock04EE033EABA4");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -76,7 +71,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('串口发送数据'),
                 onPressed: () async {
-                  bool b = await WitsBlue().serialPortSendData(
+                  bool b = await witsBlue.serialPortSendData(
                       deviceId: 'Slock04EE033EABD7', data: 'ef55010313020019');
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
@@ -86,7 +81,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('扫描添加设备'),
                 onPressed: () async {
-                  bool b = await WitsBlue().scanDevice();
+                  bool b = await witsBlue.scanDevice();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -95,7 +90,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('停止添加设备扫描'),
                 onPressed: () async {
-                  bool b = await WitsBlue().stopDevice();
+                  bool b = await witsBlue.stopDevice();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -105,7 +100,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('连接添加设备'),
                 onPressed: () async {
-                  bool b = await WitsBlue().addDevice("Slock04EE033EAD07");
+                  bool b = await witsBlue.addDevice("Slock04EE033EAD07");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
