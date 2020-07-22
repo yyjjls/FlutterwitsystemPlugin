@@ -5,17 +5,16 @@
 
 import Foundation
 
-class WitsSdkInit: WitsSdk, Register {
-
-
+public class WitsSdkInit: NSObject, WitsSdk, Register {
 
     private var appId: String? = "";
     private var token: String? = "";
     private static var register: Register? = nil;
     private var ble: Ble;
 
-    private init() {
+     override init() {
         ble = Ble.getInstance;
+        Induce.getInstance;
     }
 
     public static func getInstance() -> Register {
@@ -33,30 +32,31 @@ class WitsSdkInit: WitsSdk, Register {
         AppLocation.getInstance.startLocation();
         if (state) {
             return self
-        }else if(DeviceManager.getInstance(appId: appId!, token: token!).dataInitState()){
+        } else if (DeviceManager.getInstance(appId: appId!, token: token!).dataInitState()) {
             return self;
         }
         return nil;
     }
 
-    func getDeviceInfo() -> [DeviceBasicInfo] {
+    public func getDeviceInfo() -> [DeviceBasicInfo] {
         return DeviceManager.getInstance(appId: appId!, token: token!).getThreeDevices();
     }
 
-    func getInduceUnlock() -> Induce {
+
+    public func getInduceUnlock() -> Induce {
         return Induce.getInstance;
     }
 
-    func getBleUnlock() -> BleUnlock {
+    public func getBleUnlock() -> BleUnlock {
         return Unlock.getInstance(appId: appId, token: token);
     }
 
 
-    func getSerialPort() -> SerialPort {
+    public func getSerialPort() -> SerialPort {
         return OpenSerialPort.getInstance();
     }
 
-    func getAddBleDevice() -> AddDevice {
+    public func getAddBleDevice() -> AddDevice {
         return AddBleDevice.getInstance(appId: appId, token: token);
     }
 }

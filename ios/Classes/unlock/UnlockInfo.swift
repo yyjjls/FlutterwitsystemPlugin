@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol UnlockInfo {
+public protocol UnlockInfo {
     
      /**
         * 成功的回调
