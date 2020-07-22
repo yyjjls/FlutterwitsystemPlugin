@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutterwitsystem/WitsBlue.dart';
 
 void main() => runApp(MyApp());
@@ -22,7 +21,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initPlatformState() async {
-     witsBlue = await WitsBlue.getInstance().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: 'c6d21fed0f7940aeb12525446640a87d-1594975725997');
+     witsBlue = await WitsBlue.getInstance().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: '4659a0fd6c0443ac8ac946c4709b8d31-1595065244621');
     if (!mounted) return;
     _platformVersion =
         '是否已经运行:' + (await witsBlue.isRunningInduceUnlock()).toString();
@@ -61,7 +60,8 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开锁'),
                 onPressed: () async {
-                  bool b = await witsBlue.unlockDevice("Slock04EE033EABA4");
+                 // bool b = await witsBlue.unlockDevice("Slock04EE033EABA4");
+                  bool b = await witsBlue.unlock();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

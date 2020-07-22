@@ -116,6 +116,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
             }
         } else {
             BluetoothGatt gatt = device.connectGatt(context, false, this);
+            gattMap.put(gatt.getDevice().getAddress(), gatt);
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -142,7 +143,7 @@ public class OpenSerialPort extends BluetoothGattCallback implements SerialPort 
                 timer.cancel();
                 gatt.close();
             }
-        }, 200);
+        }, 100);
 
     }
 
