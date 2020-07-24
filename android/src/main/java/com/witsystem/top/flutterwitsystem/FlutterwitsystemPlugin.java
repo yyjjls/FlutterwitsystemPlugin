@@ -99,6 +99,16 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
         } else if (call.method.equals("cancelAdd")) {
             witsSdkInit.getAddBleDevice().cancelAdd();
             result.success(true);
+        }else if (call.method.equals("startSmartConfig")) {
+            witsSdkInit.getSmartConfig().startSmartConfig(
+                    call.argument("ssid"),
+                    call.argument("bssid"),
+                    call.argument("pass"));
+            result.success(true);
+        }else if (call.method.equals("stopSmartConfig")) {
+            result.success( witsSdkInit.getSmartConfig().stopSmartConfig());
+        }else if (call.method.equals("isSmartConfig")) {
+            result.success( witsSdkInit.getSmartConfig().isSmartConfig());
         }
     }
 

@@ -13,6 +13,8 @@ import com.witsystem.top.flutterwitsystem.operation.BleOperation;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
 import com.witsystem.top.flutterwitsystem.serialport.OpenSerialPort;
 import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
+import com.witsystem.top.flutterwitsystem.smartconfig.SmartConfig;
+import com.witsystem.top.flutterwitsystem.smartconfig.SmartConfigManager;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 import com.witsystem.top.flutterwitsystem.unlock.Unlock;
 
@@ -95,5 +97,10 @@ public final class WitsSdkInit implements Register, WitsSdk {
     @Override
     public AddDevice getAddBleDevice() {
         return AddBleDevice.instance(context, appId, userToken);
+    }
+
+    @Override
+    public SmartConfig getSmartConfig() {
+        return SmartConfigManager.getInstance(context,appId, userToken);
     }
 }

@@ -102,4 +102,20 @@ class WitsBlue {
   Future<bool> cancelAdd() async {
     return await methodChannel.invokeMethod('cancelAdd');
   }
+
+  ///smartConfig开始配置
+  Future<bool> startSmartConfig(ssid, bssid, pass) async {
+    return await methodChannel.invokeMethod(
+        'startSmartConfig', {'ssid': ssid, 'bssid': bssid, "pass": pass});
+  }
+
+  ///smartConfig停止配置
+  Future<bool> stopSmartConfig() async {
+    return await methodChannel.invokeMethod('stopSmartConfig');
+  }
+
+  ///smartConfig当前是否在配置中
+  Future<bool> isSmartConfig() async {
+    return await methodChannel.invokeMethod('isSmartConfig');
+  }
 }

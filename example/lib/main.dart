@@ -13,6 +13,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   WitsBlue witsBlue;
+
   @override
   void initState() {
     super.initState();
@@ -21,7 +22,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initPlatformState() async {
-     witsBlue = await WitsBlue.getInstance().witsSdkInit(appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2', userToken: '4659a0fd6c0443ac8ac946c4709b8d31-1595065244621');
+    witsBlue = await WitsBlue.getInstance().witsSdkInit(
+        appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',
+        userToken: '20c3da7d2abe4bd689fc4119ae9146b2-1595509129649');
     if (!mounted) return;
     _platformVersion =
         '是否已经运行:' + (await witsBlue.isRunningInduceUnlock()).toString();
@@ -60,7 +63,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开锁'),
                 onPressed: () async {
-                 // bool b = await witsBlue.unlockDevice("Slock04EE033EABA4");
+                  // bool b = await witsBlue.unlockDevice("Slock04EE033EABA4");
                   bool b = await witsBlue.unlock();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
@@ -95,11 +98,28 @@ class _MyAppState extends State<MyApp> {
                   setState(() {});
                 },
               ),
-
               FlatButton(
                 child: Text('连接添加设备'),
                 onPressed: () async {
                   bool b = await witsBlue.addDevice("Slock04EE033EAD07");
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
+              FlatButton(
+                child: Text('开启smartConfig'),
+                onPressed: () async {
+                  bool b = await witsBlue.startSmartConfig("小","78:44:fd:72:7e:68","12345678");
+                  print('关闭返回值：${b}');
+                  _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
+              FlatButton(
+                child: Text('关闭smartConfig'),
+                onPressed: () async {
+                  bool b = await witsBlue.stopSmartConfig();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

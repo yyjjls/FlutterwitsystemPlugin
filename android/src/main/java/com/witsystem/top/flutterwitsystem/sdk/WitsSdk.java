@@ -6,6 +6,7 @@ import com.witsystem.top.flutterwitsystem.device.DeviceBasicInfo;
 import com.witsystem.top.flutterwitsystem.induce.InduceUnlock;
 import com.witsystem.top.flutterwitsystem.operation.Operation;
 import com.witsystem.top.flutterwitsystem.serialport.SerialPort;
+import com.witsystem.top.flutterwitsystem.smartconfig.SmartConfig;
 import com.witsystem.top.flutterwitsystem.unlock.BleUnlock;
 
 import java.util.List;
@@ -60,5 +61,11 @@ public interface WitsSdk {
      * 获得ble串口通信对象
      */
     AddDevice getAddBleDevice();
+
+    /**
+     * 返回smartconfig配置对象
+     * @return
+     */
+    SmartConfig getSmartConfig();
 
 }
