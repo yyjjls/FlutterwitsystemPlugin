@@ -1,6 +1,5 @@
 package com.witsystem.top.flutterwitsystem.smartconfig.task;
 
-
 public class EsptouchTaskParameter implements IEsptouchTaskParameter {
 
     private static int _datagramCount = 0;

@@ -1,6 +1,8 @@
 package com.witsystem.top.flutterwitsystem.smartconfig.protocol;
 
 
+
+import com.witsystem.top.flutterwitsystem.smartconfig.security.ITouchEncryptor;
 import com.witsystem.top.flutterwitsystem.smartconfig.task.IEsptouchGenerator;
 import com.witsystem.top.flutterwitsystem.smartconfig.util.ByteUtil;
 
@@ -19,10 +21,9 @@ public class EsptouchGenerator implements IEsptouchGenerator {
      * @param apBssid     the Ap's bssid
      * @param apPassword  the Ap's password
      * @param inetAddress the phone's or pad's local ip address allocated by Ap
-     * @param isSsidHiden whether the Ap's ssid is hidden
      */
-    public EsptouchGenerator(byte[] apSsid, byte[] apBssid, byte[] apPassword,
-                             InetAddress inetAddress, boolean isSsidHiden) {
+    public EsptouchGenerator(byte[] apSsid, byte[] apBssid, byte[] apPassword, InetAddress inetAddress,
+                             ITouchEncryptor encryptor) {
         // generate guide code
         GuideCode gc = new GuideCode();
         char[] gcU81 = gc.getU8s();
@@ -33,8 +34,7 @@ public class EsptouchGenerator implements IEsptouchGenerator {
         }
 
         // generate data code
-        DatumCode dc = new DatumCode(apSsid, apBssid, apPassword, inetAddress,
-                isSsidHiden);
+        DatumCode dc = new DatumCode(apSsid, apBssid, apPassword, inetAddress, encryptor);
         char[] dcU81 = dc.getU8s();
         mDcBytes2 = new byte[dcU81.length][];
 

@@ -1,16 +1,15 @@
 package com.witsystem.top.flutterwitsystem.smartconfig.udp;
 
-
 import android.util.Log;
 
 
-import com.witsystem.top.flutterwitsystem.smartconfig.task.__IEsptouchTask;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import com.witsystem.top.flutterwitsystem.smartconfig.task.__IEsptouchTask;
 
 /**
  * this class is used to help send UDP data according to length

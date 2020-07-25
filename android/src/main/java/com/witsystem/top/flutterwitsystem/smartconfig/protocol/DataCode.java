@@ -1,5 +1,6 @@
 package com.witsystem.top.flutterwitsystem.smartconfig.protocol;
 
+
 import com.witsystem.top.flutterwitsystem.smartconfig.task.ICodeData;
 import com.witsystem.top.flutterwitsystem.smartconfig.util.ByteUtil;
 import com.witsystem.top.flutterwitsystem.smartconfig.util.CRC8;

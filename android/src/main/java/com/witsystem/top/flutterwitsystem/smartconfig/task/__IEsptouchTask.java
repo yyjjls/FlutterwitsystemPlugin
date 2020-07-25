@@ -1,6 +1,5 @@
 package com.witsystem.top.flutterwitsystem.smartconfig.task;
 
-
 import com.witsystem.top.flutterwitsystem.smartconfig.IEsptouchListener;
 import com.witsystem.top.flutterwitsystem.smartconfig.IEsptouchResult;
 

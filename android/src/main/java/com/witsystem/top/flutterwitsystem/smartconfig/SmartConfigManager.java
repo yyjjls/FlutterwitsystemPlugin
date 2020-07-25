@@ -1,8 +1,11 @@
 package com.witsystem.top.flutterwitsystem.smartconfig;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -33,6 +36,7 @@ public class SmartConfigManager implements SmartConfig {
     }
 
 
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     public void startSmartConfig(String ssid, String bssid, String pass) {
         esptouchAsyncTask = new EsptouchAsyncTask(result -> {
@@ -67,7 +71,8 @@ public class SmartConfigManager implements SmartConfig {
         void onFinished(List<IEsptouchResult> result);
     }
 
-    private class EsptouchAsyncTask extends AsyncTask<String, Void, List<IEsptouchResult>> {
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
+    private class EsptouchAsyncTask extends AsyncTask<String, IEsptouchResult, List<IEsptouchResult>> {
         private final TaskListener taskListener;
         private EsptouchTask mEsptouchTask;
 
@@ -97,8 +102,9 @@ public class SmartConfigManager implements SmartConfig {
                 }*/
                 taskResultCount = Integer.parseInt(taskResultCountStr);
                 mEsptouchTask = new EsptouchTask(apSsid, apBssid, apPassword, context);
-                mEsptouchTask.setPackageBroadcast(true);
+                mEsptouchTask.setPackageBroadcast(false);
                 //mEsptouchTask.setEsptouchListener(myListener);
+                mEsptouchTask.setEsptouchListener(this::publishProgress);
             }
             return mEsptouchTask.executeForResults(taskResultCount);
         }
@@ -110,6 +116,16 @@ public class SmartConfigManager implements SmartConfig {
                 if (this.taskListener != null) {
                     this.taskListener.onFinished(result);
                 }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(IEsptouchResult... values) {
+            if (context != null) {
+                IEsptouchResult result = values[0];
+                Log.i("返回结果", "EspTouchResult: " + result);
+                String text = result.getBssid() + " is connected to the wifi";
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             }
         }
 
