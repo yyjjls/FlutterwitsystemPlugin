@@ -17,7 +17,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.location.LocationManagerCompat;
 
 import java.net.InetAddress;
