@@ -8,7 +8,7 @@ public interface SmartConfigCall {
     void smartConfigFail(int code, String error);
 
     //成功的回调
-    void smartConfigSuccess();
+    void smartConfigSuccess(String bssid, String address, boolean suc, boolean cancel);
 
 
 }
