@@ -119,7 +119,12 @@ class WitsBlue {
   }
 
   ///smartConfig当前是否在配置中
-  Future<String> isSmartConfig() async {
+  Future<bool> isSmartConfig() async {
     return await methodChannel.invokeMethod('isSmartConfig');
+  }
+
+  ///获得当前wifi信息
+  Future<String> getWifiInfo() async {
+    return await methodChannel.invokeMethod('getWifiInfo');
   }
 }
