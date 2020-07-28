@@ -78,6 +78,10 @@ public class SmartConfigManager implements SmartConfig {
             return;
         }
 
+        if (ssid.equals("") || bssid.equals("") || pass.equals("") || deviceName.equals("")) {
+            callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
+            return;
+        }
         new Thread() {
             @Override
             public void run() {
