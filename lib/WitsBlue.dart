@@ -104,9 +104,9 @@ class WitsBlue {
   }
 
   ///smartConfig开始配置
-  Future<bool> startSmartConfig(ssid, bssid, pass) async {
-    return await methodChannel.invokeMethod(
-        'startSmartConfig', {'ssid': ssid, 'bssid': bssid, "pass": pass});
+  Future<bool> startSmartConfig(ssid, bssid, pass, deviceName) async {
+    return await methodChannel.invokeMethod('startSmartConfig',
+        {'ssid': ssid, 'bssid': bssid, "pass": pass, "deviceName": deviceName});
   }
 
   ///smartConfig停止配置

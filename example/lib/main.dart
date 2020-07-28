@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     witsBlue = await WitsBlue.getInstance().witsSdkInit(
         appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',
-        userToken: '3f37a1c0c87f4717977672368017ddf8-1595688946495');
+        userToken: '8b4b699c11b44f4aa4c25ddb6d1409d1-1595925658720');
     if (!mounted) return;
     _platformVersion =
         '是否已经运行:' + (await witsBlue.isRunningInduceUnlock()).toString();
@@ -110,7 +110,7 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开启smartConfig'),
                 onPressed: () async {
-                  bool b = await witsBlue.startSmartConfig("小","78:44:fd:72:7e:68","12345678");
+                  bool b = await witsBlue.startSmartConfig("小","78:44:fd:72:7e:68","12345678","测试时");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

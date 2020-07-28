@@ -1,5 +1,7 @@
 package com.witsystem.top.flutterwitsystem.net;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -50,7 +52,6 @@ public class HttpsClient {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jsonObj.toString());
             writer.close();
-
 
             // 通过连接对象获取一个输入流，向远程读取
             if (connection.getResponseCode() == 200) {

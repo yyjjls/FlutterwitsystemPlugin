@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -16,11 +17,21 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.location.LocationManagerCompat;
 
+import com.google.gson.Gson;
+import com.witsystem.top.flutterwitsystem.location.AppLocation;
+import com.witsystem.top.flutterwitsystem.net.HttpsClient;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //wifi 配置管理者
 public class SmartConfigManager implements SmartConfig {
@@ -28,6 +39,8 @@ public class SmartConfigManager implements SmartConfig {
     private String appId;
 
     private String token;
+
+    private String checkCode;
 
     private Context context;
 
@@ -37,13 +50,15 @@ public class SmartConfigManager implements SmartConfig {
 
     private EsptouchAsyncTask esptouchAsyncTask;
 
-
     private WifiManager mWifiManager;
+
+    private Gson gson;
 
     private SmartConfigManager(Context context, String appId, String token) {
         this.context = context;
         this.appId = appId;
         this.token = token;
+        this.gson = new Gson();
         mWifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     }
 
@@ -56,29 +71,53 @@ public class SmartConfigManager implements SmartConfig {
 
 
     @Override
-    public void startSmartConfig(String ssid, String bssid, String pass) {
-        StateResult stateResult = check();
-        if (!stateResult.permissionGranted) {
-            callFail(SmartConfigCode.PERMISSION_GRANTED, stateResult.message.toString());
-            return ;
-        }
-        if (stateResult.locationRequirement) {
-            callFail(SmartConfigCode.LOCATION_REQUIREMENT, stateResult.message.toString());
-            return ;
-        }
-        if (!stateResult.wifiConnected) {
-            callFail(SmartConfigCode.WIFI_DISCONNECT, stateResult.message.toString());
+    public void startSmartConfig(String ssid, String bssid, String pass, String deviceName) {
+        if (ssid == null || bssid == null || pass == null || deviceName == null) {
+            callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
             return;
         }
-        if (stateResult.is5G) {
-            callFail(SmartConfigCode.WIFI_CONNECT_5G, stateResult.message.toString());
-            return;
-        }
-        esptouchAsyncTask = new EsptouchAsyncTask(result -> {
-            esptouchAsyncTask = null;
-            Log.d("TAG", "执行完成结果》》》》》》》》》》》》》》》》》》" + result);
-        });
-        esptouchAsyncTask.execute(ssid, bssid, pass, "false", "1"); //false 代表组播，1代表配置设备就一个
+
+        new Thread() {
+            @Override
+            public void run() {
+                if (pass.length() < 8) {
+                    callFail(SmartConfigCode.wifi_error, "wifi The password is only 8");
+                    return;
+                }
+                StateResult stateResult = check();
+                if (!stateResult.permissionGranted) {
+                    callFail(SmartConfigCode.PERMISSION_GRANTED, stateResult.message.toString());
+                    return;
+                }
+                if (stateResult.locationRequirement) {
+                    callFail(SmartConfigCode.LOCATION_REQUIREMENT, stateResult.message.toString());
+                    return;
+                }
+                if (!stateResult.wifiConnected) {
+                    callFail(SmartConfigCode.WIFI_DISCONNECT, stateResult.message.toString());
+                    return;
+                }
+                if (stateResult.is5G) {
+                    callFail(SmartConfigCode.WIFI_CONNECT_5G, stateResult.message.toString());
+                    return;
+                }
+                if (!getCheckCode(deviceName)) { //判断服务器请求是否成功
+                    return;
+                }
+                Log.e("网络请求返回数据", "getCheckCode: 网络请求返回数据" + checkCode);
+
+                esptouchAsyncTask = new EsptouchAsyncTask((isOverTime, result) -> {
+                    esptouchAsyncTask = null;
+                    if (isOverTime) {
+                        callFail(SmartConfigCode.ADD_TIMEOUT, " Add timeout");
+                    } else {
+                        callSuccess(result.get(0));
+                    }
+                });
+                esptouchAsyncTask.execute(ssid, bssid, checkCode + pass, "false", "1"); //false 代表组播，1代表配置设备就一个
+            }
+        }.start();
+
     }
 
     @Override
@@ -97,6 +136,12 @@ public class SmartConfigManager implements SmartConfig {
     }
 
     @Override
+    public String getWifiInfo() {
+        StateResult stateResult = check();
+        return gson.toJson(stateResult);
+    }
+
+    @Override
     public void addSmartConfigCallBack(SmartConfigCall smartConfigCall) {
         this.smartConfigCall = smartConfigCall;
     }
@@ -110,7 +155,7 @@ public class SmartConfigManager implements SmartConfig {
 
     private void callSuccess(IEsptouchResult esptouchResult) {
         if (smartConfigCall != null) {
-            smartConfigCall.smartConfigSuccess(esptouchResult.getBssid(), esptouchResult.getInetAddress().getHostAddress(), esptouchResult.isSuc(), esptouchResult.isCancelled());
+            smartConfigCall.smartConfigSuccess(esptouchResult.getBssid(), esptouchResult.getInetAddress().getHostAddress(), esptouchResult.isSuc());
         }
     }
 
@@ -230,8 +275,42 @@ public class SmartConfigManager implements SmartConfig {
     }
 
 
+    //获得服务器编码
+    private boolean getCheckCode(String deviceName) {
+        Map<String, Object> param = new HashMap<>();
+        Location location = AppLocation.getLocation();
+        if (location != null) {
+            param.put("longitude", location.getLongitude());
+            param.put("latitude", location.getLatitude());
+            param.put("position", AppLocation.getLocationAddress(context, location));
+        }
+        param.put("deviceName", deviceName);
+        param.put("token", token);
+        String https = HttpsClient.https("/device/get_verify_device", param);
+        if (https == null) {
+            callFail(SmartConfigCode.SERVER_EXCEPTION, "Server exception ");
+            return false;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(https);
+            if (jsonObject.getInt("err") != 0) {
+                callFail(SmartConfigCode.SERVER_EXCEPTION, "Server exception ");
+                return false;
+            }
+            JSONArray data = jsonObject.getJSONArray("data");
+            checkCode = data.getJSONObject(0).getString("code");
+            return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            callFail(SmartConfigCode.SERVER_EXCEPTION, "Server exception ");
+        }
+
+        return false;
+    }
+
+
     public interface TaskListener {
-        void onFinished(List<IEsptouchResult> result);
+        void onFinished(boolean isOverTime, List<IEsptouchResult> result);
     }
 
     private class EsptouchAsyncTask extends AsyncTask<String, IEsptouchResult, List<IEsptouchResult>> {
@@ -269,7 +348,7 @@ public class SmartConfigManager implements SmartConfig {
             IEsptouchResult firstResult = result.get(0);
             if (!firstResult.isCancelled()) {
                 if (this.taskListener != null) {
-                    this.taskListener.onFinished(result);
+                    this.taskListener.onFinished(true, result);
                 }
             }
         }
@@ -278,9 +357,14 @@ public class SmartConfigManager implements SmartConfig {
         protected void onProgressUpdate(IEsptouchResult... values) {
             if (context != null) {
                 IEsptouchResult result = values[0];
-                Log.i("返回结果", "EspTouchResult: " + result);
-                String text = result.getBssid() + " is connected to the wifi";
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                if (this.taskListener != null) {
+                    List<IEsptouchResult> list = new ArrayList<>();
+                    list.add(result);
+                    this.taskListener.onFinished(false, list);
+                }
+                //  Log.i("返回结果", "EspTouchResult: " + result);
+                // String text = result.getBssid() + " is connected to the wifi";
+                //Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             }
         }
 
