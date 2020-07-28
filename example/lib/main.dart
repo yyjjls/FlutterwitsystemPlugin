@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     witsBlue = await WitsBlue.getInstance().witsSdkInit(
         appId: 'smart09cdcb9ebb2c4169957f0d5423432ff2',
-        userToken: '8b4b699c11b44f4aa4c25ddb6d1409d1-1595925658720');
+        userToken: '23ffedc12d614cd48edd392c2e0178b3-1595947140936');
     if (!mounted) return;
     _platformVersion =
         '是否已经运行:' + (await witsBlue.isRunningInduceUnlock()).toString();

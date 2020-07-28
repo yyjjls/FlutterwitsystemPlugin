@@ -72,6 +72,7 @@ public class SmartConfigManager implements SmartConfig {
 
     @Override
     public void startSmartConfig(String ssid, String bssid, String pass, String deviceName) {
+
         if (ssid == null || bssid == null || pass == null || deviceName == null) {
             callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
             return;
