@@ -20,6 +20,10 @@ class WitsBlue {
   static const EventChannel serialPortEvent =
       const EventChannel('witsystem.top/blue/event/serialPort');
 
+  //wifi配置
+  static const EventChannel smartConfigEvent =
+      const EventChannel('witsystem.top/blue/event/smartConfig');
+
   WitsBlue._internal();
 
   static WitsBlue witsBlue;
@@ -41,7 +45,7 @@ class WitsBlue {
   }
 
   ///获得设备信息
-  Future<bool> getDeviceInfo() async {
+  Future<String> getDeviceInfo() async {
     return await methodChannel.invokeMethod('getDeviceInfo');
   }
 
@@ -115,7 +119,7 @@ class WitsBlue {
   }
 
   ///smartConfig当前是否在配置中
-  Future<bool> isSmartConfig() async {
+  Future<String> isSmartConfig() async {
     return await methodChannel.invokeMethod('isSmartConfig');
   }
 }
