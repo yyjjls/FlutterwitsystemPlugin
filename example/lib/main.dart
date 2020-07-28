@@ -110,7 +110,8 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开启smartConfig'),
                 onPressed: () async {
-                  bool b = await witsBlue.startSmartConfig("小","78:44:fd:72:7e:68","12345678","测试时");
+                  bool b = await witsBlue.startSmartConfig(
+                      "小", "78:44:fd:72:7e:68", "12345678", "测试时");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});
@@ -122,6 +123,13 @@ class _MyAppState extends State<MyApp> {
                   bool b = await witsBlue.stopSmartConfig();
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
+                  setState(() {});
+                },
+              ),
+              FlatButton(
+                child: Text('获取信息smartConfig'),
+                onPressed: () async {
+                  print('获取信息smartConfig：${await witsBlue.getWifiInfo()}');
                   setState(() {});
                 },
               ),

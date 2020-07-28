@@ -106,11 +106,13 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
                     call.argument("pass"),call.argument("deviceName"));
             result.success(true);
         } else if (call.method.equals("stopSmartConfig")) {
+            witsSdkInit.getSmartConfig().addSmartConfigCallBack(this);
             result.success(witsSdkInit.getSmartConfig().stopSmartConfig());
         } else if (call.method.equals("isSmartConfig")) {
+            witsSdkInit.getSmartConfig().addSmartConfigCallBack(this);
             result.success(witsSdkInit.getSmartConfig().isSmartConfig());
         } else if (call.method.equals("getWifiInfo")) {
-            Log.e("获得设备信息", gson.toJson(witsSdkInit.getSmartConfig().getWifiInfo()));
+            witsSdkInit.getSmartConfig().addSmartConfigCallBack(this);
             result.success(witsSdkInit.getSmartConfig().getWifiInfo());
         }
     }
