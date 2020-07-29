@@ -73,22 +73,11 @@ public class SmartConfigManager implements SmartConfig {
     @Override
     public void startSmartConfig(String ssid, String bssid, String pass, String deviceName) {
 
-        if (ssid == null || bssid == null || pass == null || deviceName == null) {
-            callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
-            return;
-        }
 
-        if (ssid.equals("") || bssid.equals("") || pass.equals("") || deviceName.equals("")) {
-            callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
-            return;
-        }
         new Thread() {
             @Override
             public void run() {
-                if (pass.length() < 8) {
-                    callFail(SmartConfigCode.wifi_error, "wifi The password is only 8");
-                    return;
-                }
+
                 StateResult stateResult = check();
                 if (!stateResult.permissionGranted) {
                     callFail(SmartConfigCode.PERMISSION_GRANTED, stateResult.message.toString());
@@ -106,10 +95,25 @@ public class SmartConfigManager implements SmartConfig {
                     callFail(SmartConfigCode.WIFI_CONNECT_5G, stateResult.message.toString());
                     return;
                 }
+
+                if (ssid == null || bssid == null || pass == null || deviceName == null) {
+                    callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
+                    return;
+                }
+
+                if (ssid.equals("") || bssid.equals("") || pass.equals("") || deviceName.equals("")) {
+                    callFail(SmartConfigCode.BASIC_INFORMATION_ERROR, " Basic information error");
+                    return;
+                }
+
+                if (pass.length() < 8) {
+                    callFail(SmartConfigCode.wifi_error, "wifi The password is only 8");
+                    return;
+                }
                 if (!getCheckCode(deviceName)) { //判断服务器请求是否成功
                     return;
                 }
-                Log.e("网络请求返回数据", "getCheckCode: 网络请求返回数据" + checkCode);
+               // Log.e("网络请求返回数据", "getCheckCode: 网络请求返回数据" + checkCode);
 
                 esptouchAsyncTask = new EsptouchAsyncTask((isOverTime, result) -> {
                     esptouchAsyncTask = null;

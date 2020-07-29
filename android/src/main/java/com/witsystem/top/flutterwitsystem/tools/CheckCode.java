@@ -10,11 +10,8 @@ public class CheckCode {
 
     /**
      * 字符串mac转mac
-     * @param mac
      * @param split 分割符号
-     * @return
      */
-
     public static String formatMac(String mac, String split) {
         String regex = "[0-9a-fA-F]{12}";
         Pattern pattern = Pattern.compile(regex);
