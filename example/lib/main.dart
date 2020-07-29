@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -110,8 +112,10 @@ class _MyAppState extends State<MyApp> {
               FlatButton(
                 child: Text('开启smartConfig'),
                 onPressed: () async {
+                  Map info = json.decode(await WitsBlue.getInstance().getWifiInfo());
+
                   bool b = await witsBlue.startSmartConfig(
-                      "小", "78:44:fd:72:7e:68", "12345678", "测试时");
+                      info["ssid"], info["bssid"], "12345678", "测试时");
                   print('关闭返回值：${b}');
                   _platformVersion = '已关闭$b';
                   setState(() {});

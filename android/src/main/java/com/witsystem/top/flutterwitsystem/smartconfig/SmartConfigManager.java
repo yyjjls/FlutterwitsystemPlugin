@@ -351,10 +351,16 @@ public class SmartConfigManager implements SmartConfig {
         @Override
         protected void onPostExecute(List<IEsptouchResult> result) {
             IEsptouchResult firstResult = result.get(0);
-            if (!firstResult.isCancelled()) {
-                if (this.taskListener != null) {
-                    this.taskListener.onFinished(true, result);
-                }
+            if (firstResult.isCancelled()) {
+                return;
+            }
+            if (this.taskListener == null) {
+                return;
+            }
+            if (firstResult.getBssid() == null && firstResult.getInetAddress() == null && !firstResult.isSuc()) {
+                this.taskListener.onFinished(true, result);
+            } else {
+                this.taskListener.onFinished(false, result);
             }
         }
 
@@ -363,13 +369,13 @@ public class SmartConfigManager implements SmartConfig {
             if (context != null) {
                 IEsptouchResult result = values[0];
                 if (this.taskListener != null) {
-                    List<IEsptouchResult> list = new ArrayList<>();
-                    list.add(result);
-                    this.taskListener.onFinished(false, list);
+                    //  List<IEsptouchResult> list = new ArrayList<>();
+                    //  list.add(result);
+                    // this.taskListener.onFinished(false, list);
                 }
-                //  Log.i("返回结果", "EspTouchResult: " + result);
+                // Log.i("返回结果", "EspTouchResult: " + result);
                 // String text = result.getBssid() + " is connected to the wifi";
-                //Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             }
         }
 

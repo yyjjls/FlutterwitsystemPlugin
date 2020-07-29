@@ -75,6 +75,7 @@ public class AppLocation {
         Geocoder geoCoder = new Geocoder(context, Locale.SIMPLIFIED_CHINESE);
         try {
             List<Address> addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses.size() == 0) return "";
             Address address = addresses.get(0);
             // Log.i("定位", "getLocationAddress: " + address.toString());
             // Log.i("定位", "getLocationAddress: " + address.getLocality()+address.getThoroughfare());
