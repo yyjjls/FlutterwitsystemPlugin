@@ -26,12 +26,12 @@ public class FlutterwitsystemEventPlugin {
 
     private static FlutterwitsystemEventPlugin flutterwitsystemEventPlugin;
 
-    public void onAttachedToEngine(FlutterPlugin.FlutterPluginBinding flutterPluginBinding) {
-        reg(flutterPluginBinding.getBinaryMessenger());
+    public void onAttachedToEngine(BinaryMessenger messenger) {
+        reg(messenger);
     }
 
-    public void registerWith(PluginRegistry.Registrar registrar) {
-        reg(registrar.messenger());
+    public void registerWith(BinaryMessenger messenger) {
+        reg(messenger);
     }
 
 

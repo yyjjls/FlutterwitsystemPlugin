@@ -22,6 +22,7 @@ import com.witsystem.top.flutterwitsystem.unlock.UnlockInfo;
 import java.util.List;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -33,27 +34,29 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen, AddBleDeviceCall, SmartConfigCall {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
-    private  Context context;
+    private Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
     private Handler handler = new Handler();
+    private MethodChannel channel;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-
-        context = flutterPluginBinding.getApplicationContext();
-        final MethodChannel channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL);
-        channel.setMethodCallHandler(this);
-        FlutterwitsystemEventPlugin.create().onAttachedToEngine(flutterPluginBinding);
-
+        setupMethodChannel(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext());
     }
 
 
-    public  void registerWith(Registrar registrar) {
-        context = registrar.activity().getApplication();
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
+    public static void registerWith(Registrar registrar) {
+        FlutterwitsystemPlugin flutterwitsystemPlugin = new FlutterwitsystemPlugin();
+        flutterwitsystemPlugin.setupMethodChannel(registrar.messenger(), registrar.activity().getApplication());
+    }
+
+
+    private void setupMethodChannel(BinaryMessenger messenger, Context context) {
+        this.context = context;
+        channel = new MethodChannel(messenger, CHANNEL);
         channel.setMethodCallHandler(this);
-        FlutterwitsystemEventPlugin.create().registerWith(registrar);
+        FlutterwitsystemEventPlugin.create().registerWith(messenger);
     }
 
     @Override
@@ -97,8 +100,8 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
             witsSdkInit.getAddBleDevice().cancelAdd();
             result.success(true);
         } else if (call.method.equals("startSmartConfig")) {
-            witsSdkInit.getSmartConfig().startSmartConfig(call.argument("ssid"),call.argument("bssid"),
-                    call.argument("pass"),call.argument("deviceName"));
+            witsSdkInit.getSmartConfig().startSmartConfig(call.argument("ssid"), call.argument("bssid"),
+                    call.argument("pass"), call.argument("deviceName"));
             result.success(true);
         } else if (call.method.equals("stopSmartConfig")) {
             witsSdkInit.getSmartConfig().addSmartConfigCallBack(this);
@@ -114,6 +117,8 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        channel = null;
     }
 
 
