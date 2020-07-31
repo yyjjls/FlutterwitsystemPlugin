@@ -33,16 +33,14 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler, UnlockInfo, SerialPortListen, AddBleDeviceCall, SmartConfigCall {
     private static final String CHANNEL = PluginConfig.CHANNEL + "/method";
-    private static Context context;
+    private  Context context;
     private WitsSdk witsSdkInit;
     private Gson gson = new Gson();
     private Handler handler = new Handler();
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        if (context != null) {
-            return;
-        }
+
         context = flutterPluginBinding.getApplicationContext();
         final MethodChannel channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL);
         channel.setMethodCallHandler(this);
@@ -51,13 +49,10 @@ public class FlutterwitsystemPlugin implements FlutterPlugin, MethodCallHandler,
     }
 
 
-    public static void registerWith(Registrar registrar) {
-        if (context != null) {
-            return;
-        }
+    public  void registerWith(Registrar registrar) {
         context = registrar.activity().getApplication();
         final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL);
-        channel.setMethodCallHandler(new FlutterwitsystemPlugin());
+        channel.setMethodCallHandler(this);
         FlutterwitsystemEventPlugin.create().registerWith(registrar);
     }
 
